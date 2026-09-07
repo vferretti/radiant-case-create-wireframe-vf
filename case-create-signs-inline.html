@@ -142,6 +142,21 @@
   .menu button:disabled{color:var(--faint);cursor:not-allowed;font-style:italic}
   .menu button:disabled:hover{background:none}
 
+  /* searchable menu: a filter box pinned above a scrolling list. It only appears once the list is
+     long enough to be worth filtering (MENU_SEARCH_MIN) — short menus stay plain lists. */
+  .menu .mfilter{padding:5px 5px 6px;border-bottom:1px solid var(--line-soft);margin-bottom:3px}
+  .menu .mfilter input{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:4px;
+        padding:6px 8px;font:inherit;font-size:12px;color:var(--ink);background:#fff}
+  .menu .mfilter input:focus{outline:none;border-color:var(--accent)}
+  .menu .mlist{max-height:300px;overflow-y:auto}
+  /* catalog names are long and wrap; plain menus keep the original single-line rows */
+  .menu.wide{max-width:min(520px,calc(100vw - 32px))}
+  .menu.wide button{white-space:normal;line-height:1.35}
+  /* short code trails the name in the same monospace vocabulary as the HPO term ids */
+  .menu .mcode{margin-left:6px;font-size:11px;color:var(--faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .menu .hit{background:#e9edf2;border-radius:3px;padding:0 2px}
+  .menu .mnores{padding:8px 9px;font-size:12px;color:var(--faint);font-style:italic}
+
   /* collapsible optional subgroup (Option C) */
   .optgroup{margin-top:18px;border-top:1px solid var(--line-soft);padding-top:6px}
   .optgroup-toggle{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;
@@ -596,11 +611,51 @@
 
 <script>
   /* ---------- option lists (canonical values are English; French is a display layer) ---------- */
+  /* Analysis catalog — the real qlin catalog (analysis_catalog_qlin.csv, 37 analyses), in
+     source order. label/label_fr are both the French name: the catalog has no English names.
+     `condition` (what the form prefills) is derived ONLY from a MONDO primary_condition — an
+     HPO code or a blank leaves the field empty for the user to fill. conditionCode keeps the
+     raw catalog code either way. Most MONDO codes have no readable label yet, so the field
+     shows the bare code — see R3 in revue-maquette-inline.md. Category is not in the catalog;
+     assumed Postnatal throughout. */
   var ANALYSES = [
-    { code:'RGDI',  label:'Global developmental delay / ID (RGDI)', label_fr:'Retard global du développement / DI (RGDI)', type:'Germline', category:'Postnatal', condition:'Global developmental delay (MONDO:0100038)' },
-    { code:'EPI4',  label:'Epilepsy panel (EPI4)',                  label_fr:'Panel épilepsie (EPI4)',                    type:'Germline', category:'Postnatal', condition:'Epilepsy (MONDO:0005027)' },
-    { code:'CARDIO',label:'Cardiomyopathies (CARDIO)',              label_fr:'Cardiomyopathies (CARDIO)',                 type:'Germline', category:'Postnatal', condition:'Cardiomyopathy (MONDO:0004994)' },
-    { code:'TSOL',  label:'Solid tumor panel (TSOL)',               label_fr:'Panel tumeur solide (TSOL)',                type:'Somatic',  category:'Postnatal', condition:'Solid tumor (MONDO:0002514)' }
+    { code:"MMG", label:"55340 - Maladies musculaires globales", label_fr:"55340 - Maladies musculaires globales", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019056", condition:"MONDO:0019056" },
+    { code:"DYSM", label:"55330 - Dystrophies musculaires", label_fr:"55330 - Dystrophies musculaires", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0020121", condition:"MONDO:0020121" },
+    { code:"RHAB", label:"55338 - Rhabdomyolyse", label_fr:"55338 - Rhabdomyolyse", type:"Germline", category:"Postnatal", conditionCode:"HP:0003201" },
+    { code:"MITN", label:"55370 - Mitochondriopathies nucléaires", label_fr:"55370 - Mitochondriopathies nucléaires", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0044970", condition:"MONDO:0044970" },
+    { code:"MYOC", label:"55332 - Myopathies congénitales", label_fr:"55332 - Myopathies congénitales", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019952", condition:"MONDO:0019952" },
+    { code:"MYAC", label:"55334 - Myasthénies congénitales", label_fr:"55334 - Myasthénies congénitales", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018940", condition:"MONDO:0018940" },
+    { code:"HYPM", label:"55336 - Hyperthermie maligne", label_fr:"55336 - Hyperthermie maligne", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0007783", condition:"MONDO:0007783" },
+    { code:"RGDI", label:"55360 - Retard global de développement / Déficience intellectuelle (Trio)", label_fr:"55360 - Retard global de développement / Déficience intellectuelle (Trio)", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0700092", condition:"MONDO:0700092" },
+    { code:"POLYM", label:"55372 - Polymalformation contexte postnatal", label_fr:"55372 - Polymalformation contexte postnatal", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019755", condition:"MONDO:0019755" },
+    { code:"TRATU", label:"65217 - Transcriptome tumoral", label_fr:"65217 - Transcriptome tumoral", type:"Somatic", category:"Postnatal", conditionCode:"MONDO:0004992", condition:"MONDO:0004992" },
+    { code:"TUHEM", label:"55393 - Prédisposition hémopathies malignes", label_fr:"55393 - Prédisposition hémopathies malignes", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015356", condition:"MONDO:0015356" },
+    { code:"TUPED", label:"55392 - Prédisposition cancers pédiatriques", label_fr:"55392 - Prédisposition cancers pédiatriques", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015356", condition:"MONDO:0015356" },
+    { code:"EXTUM", label:"65218 - Analyse tumorale", label_fr:"65218 - Analyse tumorale", type:"Somatic", category:"Postnatal", conditionCode:"MONDO:0004992", condition:"MONDO:0004992" },
+    { code:"SHEMA", label:"65091 - Leucémie (somatique)", label_fr:"65091 - Leucémie (somatique)", type:"Somatic", category:"Postnatal", conditionCode:"MONDO:0005059", condition:"MONDO:0005059" },
+    { code:"SCID", label:"55405 - Déficit immunitaire combiné sévère", label_fr:"55405 - Déficit immunitaire combiné sévère", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015974", condition:"MONDO:0015974" },
+    { code:"STMO", label:"65174 - Sarcome des tissus mous et osseux", label_fr:"65174 - Sarcome des tissus mous et osseux", type:"Somatic", category:"Postnatal", conditionCode:"MONDO:0005089", condition:"MONDO:0005089" },
+    { code:"FEAN", label:"55373 - Anomalies fœtales", label_fr:"55373 - Anomalies fœtales", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019755", condition:"MONDO:0019755" },
+    { code:"DPSO", label:"55414 - Défaut de production de superoxyde", label_fr:"55414 - Défaut de production de superoxyde", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018305", condition:"MONDO:0018305" },
+    { code:"EIDC", label:"55404 - Erreurs innées du complément", label_fr:"55404 - Erreurs innées du complément", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0003832", condition:"MONDO:0003832" },
+    { code:"EIDI", label:"55403 - Erreurs innées de l'immunité", label_fr:"55403 - Erreurs innées de l'immunité", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0003778", condition:"MONDO:0003778" },
+    { code:"EIII", label:"55413 - Erreurs innées de l'immunité intrinsèque", label_fr:"55413 - Erreurs innées de l'immunité intrinsèque", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0003778", condition:"MONDO:0003778" },
+    { code:"EPIL", label:"55415 - Epilepsie sans déficience intellectuelle", label_fr:"55415 - Epilepsie sans déficience intellectuelle", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0005027", condition:"Epilepsy (MONDO:0005027)" },
+    { code:"RAPIDE", label:"Exome rapide : diagnostic monogénique et orientation thérapeutique", label_fr:"Exome rapide : diagnostic monogénique et orientation thérapeutique", type:"Germline", category:"Postnatal" },
+    { code:"HDIP", label:"55408 - Hypogammaglobulinémie et dysrégulation immunitaire primitive", label_fr:"55408 - Hypogammaglobulinémie et dysrégulation immunitaire primitive", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015517", condition:"MONDO:0015517" },
+    { code:"HLEB", label:"55412 - Hémophagocytose lymphohistiocytaire et à l'infection chronique active au virus Epstein Barr", label_fr:"55412 - Hémophagocytose lymphohistiocytaire et à l'infection chronique active au virus Epstein Barr", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015540", condition:"MONDO:0015540" },
+    { code:"HLH", label:"55412 - Hémophagocytose lymphohistiocytaire", label_fr:"55412 - Hémophagocytose lymphohistiocytaire", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015540", condition:"MONDO:0015540" },
+    { code:"MAI", label:"55409 - Maladies auto-inflammatoires", label_fr:"55409 - Maladies auto-inflammatoires", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019751", condition:"MONDO:0019751" },
+    { code:"MSMD", label:"55410 - Syndrome de prédisposition mendélienne aux infections mycobactériennes (MSMD)", label_fr:"55410 - Syndrome de prédisposition mendélienne aux infections mycobactériennes (MSMD)", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0003778", condition:"MONDO:0003778" },
+    { code:"NPC", label:"55411 - Neutropénie congénitale", label_fr:"55411 - Neutropénie congénitale", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018542", condition:"MONDO:0018542" },
+    { code:"RETINO", label:"Rétinopathies", label_fr:"Rétinopathies", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0005283", condition:"MONDO:0005283" },
+    { code:"SHIGE", label:"55407 - Syndrome d'hyper-IgE", label_fr:"55407 - Syndrome d'hyper-IgE", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018037", condition:"MONDO:0018037" },
+    { code:"SLA", label:"55350 - Sclérose latérale amyotrophique", label_fr:"55350 - Sclérose latérale amyotrophique", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0004976", condition:"MONDO:0004976" },
+    { code:"SURD", label:"Surdité", label_fr:"Surdité", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0021945", condition:"MONDO:0021945" },
+    { code:"VEOIB", label:"55406 - Maladie inflammatoire de l’intestin très précoce", label_fr:"55406 - Maladie inflammatoire de l’intestin très précoce", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0005265", condition:"MONDO:0005265" },
+    { code:"GENOR", label:"75022 - Séquençage du génome entier - non spécifique", label_fr:"75022 - Séquençage du génome entier - non spécifique", type:"Germline", category:"Postnatal" },
+    { code:"NEUTP", label:"Neutropénie congénitale", label_fr:"Neutropénie congénitale", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018542", condition:"MONDO:0018542" },
+    { code:"CONCO", label:"55374 - Prédisposition aux tumeurs solides de l'adulte", label_fr:"55374 - Prédisposition aux tumeurs solides de l'adulte", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015356", condition:"MONDO:0015356" }
   ];
   var ORGS = ['CHU Sainte-Justine','CHUM','CUSM — McGill','CHU de Québec'];
   var OPTIONS = {
@@ -19329,7 +19384,9 @@
   })();
   var SUGGESTIONS_BY_ANALYSIS = {
     RGDI: ['HP:0001263','HP:0001249','HP:0001256','HP:0002342','HP:0010864','HP:0000750','HP:0001344','HP:0000252','HP:0000717','HP:0000729','HP:0001290','HP:0001257','HP:0002376','HP:0001250'],
-    EPI4: ['HP:0001250','HP:0002069','HP:0002121','HP:0011147','HP:0007270','HP:0002123','HP:0011097','HP:0002373','HP:0011153','HP:0001336','HP:0002521','HP:0001298'],
+    EPIL: ['HP:0001250','HP:0002069','HP:0002121','HP:0011147','HP:0007270','HP:0002123','HP:0011097','HP:0002373','HP:0011153','HP:0001336','HP:0002521','HP:0001298'],
+    /* orphaned: CARDIO and TSOL are not codes in the real catalog — kept, unused,
+       until someone maps them to real analyses (see R3). */
     CARDIO: ['HP:0001638','HP:0001639','HP:0001644','HP:0001723','HP:0001714','HP:0001712','HP:0001635','HP:0001645','HP:0001649','HP:0004756','HP:0004308','HP:0001692'],
     TSOL: ['HP:0002664','HP:0002898','HP:0004375','HP:0004376','HP:0002669','HP:0002859','HP:0001402','HP:0002860','HP:0002894','HP:0002896','HP:0002672','HP:0006749']
   };
@@ -19416,6 +19473,7 @@
       'members.zero':'0 members', 'members.one':'{n} member', 'members.many':'{n} members',
       'val.added':'Added',
       'menu.clear':'↺ Clear selection', 'menu.added':'· added',
+      'menu.filter':'Filter by name or code…', 'menu.noResults':'No match',
       'err.required':'This field is required',
       'ped.title':'Pedigree', 'ped.aria':'Family pedigree', 'ped.proband':'Proband',
       'ped.other':'+ {n} not shown ({list}) — half-siblings and “other” aren’t auto-placed.',
@@ -19499,6 +19557,7 @@
       'members.zero':'0 membre', 'members.one':'{n} membre', 'members.many':'{n} membres',
       'val.added':'Ajouté',
       'menu.clear':'↺ Effacer la sélection', 'menu.added':'· ajouté',
+      'menu.filter':'Filtrer par nom ou code…', 'menu.noResults':'Aucun résultat',
       'err.required':'Ce champ est requis',
       'ped.title':'Pedigree', 'ped.aria':'Pedigree familial', 'ped.proband':'Cas index',
       'ped.other':'+ {n} non affiché(s) ({list}) — les demi-frères/sœurs et « autre » ne sont pas placés automatiquement.',
@@ -19552,40 +19611,135 @@
   /* ---------- tiny pop-up menu ---------- */
   var openEl = null, menuEl = null;
   function closeMenu(){ if(menuEl){ menuEl.remove(); menuEl=null; openEl=null; } }
-  /* items: array of { value, label, disabled?, clear? }; onPick receives the canonical value */
+  /* Fold to a comparable form while keeping a map back to the original character offsets, so a
+     match found on the folded text can be highlighted on the original (é folds to e). */
+  function foldWithMap(str){
+    var out = '', map = [];
+    for(var i = 0; i < str.length; i++){
+      var f = foldAccents(str[i]);
+      for(var j = 0; j < f.length; j++){ out += f[j]; map.push(i); }
+    }
+    return { text:out, map:map };
+  }
+  /* Render text with the matched run wrapped in .hit; q is already folded. */
+  function markMatch(text, q){
+    var frag = document.createDocumentFragment();
+    if(!q){ frag.appendChild(document.createTextNode(text)); return frag; }
+    var fm = foldWithMap(text);
+    var at = fm.text.indexOf(q);
+    if(at === -1){ frag.appendChild(document.createTextNode(text)); return frag; }
+    var a = fm.map[at];
+    var b = (at + q.length < fm.map.length) ? fm.map[at + q.length] : text.length;
+    frag.appendChild(document.createTextNode(text.slice(0, a)));
+    var hit = document.createElement('span'); hit.className = 'hit'; hit.textContent = text.slice(a, b);
+    frag.appendChild(hit);
+    frag.appendChild(document.createTextNode(text.slice(b)));
+    return frag;
+  }
+
+  /* A menu longer than this gets a filter box. Below it, scrolling a short list is cheaper than
+     reading a search field you didn't need. */
+  var MENU_SEARCH_MIN = 8;
+
+  /* items: array of { value, label, code?, disabled?, clear? }; onPick receives the canonical value.
+     The filter matches the label AND the short code, ANYWHERE in the string — analysis names open
+     with the act number ("55340 - Maladies musculaires globales"), so a prefix-only match would
+     never find "muscul". Accent- and case-insensitive. */
   function openMenu(anchor, items, currentValue, onPick){
     closeMenu();
     openEl = anchor;
     var r = anchor.getBoundingClientRect();
     menuEl = document.createElement('div');
     menuEl.className = 'menu';
-    items.forEach(function(it){
+    var searchable = items.filter(function(it){ return !it.clear; }).length >= MENU_SEARCH_MIN;
+    var list = document.createElement('div');
+    list.className = 'mlist';
+    var input = null;
+    if(searchable){
+      menuEl.classList.add('wide');
+      var wrap = document.createElement('div'); wrap.className = 'mfilter';
+      input = document.createElement('input');
+      input.type = 'text';
+      input.setAttribute('aria-label', t('menu.filter'));
+      input.placeholder = t('menu.filter');
+      wrap.appendChild(input);
+      menuEl.appendChild(wrap);
+      input.addEventListener('input', function(){ paint(input.value); });
+      input.addEventListener('keydown', function(e){
+        if(e.key === 'Escape'){ e.stopPropagation(); closeMenu(); anchor.focus(); }
+      });
+    }
+    menuEl.appendChild(list);
+
+    function row(it, q){
       var b = document.createElement('button');
       b.type = 'button';
-      b.textContent = it.disabled ? (it.label + '  ' + t('menu.added')) : it.label;
       if(it.value === currentValue) b.className = 'on';
       if(it.clear) b.className = 'clear';
-      if(it.disabled){ b.disabled = true; }
-      else { b.addEventListener('click', function(e){ e.stopPropagation(); onPick(it.value); closeMenu(); }); }
-      menuEl.appendChild(b);
-    });
+      if(it.disabled){
+        b.disabled = true;
+        b.textContent = it.label + '  ' + t('menu.added');
+        return b;
+      }
+      b.appendChild(markMatch(it.label, q));
+      if(it.code){
+        var c = document.createElement('span'); c.className = 'mcode';
+        c.appendChild(markMatch(it.code, q));
+        b.appendChild(c);
+      }
+      b.addEventListener('click', function(e){ e.stopPropagation(); onPick(it.value); closeMenu(); });
+      return b;
+    }
+    function paint(raw){
+      var q = foldAccents((raw || '').trim());
+      list.innerHTML = '';
+      var shown = items.filter(function(it){
+        if(!q || it.clear) return true;
+        return foldAccents(it.label).indexOf(q) !== -1 || foldAccents(it.code || '').indexOf(q) !== -1;
+      });
+      if(!shown.length){
+        var none = document.createElement('div'); none.className = 'mnores';
+        none.textContent = t('menu.noResults');
+        list.appendChild(none);
+      } else {
+        shown.forEach(function(it){ list.appendChild(row(it, q)); });
+      }
+      place();
+    }
+    /* re-run after every repaint: filtering changes the menu height, so the flip-up decision
+       has to be made against the height it actually has now */
+    function place(){
+      menuEl.style.left = r.left + 'px';
+      menuEl.style.top  = (r.bottom + 2) + 'px';
+      menuEl.style.minWidth = r.width + 'px';
+      var mr = menuEl.getBoundingClientRect();
+      if(mr.bottom > window.innerHeight - 8){
+        var above = r.top - mr.height - 2;
+        menuEl.style.top = (above > 8 ? above : Math.max(8, window.innerHeight - 8 - mr.height)) + 'px';
+      }
+    }
     document.body.appendChild(menuEl);
-    menuEl.style.left = r.left + 'px';
-    menuEl.style.top  = (r.bottom + 2) + 'px';
-    menuEl.style.minWidth = r.width + 'px';
-    var mr = menuEl.getBoundingClientRect();
-    if(mr.bottom > window.innerHeight - 8){ menuEl.style.top = (r.top - mr.height - 2) + 'px'; }
+    paint('');
+    if(input) input.focus();
   }
   document.addEventListener('click', function(e){
     if(menuEl && !menuEl.contains(e.target) && e.target !== openEl) closeMenu();
   });
-  window.addEventListener('scroll', closeMenu, true);
+  /* a long menu scrolls internally — that isn't the page moving out from under it */
+  window.addEventListener('scroll', function(e){
+    if(menuEl && e.target && e.target.nodeType === 1 && menuEl.contains(e.target)) return;
+    closeMenu();
+  }, true);
   window.addEventListener('resize', closeMenu);
 
-  /* build {value,label} menu items for a select key, translated to the current language */
+  /* build {value,label,code?} menu items for a select key, translated to the current language.
+     Analyses also carry the short code — the filter searches the name and the code (two separate
+     fields in the model; the act number lives inside the name). */
   function menuItems(key){
-    var base = (key === 'analysis') ? ANALYSES.map(function(a){ return a.code; }) : OPTIONS[key];
-    return base.map(function(v){ return { value:v, label:optLabel(key, v) }; });
+    if(key === 'analysis'){
+      return ANALYSES.map(function(a){ return { value:a.code, label:optLabel('analysis', a.code), code:a.code }; });
+    }
+    return OPTIONS[key].map(function(v){ return { value:v, label:optLabel(key, v) }; });
   }
   /* store the canonical value in data-value; show the translated label */
   function setSel(el, key, value){ el.dataset.value = value; el.textContent = optLabel(key, value); el.classList.add('filled'); }
