@@ -277,15 +277,23 @@
   .modal .msearch input{width:100%}
   /* checkbox picklist rows — reuse .check/.chip vocabulary */
   .hpo-picklist{display:flex;flex-direction:column;gap:2px;margin:6px 0}
+  /* the analysis suggestions are a short, scannable list: two columns, one per column on narrow
+     screens. Wrapping names make rows uneven, so cells align on their top edge. */
+  #suggestions{display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;align-items:start}
+  @media(max-width:860px){#suggestions{grid-template-columns:1fr}}
   .hpo-picklist:empty{display:none}
   .prow{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:6px}
   .prow:hover{background:var(--box)}
   .prow.dis{opacity:.42}
-  /* HPO labels run past 120 characters. The name is the only part allowed to shrink, and it
-     ellipsizes rather than wrap, so the onset control keeps its place on the right; the full
-     term is on the row's tooltip. */
-  .prow .check{height:auto;flex:1 1 auto;min-width:0}
-  .prow .pname{font-size:13px;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* HPO labels run past 120 characters, so they wrap over as many lines as they need. The one
+     exception is a row that shows its onset dropdown (the picked ones): there the name is
+     ellipsized instead, so the dropdown keeps its place on the right, with the full term on the
+     row's tooltip. */
+  .prow{align-items:center}
+  .prow .check{height:auto;flex:1 1 auto;min-width:0;align-items:flex-start}
+  .prow .pname{font-size:13px;color:var(--ink);min-width:0}
+  .prow.onsetrow .pname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .prow .box{margin-top:1px}
   .prow .pid{font-size:11px;color:var(--faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;flex:0 0 auto}
   /* the run a search matched */
   .prow .hit{background:#e9edf2;border-radius:3px;padding:0 2px}
@@ -20154,6 +20162,7 @@
     row.appendChild(lab);
     if(!crossDisabled){ lab.addEventListener('click', function(e){ e.preventDefault(); if(mode==='observed') toggleObserved(id); else toggleNegative(id); }); }
     if(mode==='observed'){
+      if(checked) row.classList.add('onsetrow');    // an onset on the right: the name ellipsizes
       var onset = document.createElement('div'); onset.className = 'onset'; if(!checked) onset.setAttribute('hidden','');
       var olab = document.createElement('label'); olab.setAttribute('data-i18n','lbl.onset'); olab.textContent = t('lbl.onset');
       var mini = document.createElement('div'); mini.className = 'mini select'; mini.tabIndex = 0; mini.dataset.onset = '';
@@ -20183,7 +20192,7 @@
     var ordered = suggestionsFor(analysisCode()).filter(function(id){ return !phHas('observed', id); }).sort(byLabel);
     document.getElementById('sugg-head').hidden = ordered.length === 0;
     if(!ordered.length) return;
-    var LIMIT = 5;
+    var LIMIT = 6;      // two columns, three rows
     (suggExpanded ? ordered : ordered.slice(0, LIMIT)).forEach(function(id){ cont.appendChild(makePRow(id, 'observed')); });
     if(ordered.length > LIMIT){ more.hidden = false; more.textContent = suggExpanded ? t('dlg.showLess') : t('dlg.showMore', { n:ordered.length-LIMIT }); }
   }
