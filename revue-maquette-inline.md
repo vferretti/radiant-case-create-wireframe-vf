@@ -39,13 +39,13 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
   et déplacé juste au-dessus de la note clinique, dans le bloc Contexte clinique. Le résumé parle
   maintenant d'« Indication principale ».
 - **Contexte clinique réorganisé** : « Ascendance / origine ethnique » renommé **« Ethnicité »**
-  (EN : « Ethnicity ») et placé sous la consanguinité ; le bloc s'appelle maintenant **« Autre
-  information facultative »**.
+  (EN : « Ethnicity ») et placé à droite de la consanguinité ; le sous-titre du bloc est retiré,
+  les champs commencent directement sous la ligne de séparation.
 - **Statut vital retiré du formulaire**, pour le moment. Ses clés i18n et le tracé « décédé » du
   pedigree sont conservés, il suffit de remettre le contrôle.
 - **Ethnicité multiple** : plusieurs valeurs possibles, affichées en pastilles dans le champ
-  (pleine largeur, quatre tiennent sur une ligne), menu sans champ de recherche qui reste ouvert
-  et coche ce qui est retenu. Nouvelle liste : Canadien français, Caucasien européen, Africain ou
+  (demi-largeur, deux tiennent sur une ligne), menu sans champ de recherche qui reste ouvert et
+  coche ce qui est retenu. Nouvelle liste : Canadien français, Caucasien européen, Africain ou
   caribéen, Hispanique, Asiatique de l'est et du sud-est, Asiatique du sud, Amérindien,
   Origine mixte.
 - **Signes cliniques refaits sur le modèle de la version modale** : ligne de consigne, champ de
