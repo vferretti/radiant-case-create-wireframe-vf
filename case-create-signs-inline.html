@@ -270,9 +270,15 @@
   .modal .mfoot .cta{margin:0;width:auto;min-width:120px;padding:0 16px;height:36px}
   .modal .instr{font-size:12px;color:var(--mut);margin:0 0 12px}
   .modal .instr .req{margin-left:2px}
-  /* same line, inline in the form */
-  #signs-block .instr{font-size:12px;color:var(--mut);margin:0 0 10px}
+  /* same line, inline in the form. One rhythm for the whole block: 12 under the ask, 16 before
+     a sub-heading, 6 between a sub-heading and its list. */
+  #signs-block .instr{font-size:12px;color:var(--mut);margin:0 0 12px}
   #signs-block .instr .req{margin-left:2px}
+  #signs-block .divlabel{margin:16px 0 6px}
+  #signs-block .hpo-picklist{margin:6px 0}
+  #signs-block .mhint{margin:6px 0 0}
+  #signs-block .showmore{margin:0}
+  #signs-block .negrow{margin-top:16px}
   .modal .msearch{position:relative;margin-bottom:6px}
   .modal .msearch input{width:100%}
   /* checkbox picklist rows — reuse .check/.chip vocabulary */
@@ -280,6 +286,7 @@
   /* the analysis suggestions are a short, scannable list: two columns, one per column on narrow
      screens. Wrapping names make rows uneven, so cells align on their top edge. */
   #suggestions{display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;align-items:start}
+  #suggestions:empty{display:none}   /* the id would otherwise beat .hpo-picklist:empty */
   @media(max-width:860px){#suggestions{grid-template-columns:1fr}}
   .hpo-picklist:empty{display:none}
   .prow{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:6px}
@@ -507,9 +514,10 @@
                already picked, then the search row, then the analysis suggestions. A term chosen
                anywhere — suggestion, search or tree — rises above the search box and takes its
                onset dropdown with it (2026-09-08). -->
-          <div style="margin-top:18px" id="signs-block">
-            <p class="flabel"><span data-i18n="sec.clinicalSigns">Clinical signs</span> <span class="key">(observed_phenotypes · non_observed_phenotypes)</span><sup class="fn">7</sup></p>
-            <p class="instr"><span data-i18n="dlg.instruction">Select at least one OBSERVED clinical sign with its onset</span> <span class="req">*</span></p>
+          <div id="signs-block">
+            <!-- no "Clinical signs" title: the instruction says it better, and carries the field
+                 codes and footnote the title used to hold (2026-09-08) -->
+            <p class="instr"><span data-i18n="dlg.instruction">Select at least one OBSERVED clinical sign with its onset</span> <span class="req">*</span> <span class="key">(observed_phenotypes · non_observed_phenotypes)</span><sup class="fn">7</sup></p>
             <p class="divlabel" id="obs-sel-head" hidden><span data-i18n="dlg.observedSelected">Observed signs</span> <span class="cnt" id="obs-sel-count"></span></p>
             <div class="hpo-picklist" id="observed-selected"></div>
             <div class="msearchrow">
@@ -527,7 +535,7 @@
             <!-- not-observed signs -->
             <p class="divlabel" id="neg-sel-head" hidden><span data-i18n="dlg.negSelected">Not-observed signs</span> <span class="cnt" id="neg-sel-count"></span></p>
             <div class="chips" id="neg-selected"></div>
-            <div style="margin-top:12px"><button type="button" class="ghostbtn" id="browse-neg-btn"><span class="ic" aria-hidden="true">+</span> <span data-i18n="btn.negSigns">Not-observed signs</span></button></div>
+            <div class="negrow"><button type="button" class="ghostbtn" id="browse-neg-btn"><span class="ic" aria-hidden="true">+</span> <span data-i18n="btn.negSigns">Not-observed signs</span></button></div>
           </div>
 
           <!-- clinical context (merged from the former Clinical extras section) -->
@@ -19505,7 +19513,6 @@
       'lbl.obsPheno':'Observed phenotypes', 'lbl.addObs':'＋ add observed term',
       'lbl.negPheno':'Explicitly not observed', 'lbl.addNeg':'＋ add not-observed term',
       'lbl.addSigns':'＋ Add clinical signs', 'lbl.editSigns':'Edit clinical signs',
-      'sec.clinicalSigns':'Clinical signs',
       'dlg.instruction':'Select at least one OBSERVED clinical sign with its onset',
       'dlg.browse':'Browse HPO', 'ph.browseHpo':'Search a clinical sign (name or HP:…)',
       'dlg.suggestions':'Suggestions for this analysis',
@@ -19591,7 +19598,6 @@
       'lbl.obsPheno':'Phénotypes observés', 'lbl.addObs':'＋ ajouter un terme observé',
       'lbl.negPheno':'Explicitement non observés', 'lbl.addNeg':'＋ ajouter un terme non observé',
       'lbl.addSigns':'＋ Ajouter des signes cliniques', 'lbl.editSigns':'Modifier les signes cliniques',
-      'sec.clinicalSigns':'Signes cliniques',
       'dlg.instruction':'Sélectionnez au moins un signe clinique OBSERVÉ avec son âge d’apparition',
       'dlg.browse':'Parcourir HPO', 'ph.browseHpo':'Rechercher un signe (nom ou HP:…)',
       'dlg.suggestions':'Suggestions pour cette analyse',
