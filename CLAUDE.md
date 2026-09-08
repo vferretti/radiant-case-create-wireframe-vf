@@ -105,6 +105,9 @@ condition-derivation rules — do the same rather than claiming something works 
 - **The primary condition is derived only from a MONDO code.** An HPO code or a blank leaves the
   field empty for the user. 34 of 37 derive; RHAB (HPO), RAPIDE and GENOR (blank) do not. The raw
   catalog code is kept in `conditionCode` either way.
+- **Priority is never derived.** Prenatal used to force STAT and a fetal demise used to undo it;
+  both rules were dropped (2026-09-08) — the user always picks. The rail still shows the field
+  with Routine as its default.
 - **Case type (germline/somatic) comes from `analysis_type_code`** — the real catalog confirms one
   type per analysis, which was an open assumption in footnote 1.
 - **Every dropdown is clearable** back to its placeholder — required fields and the two that ship

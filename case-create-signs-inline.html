@@ -350,7 +350,7 @@
 
       <!-- 1. Order & analysis (required) -->
       <section class="sec">
-        <header><span class="n">1</span><h2 data-i18n="sec.case">Case</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
+        <header><span class="n">1</span><h2 data-i18n="sec.analysis">Analysis</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
         <div class="body">
           <!-- Analysis leads AND derives case type: picking a panel sets the case type
                system-side (shown as a badge on the Analysis row in the rail), so it's not a
@@ -19463,7 +19463,7 @@
       'ui.collapse':'－ collapse', 'ui.expand':'＋ expand', 'ui.optSections':'Optional sections',
       'ui.docsToggle':'Field codes',
       'ui.removeSign':'Remove',
-      'sec.case':'Case', 'sec.proband':'Patient (proband)', 'sec.probandPrenatal':'Patient (proband, mother)', 'sec.clinical':'Clinical details', 'sec.family':'Family',
+      'sec.analysis':'Analysis', 'sec.proband':'Patient (proband)', 'sec.probandPrenatal':'Patient (proband, mother)', 'sec.clinical':'Clinical details', 'sec.family':'Family',
       'lbl.analysis':'Analysis', 'lbl.category':'Category', 'lbl.prenatal':'Prenatal case', 'lbl.priority':'Priority',
       'lbl.prenatalInfo':'Additional information',
       'lbl.fetalSex':'Fetal sex', 'fsex.F':'Female', 'fsex.M':'Male', 'fsex.U':'Undetermined',
@@ -19549,7 +19549,7 @@
       'ui.collapse':'－ réduire', 'ui.expand':'＋ développer', 'ui.optSections':'Sections facultatives',
       'ui.docsToggle':'Codes',
       'ui.removeSign':'Retirer',
-      'sec.case':'Cas', 'sec.proband':'Patient (cas index)', 'sec.probandPrenatal':'Patient (cas index, mère)', 'sec.clinical':'Détails cliniques', 'sec.family':'Famille',
+      'sec.analysis':'Analyse', 'sec.proband':'Patient (cas index)', 'sec.probandPrenatal':'Patient (cas index, mère)', 'sec.clinical':'Détails cliniques', 'sec.family':'Famille',
       'lbl.analysis':'Analyse', 'lbl.category':'Catégorie', 'lbl.prenatal':'Cas prénatal', 'lbl.priority':'Priorité',
       'lbl.prenatalInfo':'Informations supplémentaires',
       'lbl.fetalSex':'Sexe (fœtus)', 'fsex.F':'Féminin', 'fsex.M':'Masculin', 'fsex.U':'Indéterminé',
@@ -19941,10 +19941,10 @@
     cell.classList.toggle('done', on);   // Postnatal is the default, so it stays muted
   }
 
-  /* ---------- prenatal: reveal the extra fields, default Priority to STAT, and surface Priority
-       in the rail. Switching prenatal OFF clears the revealed fields (nothing hidden submits) and
-       restores the Routine default. Fetal sex + gestational age are folded into the required gate
-       by recompute() (5 -> 7). Priority stays editable — STAT is a default, not a hard derivation. ---------- */
+  /* ---------- prenatal: reveal the extra fields and rename section 2. Switching prenatal OFF
+       clears the revealed fields, so nothing hidden submits. Fetal sex + gestational age are
+       folded into the required gate by recompute() (5 -> 7). Priority is deliberately NOT touched
+       here: it is always the user's call (2026-09-08). ---------- */
   /* section 2's title swaps between two i18n keys, so a language switch repaints it by itself */
   function syncProbandTitle(on){
     var h = document.querySelector('[data-i18n="sec.proband"], [data-i18n="sec.probandPrenatal"]');
@@ -19961,18 +19961,15 @@
   function syncPrenatal(){
     var on = document.querySelector('[data-check="prenatal"]').classList.contains('on');
     var block = document.getElementById('prenatal-fields');
-    var priority = document.querySelector('[data-sel="priority"]');
     syncProbandTitle(on);
     if(on){
       block.removeAttribute('hidden');
-      setSel(priority, 'priority', 'STAT');    // prenatal defaults to STAT — still editable
       /* the patient of record is the mother, so Sex is known — prefilled, still editable */
       var cur = document.querySelector('[data-seg="sex"] .on');
       sexBeforePrenatal = cur ? cur.dataset.val : '';
       setSexSeg('F');
     } else {
       block.setAttribute('hidden','');
-      setSel(priority, 'priority', 'Routine'); // restore the routine default
       if(sexBeforePrenatal !== null){ setSexSeg(sexBeforePrenatal); sexBeforePrenatal = null; }
       document.querySelectorAll('[data-seg="fetalsex"] span').forEach(function(s){ s.classList.remove('on'); });
       document.querySelectorAll('[data-radio="gestage"] .radio').forEach(function(r){ r.classList.remove('on'); });
@@ -19980,7 +19977,6 @@
       document.getElementById('gest-lmp-field').setAttribute('hidden','');
       document.getElementById('gest-edd-field').setAttribute('hidden','');
     }
-    syncPriorityRow();
     recompute();
   }
   /* Priority rail row — mirrors the category row: shown only when it leaves the Routine default */
@@ -20024,14 +20020,6 @@
         edd.toggleAttribute('hidden', v !== 'EDD');
         if(v !== 'LMP'){ var l = document.querySelector('[data-field="lmpdate"]'); if(l) l.value = ''; }
         if(v !== 'EDD'){ var d = document.querySelector('[data-field="edddate"]'); if(d) d.value = ''; }
-        /* a fetal demise is no longer a time-critical case: undo the STAT that prenatal set.
-           Still editable, like every other derived default. */
-        if(v === 'demise'){
-          var priority = document.querySelector('[data-sel="priority"]');
-          setSel(priority, 'priority', 'Routine');
-          priority.classList.remove('flash'); void priority.offsetWidth; priority.classList.add('flash');
-          syncPriorityRow();
-        }
       }
       recompute();
     });
