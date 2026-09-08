@@ -32,6 +32,8 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
   changent, l'utilisateur choisit toujours.
 - **« Site émetteur » renommé « Établissement du patient »** (EN : « Patient organization »),
   sans valeur par défaut.
+- **Menu « MRN » retiré** (cas index et ligne famille) ; le libellé devient **« Identifiant (NDD,
+  code de l'étude, …) »**.
 - **Identifiant avant l'établissement du patient**, et **recherche simulée du patient existant** :
   elle part dès que la paire établissement + identifiant est complète, quel que soit l'ordre de
   saisie. MRN **1234** au CHU Sainte-Justine trouve un dossier et préremplit RAMQ, prénom, nom,

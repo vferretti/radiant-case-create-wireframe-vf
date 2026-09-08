@@ -405,11 +405,8 @@
                both are set. No default value — asked 2026-09-08. -->
           <div class="grid align-end">
             <div class="f">
-              <label><span data-i18n="lbl.patientId">Patient identifier</span> <span class="req">*</span> <span class="key">(submitter_patient_id_type · submitter_patient_id)</span></label>
-              <div style="display:flex;gap:8px">
-                <div class="ctrl select filled" tabindex="0" data-sel="idtype" data-value="MRN" data-ph="—" style="flex:0 0 92px">MRN</div>
-                <input class="ctrl" type="text" data-i18n-ph="ph.idValue" placeholder="Identifier value" style="flex:1" data-field="patientid">
-              </div>
+              <label><span data-i18n="lbl.patientId">Identifier (MRN, study code, …)</span> <span class="req">*</span> <span class="key">(submitter_patient_id)</span></label>
+              <input class="ctrl" type="text" data-i18n-ph="ph.idValue" placeholder="Identifier value" data-field="patientid">
             </div>
             <div class="f">
               <label><span data-i18n="lbl.issuing">Patient organization</span> <span class="req">*</span> <span class="key">(patient_organization_code)</span><sup class="fn">4</sup></label>
@@ -665,7 +662,6 @@
   ];
   var ORGS = ['CHU Sainte-Justine','CHUM','CUSM — McGill','CHU de Québec'];
   var OPTIONS = {
-    idtype:    ['MRN','Other'],
     ordering:  ORGS,
     issuing:   ORGS,
     priority:  ['Routine','Urgent','STAT'],
@@ -19472,7 +19468,7 @@
       'lbl.lmpDate':'Date (LMP)', 'lbl.eddDate':'Date (EDD)',
       'rail.priority':'Priority',
       'lbl.ordering':'Ordering site', 'lbl.physician':'Ordering physician', 'lbl.study':'Research study',
-      'lbl.issuing':'Patient organization', 'lbl.patientId':'Identifier', 'lbl.healthNo':'Health number',
+      'lbl.issuing':'Patient organization', 'lbl.patientId':'Identifier (MRN, study code, …)', 'lbl.healthNo':'Health number',
       'lbl.firstName':'First name', 'lbl.lastName':'Last name', 'lbl.sex':'Sex', 'lbl.dob':'Date of birth',
       'lbl.condition':'Primary condition / indication', 'lbl.life':'Life status',
       'lbl.phenotypes':'Phenotypes',
@@ -19558,7 +19554,7 @@
       'lbl.lmpDate':'Date (DDM)', 'lbl.eddDate':'Date (DPA)',
       'rail.priority':'Priorité',
       'lbl.ordering':'Établissement prescripteur', 'lbl.physician':'Médecin prescripteur', 'lbl.study':'Étude de recherche',
-      'lbl.issuing':'Établissement du patient', 'lbl.patientId':'Identifiant', 'lbl.healthNo':'RAMQ',
+      'lbl.issuing':'Établissement du patient', 'lbl.patientId':'Identifiant (NDD, code de l’étude, …)', 'lbl.healthNo':'RAMQ',
       'lbl.firstName':'Prénom', 'lbl.lastName':'Nom', 'lbl.sex':'Sexe', 'lbl.dob':'Date de naissance',
       'lbl.condition':'Condition principale / indication', 'lbl.life':'Statut vital',
       'lbl.phenotypes':'Phénotypes',
@@ -19632,7 +19628,6 @@
   };
   /* option-value translations (canonical English value → French display) */
   var OPT_FR = {
-    idtype:   { Other:'Autre' },
     ancestry: { 'French-Canadian':'Canadien-français', European:'Européen', Indigenous:'Autochtone', Other:'Autre', 'Not specified':'Non précisé' },
     relation: { Mother:'Mère', Father:'Père', Sister:'Sœur', Brother:'Frère', Daughter:'Fille', Son:'Fils', 'Half-sibling':'Demi-frère / sœur', Other:'Autre' },
     condition:{
@@ -19871,7 +19866,7 @@
     else if(key === 'ordering'){ state.orderingSet = false; }
     else if(key === 'condition'){ state.conditionSet = false; }
     else if(key === 'issuing'){ state.issuingSet = false; probandOrg = null; syncFamilyOrg(); }
-    if(key === 'issuing' || key === 'idtype') runLookup();
+    if(key === 'issuing') runLookup();
     recompute();
   }
   function bindSelect(el){
@@ -19888,7 +19883,7 @@
         else if(key === 'ordering'){ setSel(el,'ordering',v); state.orderingSet = true; recompute(); }
         else if(key === 'issuing'){ setSel(el,'issuing',v); state.issuingSet = true; probandOrg = v; syncFamilyOrg(); recompute(); runLookup(); }
         else if(key === 'condition'){ setSel(el,'condition',v); state.conditionSet = true; recompute(); }
-        else { setSel(el,key,v); recompute(); if(key === 'idtype') runLookup(); }
+        else { setSel(el,key,v); recompute(); }
       });
     }
     el.addEventListener('click', fire);
@@ -20031,13 +20026,13 @@
 
   /* ---------- proband text fields mirror their value into the summary ---------- */
   /* ---------- existing-patient lookup (simulated) ----------
-     The real form queries the registry on site + identifier — the pair is the key, a bare MRN
-     is not unique across establishments. So the search fires whenever the pair is complete,
+     The real form queries the registry on organization + identifier — the pair is the key, a
+     bare identifier is not unique across establishments. So the search fires whenever the pair is complete,
      whichever half was filled last, and re-fires if either half changes. Only the identifier
      is typed, hence it leads the line; the site is defaulted to the user's own establishment.
      Here it is a mock: one record, behind a 700 ms delay so the demo shows the wait. */
   var PATIENT_DB = {
-    'CHU Sainte-Justine|MRN|1234': { jhn:'TREL 1953 0801', firstname:'Léa', lastname:'Tremblay', sex:'F', dob:'2019-03-08' }
+    'CHU Sainte-Justine|1234': { jhn:'TREL 1953 0801', firstname:'Léa', lastname:'Tremblay', sex:'F', dob:'2019-03-08' }
   };
   var LOOKUP_DELAY = 700;
   var lookupTimer = null, lookupSeq = 0, autofilled = null;
@@ -20050,11 +20045,10 @@
   }
   function lookupKey(){
     var org = document.querySelector('[data-sel="issuing"]');
-    var idt = document.querySelector('[data-sel="idtype"]');
     var v = idInput.value.trim();
     if(!v) return '';
-    if(!org.dataset.value || !idt.dataset.value) return null;   // pair incomplete
-    return org.dataset.value + '|' + idt.dataset.value + '|' + v;
+    if(!org.dataset.value) return null;      // pair incomplete
+    return org.dataset.value + '|' + v;
   }
   function fld(name){ return document.querySelector('[data-field="'+name+'"]'); }
   /* only take back what the lookup itself wrote, and only if it hasn't been edited since */
@@ -20339,7 +20333,7 @@
     var row = document.createElement('div');
     row.className = 'frow';
     row.style.display = 'block';
-    /* A sequenced relative mirrors the proband's fields (issuing site · id type · id, names,
+    /* A sequenced relative mirrors the proband's fields (patient organization · id, names,
        DOB, health number); sex already lives on the row above, so it isn't repeated. */
     row.innerHTML =
       '<div class="famline">' +
@@ -20358,10 +20352,8 @@
         '<div class="grid align-end">' +
           '<div class="f"><label><span data-i18n="lbl.issuing">Patient organization</span> <span class="req">*</span> <span class="key">(patient_organization_code)</span><sup class="fn">8</sup></label>' +
             '<div class="ctrl select" tabindex="0" data-fam-seq-org data-i18n-ph="ph.select">Select…</div></div>' +
-          '<div class="f"><label><span data-i18n="lbl.patientId">Patient identifier</span> <span class="req">*</span> <span class="key">(submitter_patient_id_type · submitter_patient_id)</span></label>' +
-            '<div style="display:flex;gap:8px">' +
-              '<div class="ctrl select filled" tabindex="0" data-fam-seq-idtype data-value="MRN" data-ph="—" style="flex:0 0 92px">MRN</div>' +
-              '<input class="ctrl" type="text" data-i18n-ph="ph.idValue" placeholder="Identifier value" style="flex:1" data-fam-seq-id></div></div>' +
+          '<div class="f"><label><span data-i18n="lbl.patientId">Identifier (MRN, study code, …)</span> <span class="req">*</span> <span class="key">(submitter_patient_id)</span></label>' +
+            '<input class="ctrl" type="text" data-i18n-ph="ph.idValue" placeholder="Identifier value" data-fam-seq-id></div>' +
           '<div class="f"><label><span data-i18n="lbl.firstName">First name</span> <span class="key">(first_name)</span></label>' +
             '<input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional" data-fam-seq-first></div>' +
           '<div class="f"><label><span data-i18n="lbl.lastName">Last name</span> <span class="key">(last_name)</span></label>' +
@@ -20399,14 +20391,6 @@
         clearFieldError(row.querySelector('[data-fam-seq-dob]'));
       }
       renderPedigree();
-    });
-    /* id type — MRN by default, same picklist as the proband */
-    var famIdtype = row.querySelector('[data-fam-seq-idtype]');
-    famIdtype.addEventListener('click', function(){
-      openMenu(famIdtype, withClear(famIdtype, menuItems('idtype')), famIdtype.dataset.value, function(v){
-        if(v === CLEAR){ clearCtrl(famIdtype); return; }
-        setSel(famIdtype,'idtype',v);
-      });
     });
     /* issuing site defaults to the proband's org (via syncFamilyOrg) but is editable;
        a manual pick sets 'overridden' so it no longer follows the proband */
@@ -20720,9 +20704,6 @@
     });
     document.querySelectorAll('[data-fam="relation"]').forEach(function(el){
       if(el.classList.contains('filled') && el.dataset.value) el.textContent = optLabel('relation', el.dataset.value);
-    });
-    document.querySelectorAll('[data-fam-seq-idtype]').forEach(function(el){
-      if(el.dataset.value) el.textContent = optLabel('idtype', el.dataset.value);
     });
     /* clinical-signs form lists (term + onset labels) rebuild from state in the current language */
     renderPheno();

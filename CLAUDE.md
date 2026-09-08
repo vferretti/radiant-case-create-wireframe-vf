@@ -117,9 +117,11 @@ condition-derivation rules — do the same rather than claiming something works 
 - **The field once called "issuing site" is "Établissement du patient" / "Patient organization"**
   (renamed 2026-09-08 — it is FHIR's `managingOrganization`, not HL7v2's sending facility). The
   internal key stays `issuing`; only the visible strings changed. **No default value.**
-- **The identifier leads section 2.** The existing-patient lookup keys on
-  organization + id type + identifier, so it fires whenever that triple is complete, whichever
-  part moved last, and re-fires when any changes; until then it says which field is missing. It is mocked (`PATIENT_DB`, one record behind a 700 ms
+- **The identifier leads section 2**, labelled « Identifiant (NDD, code de l'étude, …) ». The
+  id-type dropdown (MRN / Other) was removed on 2026-09-08, proband and family row alike, so the
+  existing-patient lookup keys on organization + identifier: it fires whenever that pair is
+  complete, whichever half moved last, and re-fires when either changes; until then it says which
+  field is missing. It is mocked (`PATIENT_DB`, one record behind a 700 ms
   delay): MRN 1234 at Sainte-Justine prefills health number, names, sex and date of birth;
   anything else reports "new patient" and takes back only the values the lookup itself wrote.
 - **Suggestion lists**: `EPI4` was renamed to the real code `EPIL`. `CARDIO` and `TSOL` are **left
