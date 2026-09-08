@@ -555,13 +555,11 @@
             <div class="negrow"><button type="button" class="ghostbtn" id="browse-neg-btn"><span class="ic" aria-hidden="true">+</span> <span data-i18n="btn.negSigns">Not-observed signs</span></button></div>
           </div>
 
-          <!-- clinical context (merged from the former Clinical extras section) -->
+          <!-- what is left of the clinical block, all optional -->
           <div style="margin-top:18px;border-top:1px solid var(--line-soft);padding-top:16px">
-            <p class="subhead" data-i18n="lbl.clinContext">Clinical context</p>
+            <p class="subhead" data-i18n="lbl.clinContext">Other optional information</p>
             <div class="grid">
               <div class="f"><label><span data-i18n="lbl.consang">Consanguinity</span> <span class="key">(obs: consanguinity)</span></label><div class="seg" data-seg="consang"><span data-val="Yes" data-i18n="yn.Yes">Yes</span><span data-val="No" data-i18n="yn.No">No</span><span class="on" data-val="Unknown" data-i18n="yn.Unknown">Unknown</span></div></div>
-              <div class="f"><label><span data-i18n="lbl.life">Life status</span> <span class="req">*</span> <span class="key">(life_status_code)</span></label>
-                <div class="seg" data-seg="life"><span class="on" data-val="Alive" data-i18n="life.Alive">Alive</span><span data-val="Deceased" data-i18n="life.Deceased">Deceased</span><span data-val="Unknown" data-i18n="life.Unknown">Unknown</span></div></div>
               <!-- full width: several ethnicities show as chips inside the control, and four of
                    them need the whole row -->
               <div class="f full"><label><span data-i18n="lbl.ancestry">Ethnicity</span> <span class="key">(ethnicity_codes)</span></label><div class="ctrl select" tabindex="0" data-sel="ancestry" data-i18n-ph="ph.select">Select…</div></div>
@@ -19549,7 +19547,7 @@
       'dlg.moreResults':'Showing the first {n} — refine your search.',
       'dlg.cancel':'Cancel', 'dlg.add':'Add selection',
       'sum.observed':'Observed', 'sum.notObserved':'Not observed',
-      'lbl.clinContext':'Clinical context', 'lbl.consang':'Consanguinity', 'lbl.ancestry':'Ethnicity', 'lbl.note':'Clinical note',
+      'lbl.clinContext':'Other optional information', 'lbl.consang':'Consanguinity', 'lbl.ancestry':'Ethnicity', 'lbl.note':'Clinical note',
       'lbl.onset':'Onset', 'lbl.addFamily':'＋ Add family member',
       'lbl.relation':'Relationship', 'lbl.affected':'Affected status', 'lbl.willSeq':'Will be sequenced',
       'ph.select':'Select…', 'ph.analysis':'Select an analysis…', 'ph.idValue':'Identifier value',
@@ -19634,7 +19632,7 @@
       'dlg.moreResults':'Affichage des {n} premiers — précisez votre recherche.',
       'dlg.cancel':'Annuler', 'dlg.add':'Ajouter la sélection',
       'sum.observed':'Observés', 'sum.notObserved':'Non observés',
-      'lbl.clinContext':'Contexte clinique', 'lbl.consang':'Consanguinité', 'lbl.ancestry':'Ethnicité', 'lbl.note':'Note clinique',
+      'lbl.clinContext':'Autre information facultative', 'lbl.consang':'Consanguinité', 'lbl.ancestry':'Ethnicité', 'lbl.note':'Note clinique',
       'lbl.onset':'Âge d’apparition', 'lbl.addFamily':'＋ Ajouter un membre de la famille',
       'lbl.relation':'Lien de parenté', 'lbl.affected':'Statut', 'lbl.willSeq':'Sera séquencé',
       'ph.select':'Sélectionner…', 'ph.analysis':'Sélectionner une analyse…', 'ph.idValue':'Valeur de l’identifiant',
@@ -20614,6 +20612,8 @@
 
     var pSexOn = document.querySelector('[data-seg="sex"] .on');
     var pSex = pSexOn ? pSexOn.dataset.val : 'U';
+    /* Life status was pulled from the form on 2026-09-08; until it comes back the proband is
+       never drawn deceased. The lookup is kept so restoring the control is enough. */
     var pLifeOn = document.querySelector('[data-seg="life"] .on');
     var proband = { relation:'Proband', sex:pSex, aff:'Affected', proband:true,
                     deceased: !!(pLifeOn && pLifeOn.dataset.val==='Deceased') };
