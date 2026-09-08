@@ -38,8 +38,8 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
 - **« Condition principale / indication » renommé « Indication principale standardisée (MONDO) »**
   et déplacé juste au-dessus de la note clinique, dans le bloc Contexte clinique. Le résumé parle
   maintenant d'« Indication principale ».
-- **Contexte clinique réorganisé** : « Ascendance / origine ethnique » renommé **« Ethnicité »**
-  (EN : « Ethnicity ») et placé à droite de la consanguinité ; le sous-titre du bloc est retiré,
+- **Contexte clinique réorganisé** : « Ascendance / origine ethnique » renommé **« Ethnicité(s) »**
+  (EN : « Ethnicities ») et placé à droite de la consanguinité ; le sous-titre du bloc est retiré,
   les champs commencent directement sous la ligne de séparation.
 - **Statut vital retiré du formulaire**, pour le moment. Ses clés i18n et le tracé « décédé » du
   pedigree sont conservés, il suffit de remettre le contrôle.
