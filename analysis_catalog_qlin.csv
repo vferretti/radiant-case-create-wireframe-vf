@@ -1,38 +1,38 @@
-id,code,name,description,primary_condition,condition_code_system,analysis_type_code,tenant_code
-1,MMG,55340 - Maladies musculaires globales,,MONDO:0019056,mondo,germline,qlin
-2,DYSM,55330 - Dystrophies musculaires,,MONDO:0020121,mondo,germline,qlin
-3,RHAB,55338 - Rhabdomyolyse,,HP:0003201,hpo,germline,qlin
-4,MITN,55370 - Mitochondriopathies nucléaires,,MONDO:0044970,mondo,germline,qlin
-5,MYOC,55332 - Myopathies congénitales,,MONDO:0019952,mondo,germline,qlin
-6,MYAC,55334 - Myasthénies congénitales,,MONDO:0018940,mondo,germline,qlin
-7,HYPM,55336 - Hyperthermie maligne,,MONDO:0007783,mondo,germline,qlin
-8,RGDI,55360 - Retard global de développement / Déficience intellectuelle (Trio),,MONDO:0700092,mondo,germline,qlin
-9,POLYM,55372 - Polymalformation contexte postnatal,,MONDO:0019755,mondo,germline,qlin
-10,TRATU,65217 - Transcriptome tumoral,,MONDO:0004992,mondo,somatic,qlin
-11,TUHEM,55393 - Prédisposition hémopathies malignes,,MONDO:0015356,mondo,germline,qlin
-12,TUPED,55392 - Prédisposition cancers pédiatriques,,MONDO:0015356,mondo,germline,qlin
-13,EXTUM,65218 - Analyse tumorale,,MONDO:0004992,mondo,somatic,qlin
-14,SHEMA,65091 - Leucémie (somatique),,MONDO:0005059,mondo,somatic,qlin
-15,SCID,55405 - Déficit immunitaire combiné sévère,,MONDO:0015974,mondo,germline,qlin
-16,STMO,65174 - Sarcome des tissus mous et osseux,,MONDO:0005089,mondo,somatic,qlin
-17,FEAN,55373 - Anomalies fœtales,,MONDO:0019755,mondo,germline,qlin
-18,DPSO,55414 - Défaut de production de superoxyde,,MONDO:0018305,mondo,germline,qlin
-19,EIDC,55404 - Erreurs innées du complément,,MONDO:0003832,mondo,germline,qlin
-20,EIDI,55403 - Erreurs innées de l'immunité,,MONDO:0003778,mondo,germline,qlin
-21,EIII,55413 - Erreurs innées de l'immunité intrinsèque,,MONDO:0003778,mondo,germline,qlin
-22,EPIL,55415 - Epilepsie sans déficience intellectuelle,,MONDO:0005027,mondo,germline,qlin
-23,RAPIDE,Exome rapide : diagnostic monogénique et orientation thérapeutique,,,,germline,qlin
-24,HDIP,55408 - Hypogammaglobulinémie et dysrégulation immunitaire primitive,,MONDO:0015517,mondo,germline,qlin
-25,HLEB,55412 - Hémophagocytose lymphohistiocytaire et à l'infection chronique active au virus Epstein Barr,,MONDO:0015540,mondo,germline,qlin
-26,HLH,55412 - Hémophagocytose lymphohistiocytaire,,MONDO:0015540,mondo,germline,qlin
-27,MAI,55409 - Maladies auto-inflammatoires,,MONDO:0019751,mondo,germline,qlin
-28,MSMD,55410 - Syndrome de prédisposition mendélienne aux infections mycobactériennes (MSMD),,MONDO:0003778,mondo,germline,qlin
-29,NPC,55411 - Neutropénie congénitale,,MONDO:0018542,mondo,germline,qlin
-30,RETINO,Rétinopathies,,MONDO:0005283,mondo,germline,qlin
-31,SHIGE,55407 - Syndrome d'hyper-IgE,,MONDO:0018037,mondo,germline,qlin
-32,SLA,55350 - Sclérose latérale amyotrophique,,MONDO:0004976,mondo,germline,qlin
-33,SURD,Surdité,,MONDO:0021945,mondo,germline,qlin
-34,VEOIB,55406 - Maladie inflammatoire de l’intestin très précoce,,MONDO:0005265,mondo,germline,qlin
-35,GENOR,75022 - Séquençage du génome entier - non spécifique,,,,germline,qlin
-36,NEUTP,Neutropénie congénitale,,MONDO:0018542,mondo,germline,qlin
-37,CONCO,55374 - Prédisposition aux tumeurs solides de l'adulte,,MONDO:0015356,mondo,germline,qlin
+id,code,name,description,primary_condition,primary_condition_label_en,primary_condition_label_fr,condition_code_system,analysis_type_code,tenant_code
+1,MMG,55340 - Maladies musculaires globales,,MONDO:0019056,neuromuscular disease,Maladie neuromusculaire,mondo,germline,qlin
+2,DYSM,55330 - Dystrophies musculaires,,MONDO:0020121,muscular dystrophy,Dystrophie musculaire,mondo,germline,qlin
+3,RHAB,55338 - Rhabdomyolyse,,HP:0003201,Rhabdomyolysis,Rhabdomyolyse,hpo,germline,qlin
+4,MITN,55370 - Mitochondriopathies nucléaires,,MONDO:0044970,mitochondrial disease,Maladie mitochondriale,mondo,germline,qlin
+5,MYOC,55332 - Myopathies congénitales,,MONDO:0019952,congenital myopathy,Myopathie congénitale,mondo,germline,qlin
+6,MYAC,55334 - Myasthénies congénitales,,MONDO:0018940,congenital myasthenic syndrome,Syndrome myasthénique congénital,mondo,germline,qlin
+7,HYPM,55336 - Hyperthermie maligne,,MONDO:0007783,"malignant hyperthermia, susceptibility to, 1","Hyperthermie maligne, susceptibilité, type 1",mondo,germline,qlin
+8,RGDI,55360 - Retard global de développement / Déficience intellectuelle (Trio),,MONDO:0700092,neurodevelopmental disorder,Trouble du neurodéveloppement,mondo,germline,qlin
+9,POLYM,55372 - Polymalformation contexte postnatal,,MONDO:0019755,developmental defect during embryogenesis,Anomalie du développement embryonnaire,mondo,germline,qlin
+10,TRATU,65217 - Transcriptome tumoral,,MONDO:0004992,cancer,Cancer,mondo,somatic,qlin
+11,TUHEM,55393 - Prédisposition hémopathies malignes,,MONDO:0015356,hereditary neoplastic syndrome,Syndrome néoplasique héréditaire,mondo,germline,qlin
+12,TUPED,55392 - Prédisposition cancers pédiatriques,,MONDO:0015356,hereditary neoplastic syndrome,Syndrome néoplasique héréditaire,mondo,germline,qlin
+13,EXTUM,65218 - Analyse tumorale,,MONDO:0004992,cancer,Cancer,mondo,somatic,qlin
+14,SHEMA,65091 - Leucémie (somatique),,MONDO:0005059,leukemia,Leucémie,mondo,somatic,qlin
+15,SCID,55405 - Déficit immunitaire combiné sévère,,MONDO:0015974,severe combined immunodeficiency,Déficit immunitaire combiné sévère,mondo,germline,qlin
+16,STMO,65174 - Sarcome des tissus mous et osseux,,MONDO:0005089,sarcoma,Sarcome,mondo,somatic,qlin
+17,FEAN,55373 - Anomalies fœtales,,MONDO:0019755,developmental defect during embryogenesis,Anomalie du développement embryonnaire,mondo,germline,qlin
+18,DPSO,55414 - Défaut de production de superoxyde,,MONDO:0018305,chronic granulomatous disease,Granulomatose septique chronique,mondo,germline,qlin
+19,EIDC,55404 - Erreurs innées du complément,,MONDO:0003832,complement deficiency,Déficit en complément,mondo,germline,qlin
+20,EIDI,55403 - Erreurs innées de l'immunité,,MONDO:0003778,inborn error of immunity,Erreur innée de l'immunité,mondo,germline,qlin
+21,EIII,55413 - Erreurs innées de l'immunité intrinsèque,,MONDO:0003778,inborn error of immunity,Erreur innée de l'immunité,mondo,germline,qlin
+22,EPIL,55415 - Epilepsie sans déficience intellectuelle,,MONDO:0005027,epilepsy,Épilepsie,mondo,germline,qlin
+23,RAPIDE,Exome rapide : diagnostic monogénique et orientation thérapeutique,,,,,,germline,qlin
+24,HDIP,55408 - Hypogammaglobulinémie et dysrégulation immunitaire primitive,,MONDO:0015517,common variable immunodeficiency,Déficit immunitaire commun variable,mondo,germline,qlin
+25,HLEB,55412 - Hémophagocytose lymphohistiocytaire et à l'infection chronique active au virus Epstein Barr,,MONDO:0015540,hemophagocytic syndrome,Syndrome hémophagocytaire,mondo,germline,qlin
+26,HLH,55412 - Hémophagocytose lymphohistiocytaire,,MONDO:0015540,hemophagocytic syndrome,Syndrome hémophagocytaire,mondo,germline,qlin
+27,MAI,55409 - Maladies auto-inflammatoires,,MONDO:0019751,autoinflammatory syndrome,Syndrome auto-inflammatoire,mondo,germline,qlin
+28,MSMD,55410 - Syndrome de prédisposition mendélienne aux infections mycobactériennes (MSMD),,MONDO:0003778,inborn error of immunity,Erreur innée de l'immunité,mondo,germline,qlin
+29,NPC,55411 - Neutropénie congénitale,,MONDO:0018542,severe congenital neutropenia,Neutropénie congénitale sévère,mondo,germline,qlin
+30,RETINO,Rétinopathies,,MONDO:0005283,retinal disorder,Rétinopathie,mondo,germline,qlin
+31,SHIGE,55407 - Syndrome d'hyper-IgE,,MONDO:0018037,hyper-IgE syndrome,Syndrome d'hyper-IgE,mondo,germline,qlin
+32,SLA,55350 - Sclérose latérale amyotrophique,,MONDO:0004976,amyotrophic lateral sclerosis,Sclérose latérale amyotrophique,mondo,germline,qlin
+33,SURD,Surdité,,MONDO:0021945,hearing disorder,Trouble de l'audition,mondo,germline,qlin
+34,VEOIB,55406 - Maladie inflammatoire de l’intestin très précoce,,MONDO:0005265,inflammatory bowel disease,Maladie inflammatoire de l'intestin,mondo,germline,qlin
+35,GENOR,75022 - Séquençage du génome entier - non spécifique,,,,,,germline,qlin
+36,NEUTP,Neutropénie congénitale,,MONDO:0018542,severe congenital neutropenia,Neutropénie congénitale sévère,mondo,germline,qlin
+37,CONCO,55374 - Prédisposition aux tumeurs solides de l'adulte,,MONDO:0015356,hereditary neoplastic syndrome,Syndrome néoplasique héréditaire,mondo,germline,qlin

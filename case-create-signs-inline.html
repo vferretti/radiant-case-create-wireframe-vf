@@ -158,17 +158,6 @@
   .menu .mnores{padding:8px 9px;font-size:12px;color:var(--faint);font-style:italic}
 
   /* collapsible optional subgroup (Option C) */
-  .optgroup{margin-top:18px;border-top:1px solid var(--line-soft);padding-top:6px}
-  .optgroup-toggle{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;
-    padding:8px 0;cursor:pointer;font:inherit;color:var(--mut);text-align:left}
-  .optgroup-toggle:hover{color:var(--ink)}
-  .optgroup-toggle .tw{font-size:12px;font-weight:500;letter-spacing:.02em}
-  .optgroup-toggle .cnt{color:var(--faint);font-weight:400}
-  .optgroup-toggle .gchev{color:var(--faint);font-size:11px;width:12px;display:inline-block;transition:transform .15s ease}
-  .optgroup-toggle[aria-expanded="true"] .gchev{transform:rotate(90deg)}
-  .optgroup-toggle .hint{margin-left:auto;color:var(--faint);font-size:11px;font-style:italic}
-  .optgroup-body{margin-top:14px}
-  .optgroup-body[hidden]{display:none}
 
   .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
   .chips:empty{display:none}
@@ -355,7 +344,7 @@
 
       <!-- 1. Order & analysis (required) -->
       <section class="sec">
-        <header><span class="n">1</span><h2 data-i18n="sec.order">Order &amp; analysis</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
+        <header><span class="n">1</span><h2 data-i18n="sec.case">Case</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
         <div class="body">
           <!-- Analysis leads AND derives case type: picking a panel sets the case type
                system-side (shown as a badge on the Analysis row in the rail), so it's not a
@@ -365,9 +354,18 @@
             <div class="ctrl select" tabindex="0" data-sel="analysis" data-i18n-ph="ph.analysis">Select an analysis from the catalog…</div>
           </div>
           <div class="row-split">
-            <div class="f">
-              <label><span data-i18n="lbl.category">Category</span> <span class="key">(category_code)</span><sup class="fn">2</sup></label>
-              <label class="check" data-check="prenatal"><span class="box"></span><span data-i18n="lbl.prenatal">Prenatal case</span></label>
+            <div style="flex:1 1 auto;min-width:0">
+              <div class="f">
+                <label><span data-i18n="lbl.category">Category</span> <span class="key">(category_code)</span><sup class="fn">2</sup></label>
+                <label class="check" data-check="prenatal"><span class="box"></span><span data-i18n="lbl.prenatal">Prenatal case</span></label>
+              </div>
+              <!-- Study sits right under the Prenatal checkbox and is always offered. The
+                   research-consent checkbox that used to gate it, down in the optional group,
+                   was dropped (2026-09-08). -->
+              <div class="f" id="study-field" style="margin-top:10px">
+                <label><span data-i18n="lbl.study">Research study</span> <span class="key">(project_code)</span><sup class="fn">5</sup></label>
+                <div class="ctrl select" tabindex="0" data-sel="project" data-i18n-ph="ph.select">Select…</div>
+              </div>
             </div>
             <div class="f pri">
               <label><span data-i18n="lbl.priority">Priority</span> <span class="key">(priority_code)</span></label>
@@ -375,8 +373,70 @@
             </div>
           </div>
 
-          <!-- prenatal-only fields: revealed by the "Prenatal case" checkbox; the prenatal handler
-               toggles [hidden] and clears these when it's switched off (so nothing hidden submits). -->
+          <!-- Ordering physician and site: they used to sit in a collapsed "Optional details"
+               group; that group is gone (2026-09-08) and the whole section shows by default.
+               Physician leads the line. -->
+          <div class="grid" style="margin-top:14px">
+            <div class="f">
+              <label><span data-i18n="lbl.physician">Ordering physician</span> <span class="key">(ordering_physician)</span></label>
+              <input class="ctrl" type="text" data-i18n-ph="ph.freetext" placeholder="Free text">
+            </div>
+            <div class="f">
+              <label><span data-i18n="lbl.ordering">Ordering site</span> <span class="key">(ordering_organization_code)</span><sup class="fn">3</sup></label>
+              <div class="ctrl select" tabindex="0" data-sel="ordering" data-i18n-ph="ph.select">Select…</div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 2. Proband (required) -->
+      <section class="sec">
+        <header><span class="n">2</span><h2 data-i18n="sec.proband">Patient (proband)</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
+        <div class="body">
+          <!-- Issuing site sits left of the patient identifier: issuing site · id type · id -->
+          <div class="grid align-end">
+            <div class="f">
+              <label><span data-i18n="lbl.issuing">Issuing site</span> <span class="req">*</span> <span class="key">(patient_organization_code)</span><sup class="fn">4</sup></label>
+              <div class="ctrl select" tabindex="0" data-sel="issuing" data-i18n-ph="ph.select">Select…</div>
+            </div>
+            <div class="f">
+              <label><span data-i18n="lbl.patientId">Patient identifier</span> <span class="req">*</span> <span class="key">(submitter_patient_id_type · submitter_patient_id)</span></label>
+              <div style="display:flex;gap:8px">
+                <div class="ctrl select filled" tabindex="0" data-sel="idtype" data-value="MRN" data-ph="—" style="flex:0 0 92px">MRN</div>
+                <input class="ctrl" type="text" data-i18n-ph="ph.idValue" placeholder="Identifier value" style="flex:1" data-field="patientid">
+              </div>
+            </div>
+            <!-- health number takes the left column on its own row; the cell beside it is
+                 intentionally empty, so the name/sex/dob pairs below keep their own rows -->
+            <div class="f">
+              <label><span data-i18n="lbl.healthNo">Health number</span> <span class="key">(jhn)</span><sup class="fn">6</sup></label>
+              <input class="ctrl" type="text" data-i18n-ph="ph.jhn" placeholder="RAMQ (QC) or regional JHN">
+            </div>
+            <div aria-hidden="true"></div>
+            <!-- names captured inline with the other demographics, but optional -->
+            <div class="f">
+              <label><span data-i18n="lbl.firstName">First name</span> <span class="key">(first_name)</span></label>
+              <input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional">
+            </div>
+            <div class="f">
+              <label><span data-i18n="lbl.lastName">Last name</span> <span class="key">(last_name)</span></label>
+              <input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional">
+            </div>
+            <div class="f">
+              <label><span data-i18n="lbl.sex">Sex</span> <span class="req">*</span> <span class="key">(sex_code)</span></label>
+              <div class="seg" data-seg="sex"><span data-val="M" data-i18n="sex.M">Male</span><span data-val="F" data-i18n="sex.F">Female</span><span data-val="U" data-i18n="sex.U">Unknown</span></div>
+            </div>
+            <div class="f">
+              <label><span data-i18n="lbl.dob">Date of birth</span> <span class="req">*</span> <span class="key">(date_of_birth)</span></label>
+              <input class="ctrl" type="date" data-i18n-ph="ph.dob" placeholder="YYYY-MM-DD" data-field="dob">
+            </div>
+          </div>
+
+          <!-- prenatal-only fields: revealed by the "Prenatal case" checkbox up in section 1.
+               They describe the fetus, so they sit at the end of the proband section rather than
+               next to the checkbox (moved 2026-09-08). The prenatal handler toggles [hidden] and
+               clears them when it's switched off, so nothing hidden submits. -->
           <div id="prenatal-fields" hidden style="margin-top:16px;border-top:1px solid var(--line-soft);padding-top:16px">
             <p class="subhead" data-i18n="lbl.prenatalInfo">Additional information</p>
             <div class="grid">
@@ -400,76 +460,6 @@
                   <input class="ctrl" type="date" data-field="edddate">
                 </div>
               </div>
-            </div>
-          </div>
-
-          <!-- optional subgroup -->
-          <div class="optgroup">
-            <button class="optgroup-toggle" type="button" aria-expanded="false" data-optgroup>
-              <span class="gchev">›</span>
-              <span class="tw"><span data-i18n="opt.details">Optional details</span> <span class="cnt" data-i18n="opt.detailsList">(Ordering site · Ordering physician · Study)</span></span>
-            </button>
-            <div class="optgroup-body" hidden>
-              <div class="grid">
-                <div class="f">
-                  <label><span data-i18n="lbl.ordering">Ordering site</span> <span class="key">(ordering_organization_code)</span><sup class="fn">3</sup></label>
-                  <div class="ctrl select" tabindex="0" data-sel="ordering" data-i18n-ph="ph.select">Select…</div>
-                </div>
-                <div class="f">
-                  <label><span data-i18n="lbl.physician">Ordering physician</span> <span class="key">(ordering_physician)</span></label>
-                  <input class="ctrl" type="text" data-i18n-ph="ph.freetext" placeholder="Free text">
-                </div>
-              </div>
-              <!-- research consent gates the Study field: no study is offered until consent is recorded -->
-              <label class="check" data-check="consent" style="margin-top:14px"><span class="box"></span><span data-i18n="lbl.consent">This patient (or their parents) consented to take part in a research project.</span></label>
-              <div class="f full" id="study-field" hidden style="margin-top:12px">
-                <label><span data-i18n="lbl.study">Study</span> <span class="key">(project_code)</span><sup class="fn">5</sup></label>
-                <div class="ctrl select" tabindex="0" data-sel="project" data-i18n-ph="ph.select">Select…</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 2. Proband (required) -->
-      <section class="sec">
-        <header><span class="n">2</span><h2 data-i18n="sec.proband">Proband (patient)</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
-        <div class="body">
-          <!-- Issuing site sits left of the patient identifier: issuing site · id type · id -->
-          <div class="grid align-end">
-            <div class="f">
-              <label><span data-i18n="lbl.issuing">Issuing site</span> <span class="req">*</span> <span class="key">(patient_organization_code)</span><sup class="fn">4</sup></label>
-              <div class="ctrl select" tabindex="0" data-sel="issuing" data-i18n-ph="ph.select">Select…</div>
-            </div>
-            <div class="f">
-              <label><span data-i18n="lbl.patientId">Patient identifier</span> <span class="req">*</span> <span class="key">(submitter_patient_id_type · submitter_patient_id)</span></label>
-              <div style="display:flex;gap:8px">
-                <div class="ctrl select filled" tabindex="0" data-sel="idtype" data-value="MRN" style="flex:0 0 92px">MRN</div>
-                <input class="ctrl" type="text" data-i18n-ph="ph.idValue" placeholder="Identifier value" style="flex:1" data-field="patientid">
-              </div>
-            </div>
-            <!-- health number sits under the identifier (right column); the cell beside it is intentionally empty -->
-            <div aria-hidden="true"></div>
-            <div class="f">
-              <label><span data-i18n="lbl.healthNo">Health number</span> <span class="key">(jhn)</span><sup class="fn">6</sup></label>
-              <input class="ctrl" type="text" data-i18n-ph="ph.jhn" placeholder="RAMQ (QC) or regional JHN">
-            </div>
-            <!-- names captured inline with the other demographics, but optional -->
-            <div class="f">
-              <label><span data-i18n="lbl.firstName">First name</span> <span class="key">(first_name)</span></label>
-              <input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional">
-            </div>
-            <div class="f">
-              <label><span data-i18n="lbl.lastName">Last name</span> <span class="key">(last_name)</span></label>
-              <input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional">
-            </div>
-            <div class="f">
-              <label><span data-i18n="lbl.sex">Sex</span> <span class="req">*</span> <span class="key">(sex_code)</span></label>
-              <div class="seg" data-seg="sex"><span data-val="M" data-i18n="sex.M">Male</span><span data-val="F" data-i18n="sex.F">Female</span><span data-val="U" data-i18n="sex.U">Unknown</span></div>
-            </div>
-            <div class="f">
-              <label><span data-i18n="lbl.dob">Date of birth</span> <span class="req">*</span> <span class="key">(date_of_birth)</span></label>
-              <input class="ctrl" type="date" data-i18n-ph="ph.dob" placeholder="YYYY-MM-DD" data-field="dob">
             </div>
           </div>
         </div>
@@ -547,8 +537,11 @@
         <!-- Analysis value carries the derived case type as a badge (germline/somatic);
              affected status is inferred (proband always affected) and not shown at all. -->
         <div class="sumrow"><span class="k" data-i18n="rail.analysis">Analysis</span><span class="v" id="sum-analysis">—</span></div>
-        <div class="sumrow" id="sumrow-cat" hidden><span class="k" data-i18n="rail.category">Category</span><span class="v done" id="sum-cat">Prenatal</span></div>
-        <div class="sumrow" id="sumrow-pri" hidden><span class="k" data-i18n="rail.priority">Priority</span><span class="v done" id="sum-pri">STAT</span></div>
+        <!-- Category and Priority always show, both with their default value: they used to appear
+             only once they left the default, which made the rail jump. `done` (ink) still marks a
+             value that has actually been changed. -->
+        <div class="sumrow" id="sumrow-cat"><span class="k" data-i18n="rail.category">Category</span><span class="v" id="sum-cat">Postnatal</span></div>
+        <div class="sumrow" id="sumrow-pri"><span class="k" data-i18n="rail.priority">Priority</span><span class="v" id="sum-pri">Routine</span></div>
         <div class="sumrow"><span class="k" data-i18n="rail.probandId">Proband ID</span><span class="v" id="sum-proband">—</span></div>
         <div class="sumrow"><span class="k" data-i18n="rail.issuing">Issuing site</span><span class="v" id="sum-issuing">—</span></div>
         <div class="sumrow"><span class="k" data-i18n="rail.sex">Sex</span><span class="v" id="sum-sex">—</span></div>
@@ -615,47 +608,48 @@
      source order. label/label_fr are both the French name: the catalog has no English names.
      `condition` (what the form prefills) is derived ONLY from a MONDO primary_condition — an
      HPO code or a blank leaves the field empty for the user to fill. conditionCode keeps the
-     raw catalog code either way. Most MONDO codes have no readable label yet, so the field
-     shows the bare code — see R3 in revue-maquette-inline.md. Category is not in the catalog;
+     raw catalog code either way. Condition labels come from the catalog CSV columns
+     primary_condition_label_en / _fr, resolved from EBI OLS; the French ones are a translation
+     and need a clinician's eye. Category is not in the catalog;
      assumed Postnatal throughout. */
   var ANALYSES = [
-    { code:"MMG", label:"55340 - Maladies musculaires globales", label_fr:"55340 - Maladies musculaires globales", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019056", condition:"MONDO:0019056" },
-    { code:"DYSM", label:"55330 - Dystrophies musculaires", label_fr:"55330 - Dystrophies musculaires", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0020121", condition:"MONDO:0020121" },
+    { code:"MMG", label:"55340 - Maladies musculaires globales", label_fr:"55340 - Maladies musculaires globales", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019056", condition:"Neuromuscular disease (MONDO:0019056)" },
+    { code:"DYSM", label:"55330 - Dystrophies musculaires", label_fr:"55330 - Dystrophies musculaires", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0020121", condition:"Muscular dystrophy (MONDO:0020121)" },
     { code:"RHAB", label:"55338 - Rhabdomyolyse", label_fr:"55338 - Rhabdomyolyse", type:"Germline", category:"Postnatal", conditionCode:"HP:0003201" },
-    { code:"MITN", label:"55370 - Mitochondriopathies nucléaires", label_fr:"55370 - Mitochondriopathies nucléaires", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0044970", condition:"MONDO:0044970" },
-    { code:"MYOC", label:"55332 - Myopathies congénitales", label_fr:"55332 - Myopathies congénitales", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019952", condition:"MONDO:0019952" },
-    { code:"MYAC", label:"55334 - Myasthénies congénitales", label_fr:"55334 - Myasthénies congénitales", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018940", condition:"MONDO:0018940" },
-    { code:"HYPM", label:"55336 - Hyperthermie maligne", label_fr:"55336 - Hyperthermie maligne", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0007783", condition:"MONDO:0007783" },
-    { code:"RGDI", label:"55360 - Retard global de développement / Déficience intellectuelle (Trio)", label_fr:"55360 - Retard global de développement / Déficience intellectuelle (Trio)", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0700092", condition:"MONDO:0700092" },
-    { code:"POLYM", label:"55372 - Polymalformation contexte postnatal", label_fr:"55372 - Polymalformation contexte postnatal", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019755", condition:"MONDO:0019755" },
-    { code:"TRATU", label:"65217 - Transcriptome tumoral", label_fr:"65217 - Transcriptome tumoral", type:"Somatic", category:"Postnatal", conditionCode:"MONDO:0004992", condition:"MONDO:0004992" },
-    { code:"TUHEM", label:"55393 - Prédisposition hémopathies malignes", label_fr:"55393 - Prédisposition hémopathies malignes", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015356", condition:"MONDO:0015356" },
-    { code:"TUPED", label:"55392 - Prédisposition cancers pédiatriques", label_fr:"55392 - Prédisposition cancers pédiatriques", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015356", condition:"MONDO:0015356" },
-    { code:"EXTUM", label:"65218 - Analyse tumorale", label_fr:"65218 - Analyse tumorale", type:"Somatic", category:"Postnatal", conditionCode:"MONDO:0004992", condition:"MONDO:0004992" },
-    { code:"SHEMA", label:"65091 - Leucémie (somatique)", label_fr:"65091 - Leucémie (somatique)", type:"Somatic", category:"Postnatal", conditionCode:"MONDO:0005059", condition:"MONDO:0005059" },
-    { code:"SCID", label:"55405 - Déficit immunitaire combiné sévère", label_fr:"55405 - Déficit immunitaire combiné sévère", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015974", condition:"MONDO:0015974" },
-    { code:"STMO", label:"65174 - Sarcome des tissus mous et osseux", label_fr:"65174 - Sarcome des tissus mous et osseux", type:"Somatic", category:"Postnatal", conditionCode:"MONDO:0005089", condition:"MONDO:0005089" },
-    { code:"FEAN", label:"55373 - Anomalies fœtales", label_fr:"55373 - Anomalies fœtales", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019755", condition:"MONDO:0019755" },
-    { code:"DPSO", label:"55414 - Défaut de production de superoxyde", label_fr:"55414 - Défaut de production de superoxyde", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018305", condition:"MONDO:0018305" },
-    { code:"EIDC", label:"55404 - Erreurs innées du complément", label_fr:"55404 - Erreurs innées du complément", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0003832", condition:"MONDO:0003832" },
-    { code:"EIDI", label:"55403 - Erreurs innées de l'immunité", label_fr:"55403 - Erreurs innées de l'immunité", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0003778", condition:"MONDO:0003778" },
-    { code:"EIII", label:"55413 - Erreurs innées de l'immunité intrinsèque", label_fr:"55413 - Erreurs innées de l'immunité intrinsèque", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0003778", condition:"MONDO:0003778" },
+    { code:"MITN", label:"55370 - Mitochondriopathies nucléaires", label_fr:"55370 - Mitochondriopathies nucléaires", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0044970", condition:"Mitochondrial disease (MONDO:0044970)" },
+    { code:"MYOC", label:"55332 - Myopathies congénitales", label_fr:"55332 - Myopathies congénitales", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019952", condition:"Congenital myopathy (MONDO:0019952)" },
+    { code:"MYAC", label:"55334 - Myasthénies congénitales", label_fr:"55334 - Myasthénies congénitales", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018940", condition:"Congenital myasthenic syndrome (MONDO:0018940)" },
+    { code:"HYPM", label:"55336 - Hyperthermie maligne", label_fr:"55336 - Hyperthermie maligne", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0007783", condition:"Malignant hyperthermia, susceptibility to, 1 (MONDO:0007783)" },
+    { code:"RGDI", label:"55360 - Retard global de développement / Déficience intellectuelle (Trio)", label_fr:"55360 - Retard global de développement / Déficience intellectuelle (Trio)", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0700092", condition:"Neurodevelopmental disorder (MONDO:0700092)" },
+    { code:"POLYM", label:"55372 - Polymalformation contexte postnatal", label_fr:"55372 - Polymalformation contexte postnatal", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019755", condition:"Developmental defect during embryogenesis (MONDO:0019755)" },
+    { code:"TRATU", label:"65217 - Transcriptome tumoral", label_fr:"65217 - Transcriptome tumoral", type:"Somatic", category:"Postnatal", conditionCode:"MONDO:0004992", condition:"Cancer (MONDO:0004992)" },
+    { code:"TUHEM", label:"55393 - Prédisposition hémopathies malignes", label_fr:"55393 - Prédisposition hémopathies malignes", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015356", condition:"Hereditary neoplastic syndrome (MONDO:0015356)" },
+    { code:"TUPED", label:"55392 - Prédisposition cancers pédiatriques", label_fr:"55392 - Prédisposition cancers pédiatriques", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015356", condition:"Hereditary neoplastic syndrome (MONDO:0015356)" },
+    { code:"EXTUM", label:"65218 - Analyse tumorale", label_fr:"65218 - Analyse tumorale", type:"Somatic", category:"Postnatal", conditionCode:"MONDO:0004992", condition:"Cancer (MONDO:0004992)" },
+    { code:"SHEMA", label:"65091 - Leucémie (somatique)", label_fr:"65091 - Leucémie (somatique)", type:"Somatic", category:"Postnatal", conditionCode:"MONDO:0005059", condition:"Leukemia (MONDO:0005059)" },
+    { code:"SCID", label:"55405 - Déficit immunitaire combiné sévère", label_fr:"55405 - Déficit immunitaire combiné sévère", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015974", condition:"Severe combined immunodeficiency (MONDO:0015974)" },
+    { code:"STMO", label:"65174 - Sarcome des tissus mous et osseux", label_fr:"65174 - Sarcome des tissus mous et osseux", type:"Somatic", category:"Postnatal", conditionCode:"MONDO:0005089", condition:"Sarcoma (MONDO:0005089)" },
+    { code:"FEAN", label:"55373 - Anomalies fœtales", label_fr:"55373 - Anomalies fœtales", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019755", condition:"Developmental defect during embryogenesis (MONDO:0019755)" },
+    { code:"DPSO", label:"55414 - Défaut de production de superoxyde", label_fr:"55414 - Défaut de production de superoxyde", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018305", condition:"Chronic granulomatous disease (MONDO:0018305)" },
+    { code:"EIDC", label:"55404 - Erreurs innées du complément", label_fr:"55404 - Erreurs innées du complément", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0003832", condition:"Complement deficiency (MONDO:0003832)" },
+    { code:"EIDI", label:"55403 - Erreurs innées de l'immunité", label_fr:"55403 - Erreurs innées de l'immunité", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0003778", condition:"Inborn error of immunity (MONDO:0003778)" },
+    { code:"EIII", label:"55413 - Erreurs innées de l'immunité intrinsèque", label_fr:"55413 - Erreurs innées de l'immunité intrinsèque", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0003778", condition:"Inborn error of immunity (MONDO:0003778)" },
     { code:"EPIL", label:"55415 - Epilepsie sans déficience intellectuelle", label_fr:"55415 - Epilepsie sans déficience intellectuelle", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0005027", condition:"Epilepsy (MONDO:0005027)" },
     { code:"RAPIDE", label:"Exome rapide : diagnostic monogénique et orientation thérapeutique", label_fr:"Exome rapide : diagnostic monogénique et orientation thérapeutique", type:"Germline", category:"Postnatal" },
-    { code:"HDIP", label:"55408 - Hypogammaglobulinémie et dysrégulation immunitaire primitive", label_fr:"55408 - Hypogammaglobulinémie et dysrégulation immunitaire primitive", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015517", condition:"MONDO:0015517" },
-    { code:"HLEB", label:"55412 - Hémophagocytose lymphohistiocytaire et à l'infection chronique active au virus Epstein Barr", label_fr:"55412 - Hémophagocytose lymphohistiocytaire et à l'infection chronique active au virus Epstein Barr", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015540", condition:"MONDO:0015540" },
-    { code:"HLH", label:"55412 - Hémophagocytose lymphohistiocytaire", label_fr:"55412 - Hémophagocytose lymphohistiocytaire", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015540", condition:"MONDO:0015540" },
-    { code:"MAI", label:"55409 - Maladies auto-inflammatoires", label_fr:"55409 - Maladies auto-inflammatoires", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019751", condition:"MONDO:0019751" },
-    { code:"MSMD", label:"55410 - Syndrome de prédisposition mendélienne aux infections mycobactériennes (MSMD)", label_fr:"55410 - Syndrome de prédisposition mendélienne aux infections mycobactériennes (MSMD)", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0003778", condition:"MONDO:0003778" },
-    { code:"NPC", label:"55411 - Neutropénie congénitale", label_fr:"55411 - Neutropénie congénitale", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018542", condition:"MONDO:0018542" },
-    { code:"RETINO", label:"Rétinopathies", label_fr:"Rétinopathies", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0005283", condition:"MONDO:0005283" },
-    { code:"SHIGE", label:"55407 - Syndrome d'hyper-IgE", label_fr:"55407 - Syndrome d'hyper-IgE", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018037", condition:"MONDO:0018037" },
-    { code:"SLA", label:"55350 - Sclérose latérale amyotrophique", label_fr:"55350 - Sclérose latérale amyotrophique", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0004976", condition:"MONDO:0004976" },
-    { code:"SURD", label:"Surdité", label_fr:"Surdité", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0021945", condition:"MONDO:0021945" },
-    { code:"VEOIB", label:"55406 - Maladie inflammatoire de l’intestin très précoce", label_fr:"55406 - Maladie inflammatoire de l’intestin très précoce", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0005265", condition:"MONDO:0005265" },
+    { code:"HDIP", label:"55408 - Hypogammaglobulinémie et dysrégulation immunitaire primitive", label_fr:"55408 - Hypogammaglobulinémie et dysrégulation immunitaire primitive", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015517", condition:"Common variable immunodeficiency (MONDO:0015517)" },
+    { code:"HLEB", label:"55412 - Hémophagocytose lymphohistiocytaire et à l'infection chronique active au virus Epstein Barr", label_fr:"55412 - Hémophagocytose lymphohistiocytaire et à l'infection chronique active au virus Epstein Barr", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015540", condition:"Hemophagocytic syndrome (MONDO:0015540)" },
+    { code:"HLH", label:"55412 - Hémophagocytose lymphohistiocytaire", label_fr:"55412 - Hémophagocytose lymphohistiocytaire", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015540", condition:"Hemophagocytic syndrome (MONDO:0015540)" },
+    { code:"MAI", label:"55409 - Maladies auto-inflammatoires", label_fr:"55409 - Maladies auto-inflammatoires", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0019751", condition:"Autoinflammatory syndrome (MONDO:0019751)" },
+    { code:"MSMD", label:"55410 - Syndrome de prédisposition mendélienne aux infections mycobactériennes (MSMD)", label_fr:"55410 - Syndrome de prédisposition mendélienne aux infections mycobactériennes (MSMD)", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0003778", condition:"Inborn error of immunity (MONDO:0003778)" },
+    { code:"NPC", label:"55411 - Neutropénie congénitale", label_fr:"55411 - Neutropénie congénitale", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018542", condition:"Severe congenital neutropenia (MONDO:0018542)" },
+    { code:"RETINO", label:"Rétinopathies", label_fr:"Rétinopathies", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0005283", condition:"Retinal disorder (MONDO:0005283)" },
+    { code:"SHIGE", label:"55407 - Syndrome d'hyper-IgE", label_fr:"55407 - Syndrome d'hyper-IgE", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018037", condition:"Hyper-IgE syndrome (MONDO:0018037)" },
+    { code:"SLA", label:"55350 - Sclérose latérale amyotrophique", label_fr:"55350 - Sclérose latérale amyotrophique", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0004976", condition:"Amyotrophic lateral sclerosis (MONDO:0004976)" },
+    { code:"SURD", label:"Surdité", label_fr:"Surdité", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0021945", condition:"Hearing disorder (MONDO:0021945)" },
+    { code:"VEOIB", label:"55406 - Maladie inflammatoire de l’intestin très précoce", label_fr:"55406 - Maladie inflammatoire de l’intestin très précoce", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0005265", condition:"Inflammatory bowel disease (MONDO:0005265)" },
     { code:"GENOR", label:"75022 - Séquençage du génome entier - non spécifique", label_fr:"75022 - Séquençage du génome entier - non spécifique", type:"Germline", category:"Postnatal" },
-    { code:"NEUTP", label:"Neutropénie congénitale", label_fr:"Neutropénie congénitale", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018542", condition:"MONDO:0018542" },
-    { code:"CONCO", label:"55374 - Prédisposition aux tumeurs solides de l'adulte", label_fr:"55374 - Prédisposition aux tumeurs solides de l'adulte", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015356", condition:"MONDO:0015356" }
+    { code:"NEUTP", label:"Neutropénie congénitale", label_fr:"Neutropénie congénitale", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0018542", condition:"Severe congenital neutropenia (MONDO:0018542)" },
+    { code:"CONCO", label:"55374 - Prédisposition aux tumeurs solides de l'adulte", label_fr:"55374 - Prédisposition aux tumeurs solides de l'adulte", type:"Germline", category:"Postnatal", conditionCode:"MONDO:0015356", condition:"Hereditary neoplastic syndrome (MONDO:0015356)" }
   ];
   var ORGS = ['CHU Sainte-Justine','CHUM','CUSM — McGill','CHU de Québec'];
   var OPTIONS = {
@@ -663,8 +657,39 @@
     ordering:  ORGS,
     issuing:   ORGS,
     priority:  ['Routine','Urgent','STAT'],
-    project:   ['N1 - NeuroDev Phase I','GENCOURS'],
-    condition: ['Global developmental delay (MONDO:0100038)','Epilepsy (MONDO:0005027)','Cardiomyopathy (MONDO:0004994)','Solid tumor (MONDO:0002514)','Intellectual disability (MONDO:0001071)','Undiagnosed — see phenotypes'],
+    project:   ['Pragmatic','Care4Rare','RQDM'],
+    /* the 26 distinct MONDO conditions of the real catalog, label resolved from EBI OLS
+       (ontologies/mondo), alphabetical, plus the catch-all. Past MENU_SEARCH_MIN, so the
+       menu gets its filter box for free. */
+    condition: [
+      'Amyotrophic lateral sclerosis (MONDO:0004976)',
+      'Autoinflammatory syndrome (MONDO:0019751)',
+      'Cancer (MONDO:0004992)',
+      'Chronic granulomatous disease (MONDO:0018305)',
+      'Common variable immunodeficiency (MONDO:0015517)',
+      'Complement deficiency (MONDO:0003832)',
+      'Congenital myasthenic syndrome (MONDO:0018940)',
+      'Congenital myopathy (MONDO:0019952)',
+      'Developmental defect during embryogenesis (MONDO:0019755)',
+      'Epilepsy (MONDO:0005027)',
+      'Hearing disorder (MONDO:0021945)',
+      'Hemophagocytic syndrome (MONDO:0015540)',
+      'Hereditary neoplastic syndrome (MONDO:0015356)',
+      'Hyper-IgE syndrome (MONDO:0018037)',
+      'Inborn error of immunity (MONDO:0003778)',
+      'Inflammatory bowel disease (MONDO:0005265)',
+      'Leukemia (MONDO:0005059)',
+      'Malignant hyperthermia, susceptibility to, 1 (MONDO:0007783)',
+      'Mitochondrial disease (MONDO:0044970)',
+      'Muscular dystrophy (MONDO:0020121)',
+      'Neurodevelopmental disorder (MONDO:0700092)',
+      'Neuromuscular disease (MONDO:0019056)',
+      'Retinal disorder (MONDO:0005283)',
+      'Sarcoma (MONDO:0005089)',
+      'Severe combined immunodeficiency (MONDO:0015974)',
+      'Severe congenital neutropenia (MONDO:0018542)',
+      'Undiagnosed — see phenotypes'
+    ],
     ancestry:  ['French-Canadian','European','Indigenous','Other','Not specified'],
     relation:  ['Mother','Father','Sister','Brother','Daughter','Son','Half-sibling','Other']
   };
@@ -19382,14 +19407,25 @@
     });
     HPO_LIST.forEach(function(t){ t.parents.forEach(function(p){ if(HPO_BY_ID[p]) HPO_BY_ID[p].kids.push(t.id); }); });
   })();
-  var SUGGESTIONS_BY_ANALYSIS = {
-    RGDI: ['HP:0001263','HP:0001249','HP:0001256','HP:0002342','HP:0010864','HP:0000750','HP:0001344','HP:0000252','HP:0000717','HP:0000729','HP:0001290','HP:0001257','HP:0002376','HP:0001250'],
+  /* Suggested phenotypes. Per-analysis lists are a clinical call nobody has made yet, and only
+     4 of the 37 analyses ever had one — so for now every analysis shows the SAME placeholder list
+     (asked 2026-09-08). The two non-specific analyses are the exception: a rapid exome and an
+     unspecific whole genome are ordered precisely because the picture isn't narrowed down, so
+     suggesting anything would be wrong. */
+  var SUGGESTIONS_DEFAULT = ['HP:0001263','HP:0001249','HP:0001256','HP:0002342','HP:0010864','HP:0000750','HP:0001344','HP:0000252','HP:0000717','HP:0000729','HP:0001290','HP:0001257','HP:0002376','HP:0001250'];
+  var SUGGESTIONS_NONE = ['RAPIDE','GENOR'];
+  /* the drafted per-analysis lists, parked until real ones arrive — nothing reads this today */
+  var SUGGESTIONS_DRAFTS = {
+    RGDI: SUGGESTIONS_DEFAULT,
     EPIL: ['HP:0001250','HP:0002069','HP:0002121','HP:0011147','HP:0007270','HP:0002123','HP:0011097','HP:0002373','HP:0011153','HP:0001336','HP:0002521','HP:0001298'],
-    /* orphaned: CARDIO and TSOL are not codes in the real catalog — kept, unused,
-       until someone maps them to real analyses (see R3). */
+    /* orphaned: CARDIO and TSOL are not codes in the real catalog */
     CARDIO: ['HP:0001638','HP:0001639','HP:0001644','HP:0001723','HP:0001714','HP:0001712','HP:0001635','HP:0001645','HP:0001649','HP:0004756','HP:0004308','HP:0001692'],
     TSOL: ['HP:0002664','HP:0002898','HP:0004375','HP:0004376','HP:0002669','HP:0002859','HP:0001402','HP:0002860','HP:0002894','HP:0002896','HP:0002672','HP:0006749']
   };
+  function suggestionsFor(code){
+    if(!code || SUGGESTIONS_NONE.indexOf(code) !== -1) return [];
+    return SUGGESTIONS_DEFAULT;
+  }
   var AGES = [
     { id:'unknown',    en:'Unknown',              fr:'Inconnu' },
     { id:'HP:0030674', en:'Antenatal',            fr:'Anténatale' },
@@ -19415,7 +19451,7 @@
       'ui.collapse':'－ collapse', 'ui.expand':'＋ expand', 'ui.optSections':'Optional sections',
       'ui.docsToggle':'Field codes',
       'ui.removeSign':'Remove',
-      'sec.order':'Order & analysis', 'sec.proband':'Proband (patient)', 'sec.clinical':'Clinical details', 'sec.family':'Family',
+      'sec.case':'Case', 'sec.proband':'Patient (proband)', 'sec.probandPrenatal':'Patient (proband, mother)', 'sec.clinical':'Clinical details', 'sec.family':'Family',
       'lbl.analysis':'Analysis', 'lbl.category':'Category', 'lbl.prenatal':'Prenatal case', 'lbl.priority':'Priority',
       'lbl.prenatalInfo':'Additional information',
       'lbl.fetalSex':'Fetal sex', 'fsex.F':'Female', 'fsex.M':'Male', 'fsex.U':'Undetermined',
@@ -19423,9 +19459,7 @@
       'gest.LMP':'LMP — last menstrual period', 'gest.EDD':'EDD — estimated due date', 'gest.demise':'Fetal demise',
       'lbl.lmpDate':'Date (LMP)', 'lbl.eddDate':'Date (EDD)',
       'rail.priority':'Priority',
-      'opt.details':'Optional details', 'opt.detailsList':'(Ordering site · Ordering physician · Study)',
-      'lbl.ordering':'Ordering site', 'lbl.physician':'Ordering physician', 'lbl.study':'Study',
-      'lbl.consent':'This patient (or their parents) consented to take part in a research project.',
+      'lbl.ordering':'Ordering site', 'lbl.physician':'Ordering physician', 'lbl.study':'Research study',
       'lbl.issuing':'Issuing site', 'lbl.patientId':'Identifier', 'lbl.healthNo':'Health number',
       'lbl.firstName':'First name', 'lbl.lastName':'Last name', 'lbl.sex':'Sex', 'lbl.dob':'Date of birth',
       'lbl.condition':'Primary condition / indication', 'lbl.life':'Life status',
@@ -19499,7 +19533,7 @@
       'ui.collapse':'－ réduire', 'ui.expand':'＋ développer', 'ui.optSections':'Sections facultatives',
       'ui.docsToggle':'Codes',
       'ui.removeSign':'Retirer',
-      'sec.order':'Commande et analyse', 'sec.proband':'Cas index (patient)', 'sec.clinical':'Détails cliniques', 'sec.family':'Famille',
+      'sec.case':'Cas', 'sec.proband':'Patient (cas index)', 'sec.probandPrenatal':'Patient (cas index, mère)', 'sec.clinical':'Détails cliniques', 'sec.family':'Famille',
       'lbl.analysis':'Analyse', 'lbl.category':'Catégorie', 'lbl.prenatal':'Cas prénatal', 'lbl.priority':'Priorité',
       'lbl.prenatalInfo':'Informations supplémentaires',
       'lbl.fetalSex':'Sexe (fœtus)', 'fsex.F':'Féminin', 'fsex.M':'Masculin', 'fsex.U':'Indéterminé',
@@ -19507,9 +19541,7 @@
       'gest.LMP':'DDM — Date des dernières menstruations', 'gest.EDD':'DPA — Date prévue d’accouchement', 'gest.demise':'Fœtus décédé',
       'lbl.lmpDate':'Date (DDM)', 'lbl.eddDate':'Date (DPA)',
       'rail.priority':'Priorité',
-      'opt.details':'Détails facultatifs', 'opt.detailsList':'(Établissement prescripteur · Médecin prescripteur · Étude)',
-      'lbl.ordering':'Établissement prescripteur', 'lbl.physician':'Médecin prescripteur', 'lbl.study':'Étude',
-      'lbl.consent':'Ce patient (ou ses parents) a consenti à participer à un projet de recherche.',
+      'lbl.ordering':'Établissement prescripteur', 'lbl.physician':'Médecin prescripteur', 'lbl.study':'Étude de recherche',
       'lbl.issuing':'Site émetteur', 'lbl.patientId':'Identifiant', 'lbl.healthNo':'RAMQ',
       'lbl.firstName':'Prénom', 'lbl.lastName':'Nom', 'lbl.sex':'Sexe', 'lbl.dob':'Date de naissance',
       'lbl.condition':'Condition principale / indication', 'lbl.life':'Statut vital',
@@ -19583,7 +19615,35 @@
     idtype:   { Other:'Autre' },
     ancestry: { 'French-Canadian':'Canadien-français', European:'Européen', Indigenous:'Autochtone', Other:'Autre', 'Not specified':'Non précisé' },
     relation: { Mother:'Mère', Father:'Père', Sister:'Sœur', Brother:'Frère', Daughter:'Fille', Son:'Fils', 'Half-sibling':'Demi-frère / sœur', Other:'Autre' },
-    condition:{ 'Global developmental delay (MONDO:0100038)':'Retard global du développement (MONDO:0100038)', 'Epilepsy (MONDO:0005027)':'Épilepsie (MONDO:0005027)', 'Cardiomyopathy (MONDO:0004994)':'Cardiomyopathie (MONDO:0004994)', 'Solid tumor (MONDO:0002514)':'Tumeur solide (MONDO:0002514)', 'Intellectual disability (MONDO:0001071)':'Déficience intellectuelle (MONDO:0001071)', 'Undiagnosed — see phenotypes':'Non diagnostiqué — voir phénotypes' }
+    condition:{
+      'Amyotrophic lateral sclerosis (MONDO:0004976)':'Sclérose latérale amyotrophique (MONDO:0004976)',
+      'Autoinflammatory syndrome (MONDO:0019751)':'Syndrome auto-inflammatoire (MONDO:0019751)',
+      'Cancer (MONDO:0004992)':'Cancer (MONDO:0004992)',
+      'Chronic granulomatous disease (MONDO:0018305)':'Granulomatose septique chronique (MONDO:0018305)',
+      'Common variable immunodeficiency (MONDO:0015517)':'Déficit immunitaire commun variable (MONDO:0015517)',
+      'Complement deficiency (MONDO:0003832)':'Déficit en complément (MONDO:0003832)',
+      'Congenital myasthenic syndrome (MONDO:0018940)':'Syndrome myasthénique congénital (MONDO:0018940)',
+      'Congenital myopathy (MONDO:0019952)':'Myopathie congénitale (MONDO:0019952)',
+      'Developmental defect during embryogenesis (MONDO:0019755)':'Anomalie du développement embryonnaire (MONDO:0019755)',
+      'Epilepsy (MONDO:0005027)':'Épilepsie (MONDO:0005027)',
+      'Hearing disorder (MONDO:0021945)':'Trouble de l\'audition (MONDO:0021945)',
+      'Hemophagocytic syndrome (MONDO:0015540)':'Syndrome hémophagocytaire (MONDO:0015540)',
+      'Hereditary neoplastic syndrome (MONDO:0015356)':'Syndrome néoplasique héréditaire (MONDO:0015356)',
+      'Hyper-IgE syndrome (MONDO:0018037)':'Syndrome d\'hyper-IgE (MONDO:0018037)',
+      'Inborn error of immunity (MONDO:0003778)':'Erreur innée de l\'immunité (MONDO:0003778)',
+      'Inflammatory bowel disease (MONDO:0005265)':'Maladie inflammatoire de l\'intestin (MONDO:0005265)',
+      'Leukemia (MONDO:0005059)':'Leucémie (MONDO:0005059)',
+      'Malignant hyperthermia, susceptibility to, 1 (MONDO:0007783)':'Hyperthermie maligne, susceptibilité, type 1 (MONDO:0007783)',
+      'Mitochondrial disease (MONDO:0044970)':'Maladie mitochondriale (MONDO:0044970)',
+      'Muscular dystrophy (MONDO:0020121)':'Dystrophie musculaire (MONDO:0020121)',
+      'Neurodevelopmental disorder (MONDO:0700092)':'Trouble du neurodéveloppement (MONDO:0700092)',
+      'Neuromuscular disease (MONDO:0019056)':'Maladie neuromusculaire (MONDO:0019056)',
+      'Retinal disorder (MONDO:0005283)':'Rétinopathie (MONDO:0005283)',
+      'Sarcoma (MONDO:0005089)':'Sarcome (MONDO:0005089)',
+      'Severe combined immunodeficiency (MONDO:0015974)':'Déficit immunitaire combiné sévère (MONDO:0015974)',
+      'Severe congenital neutropenia (MONDO:0018542)':'Neutropénie congénitale sévère (MONDO:0018542)',
+      'Undiagnosed — see phenotypes':'Non diagnostiqué — voir phénotypes'
+    }
   };
   var lang = 'fr';
   try { var saved = sessionStorage.getItem('caseCreateLang'); if(saved==='en'||saved==='fr') lang = saved; } catch(e){}
@@ -19739,6 +19799,17 @@
     if(key === 'analysis'){
       return ANALYSES.map(function(a){ return { value:a.code, label:optLabel('analysis', a.code), code:a.code }; });
     }
+    if(key === 'condition'){
+      /* 27 entries, so the menu is sorted on the label actually displayed — the canonical
+         values are English and would read out of order in French. The catch-all stays last. */
+      var last = 'Undiagnosed — see phenotypes';
+      return OPTIONS.condition.map(function(v){ return { value:v, label:optLabel('condition', v) }; })
+        .sort(function(a, b){
+          if(a.value === last) return 1;
+          if(b.value === last) return -1;
+          return a.label.localeCompare(b.label, lang);
+        });
+    }
     return OPTIONS[key].map(function(v){ return { value:v, label:optLabel(key, v) }; });
   }
   /* store the canonical value in data-value; show the translated label */
@@ -19752,25 +19823,42 @@
 
   /* ---------- wire the div-selects ---------- */
   var CLEAR = '__clear__';
-  function clearSelect(el){
-    var key = el.getAttribute('data-sel');
-    el.textContent = el.dataset.ph || t('ph.select');   // restore the placeholder = null value
+  /* prepends the "↺ clear" row to a menu, but only when there is a selection to undo.
+     Shared with the family-row selects, which are wired by hand rather than by bindSelect. */
+  function withClear(el, items){
+    return el.classList.contains('filled')
+      ? [{ value:CLEAR, label:t('menu.clear'), clear:true }].concat(items) : items;
+  }
+  /* the plain version: restore the placeholder, drop the value. clearSelect adds the
+     side effects the wired-up proband selects also need. */
+  function clearCtrl(el){
+    el.textContent = el.dataset.ph || t('ph.select');
     el.classList.remove('filled');
     delete el.dataset.value;
-    if(key === 'analysis'){ state.analysisSet = false; }
+  }
+  function clearSelect(el){
+    var key = el.getAttribute('data-sel');
+    clearCtrl(el);                                      // placeholder back = null value
+    if(key === 'analysis'){
+      state.analysisSet = false;
+      /* the primary condition was derived from the analysis, so it goes with it */
+      var cond = document.querySelector('[data-sel="condition"]');
+      if(cond.classList.contains('filled')) clearSelect(cond);
+      /* the suggestion list hangs off the analysis — with none picked, it empties out */
+      renderPheno();
+      if(!document.getElementById('hpo-tree-modal').hasAttribute('hidden')) renderTree();
+    }
     else if(key === 'ordering'){ state.orderingSet = false; }
     else if(key === 'condition'){ state.conditionSet = false; }
+    else if(key === 'issuing'){ state.issuingSet = false; probandOrg = null; syncFamilyOrg(); }
     recompute();
   }
   function bindSelect(el){
     var key = el.getAttribute('data-sel');
-    // clearable only if the field is OPTIONAL (no required *) and started as a placeholder (not a defaulted select)
-    var clearable = !el.classList.contains('filled') && !el.closest('.f').querySelector('.req');
-    function items(){
-      var base = menuItems(key);
-      return (clearable && el.classList.contains('filled'))
-        ? [{ value:CLEAR, label:t('menu.clear'), clear:true }].concat(base) : base;
-    }
+    /* every dropdown can go back to "nothing selected" — required fields and the two that
+       ship with a default (priority, id type) included. Clearing a required one simply
+       un-satisfies the gate, which is exactly what it should show. */
+    function items(){ return withClear(el, menuItems(key)); }
     function fire(){
       var cur = el.classList.contains('filled') ? el.dataset.value : null;
       openMenu(el, items(), cur, function(v){
@@ -19827,25 +19915,44 @@
   /* the Category row only appears when it diverges from the Postnatal default */
   function syncCategoryRow(){
     var on = document.querySelector('[data-check="prenatal"]').classList.contains('on');
-    var row = document.getElementById('sumrow-cat');
-    document.getElementById('sum-cat').textContent = t('cat.Prenatal');
-    if(on) row.removeAttribute('hidden'); else row.setAttribute('hidden','');
+    var cell = document.getElementById('sum-cat');
+    cell.textContent = t(on ? 'cat.Prenatal' : 'cat.Postnatal');
+    cell.classList.toggle('done', on);   // Postnatal is the default, so it stays muted
   }
 
   /* ---------- prenatal: reveal the extra fields, default Priority to STAT, and surface Priority
        in the rail. Switching prenatal OFF clears the revealed fields (nothing hidden submits) and
        restores the Routine default. Fetal sex + gestational age are folded into the required gate
        by recompute() (5 -> 7). Priority stays editable — STAT is a default, not a hard derivation. ---------- */
+  /* section 2's title swaps between two i18n keys, so a language switch repaints it by itself */
+  function syncProbandTitle(on){
+    var h = document.querySelector('[data-i18n="sec.proband"], [data-i18n="sec.probandPrenatal"]');
+    h.setAttribute('data-i18n', on ? 'sec.probandPrenatal' : 'sec.proband');
+    h.textContent = t(h.getAttribute('data-i18n'));
+  }
+  /* what Sex held before prenatal forced it to Female, so switching prenatal off can put it back */
+  var sexBeforePrenatal = null;
+  function setSexSeg(val){
+    var seg = document.querySelector('[data-seg="sex"]');
+    Array.prototype.forEach.call(seg.children, function(sp){ sp.classList.toggle('on', sp.dataset.val === val); });
+    seg.classList.remove('flash'); void seg.offsetWidth; seg.classList.add('flash');
+  }
   function syncPrenatal(){
     var on = document.querySelector('[data-check="prenatal"]').classList.contains('on');
     var block = document.getElementById('prenatal-fields');
     var priority = document.querySelector('[data-sel="priority"]');
+    syncProbandTitle(on);
     if(on){
       block.removeAttribute('hidden');
       setSel(priority, 'priority', 'STAT');    // prenatal defaults to STAT — still editable
+      /* the patient of record is the mother, so Sex is known — prefilled, still editable */
+      var cur = document.querySelector('[data-seg="sex"] .on');
+      sexBeforePrenatal = cur ? cur.dataset.val : '';
+      setSexSeg('F');
     } else {
       block.setAttribute('hidden','');
       setSel(priority, 'priority', 'Routine'); // restore the routine default
+      if(sexBeforePrenatal !== null){ setSexSeg(sexBeforePrenatal); sexBeforePrenatal = null; }
       document.querySelectorAll('[data-seg="fetalsex"] span').forEach(function(s){ s.classList.remove('on'); });
       document.querySelectorAll('[data-radio="gestage"] .radio').forEach(function(r){ r.classList.remove('on'); });
       ['lmpdate','edddate'].forEach(function(f){ var el = document.querySelector('[data-field="'+f+'"]'); if(el) el.value = ''; });
@@ -19861,8 +19968,6 @@
     var val = (priority && priority.dataset.value) || 'Routine';
     document.getElementById('sum-pri').textContent = optLabel('priority', val);
     document.getElementById('sum-pri').classList.toggle('done', val !== 'Routine');
-    var row = document.getElementById('sumrow-pri');
-    if(val !== 'Routine') row.removeAttribute('hidden'); else row.setAttribute('hidden','');
   }
   /* prenatal adds two required fields to the gate; returns null when prenatal is off */
   function prenatalReqs(){
@@ -19874,20 +19979,6 @@
     var gestOK = gv === 'demise' || (gv === 'LMP' && lmp && lmp.value) || (gv === 'EDD' && edd && edd.value);
     return { fetalOK: fetalOK, gestOK: !!gestOK };
   }
-
-  /* ---------- research consent gates the Study field (project_code): the Study dropdown
-       is only offered once consent is recorded; withdrawing consent clears any study picked ---------- */
-  (function(){
-    var box = document.querySelector('[data-check="consent"]');
-    var field = document.getElementById('study-field');
-    var project = document.querySelector('[data-sel="project"]');
-    function sync(){
-      if(box.classList.contains('on')){ field.removeAttribute('hidden'); }
-      else { field.setAttribute('hidden',''); if(project && project.classList.contains('filled')) clearSelect(project); }
-    }
-    box.addEventListener('click', function(){ box.classList.toggle('on'); sync(); });
-    sync();
-  })();
 
   /* ---------- segmented controls ---------- */
   document.querySelectorAll('.seg[data-seg]').forEach(function(seg){
@@ -19912,6 +20003,14 @@
         edd.toggleAttribute('hidden', v !== 'EDD');
         if(v !== 'LMP'){ var l = document.querySelector('[data-field="lmpdate"]'); if(l) l.value = ''; }
         if(v !== 'EDD'){ var d = document.querySelector('[data-field="edddate"]'); if(d) d.value = ''; }
+        /* a fetal demise is no longer a time-critical case: undo the STAT that prenatal set.
+           Still editable, like every other derived default. */
+        if(v === 'demise'){
+          var priority = document.querySelector('[data-sel="priority"]');
+          setSel(priority, 'priority', 'Routine');
+          priority.classList.remove('flash'); void priority.offsetWidth; priority.classList.add('flash');
+          syncPriorityRow();
+        }
       }
       recompute();
     });
@@ -19976,7 +20075,7 @@
 
   /* observed terms picked from the browser that are NOT in the analysis's suggestion list */
   function renderBrowserSelected(){
-    var suggSet = SUGGESTIONS_BY_ANALYSIS[analysisCode()] || [];
+    var suggSet = suggestionsFor(analysisCode());
     var ids = pheno.observed.map(function(o){ return o.id; })
       .filter(function(id){ return suggSet.indexOf(id) === -1; }).sort(byLabel);
     document.getElementById('browser-sel-head').hidden = ids.length === 0;
@@ -19985,7 +20084,7 @@
     ids.forEach(function(id){ cont.appendChild(makePRow(id, 'observed')); });
   }
   function renderSuggestions(){
-    var ids = (SUGGESTIONS_BY_ANALYSIS[analysisCode()] || []).slice();
+    var ids = suggestionsFor(analysisCode()).slice();
     var cont = document.getElementById('suggestions'); cont.innerHTML = '';
     var more = document.getElementById('sugg-showmore'); more.hidden = true;
     if(!ids.length) return;
@@ -20190,7 +20289,7 @@
             '<div class="ctrl select" tabindex="0" data-fam-seq-org data-i18n-ph="ph.select">Select…</div></div>' +
           '<div class="f"><label><span data-i18n="lbl.patientId">Patient identifier</span> <span class="req">*</span> <span class="key">(submitter_patient_id_type · submitter_patient_id)</span></label>' +
             '<div style="display:flex;gap:8px">' +
-              '<div class="ctrl select filled" tabindex="0" data-fam-seq-idtype data-value="MRN" style="flex:0 0 92px">MRN</div>' +
+              '<div class="ctrl select filled" tabindex="0" data-fam-seq-idtype data-value="MRN" data-ph="—" style="flex:0 0 92px">MRN</div>' +
               '<input class="ctrl" type="text" data-i18n-ph="ph.idValue" placeholder="Identifier value" style="flex:1" data-fam-seq-id></div></div>' +
           '<div class="f"><label><span data-i18n="lbl.firstName">First name</span> <span class="key">(first_name)</span></label>' +
             '<input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional" data-fam-seq-first></div>' +
@@ -20204,7 +20303,8 @@
       '</div>';
     var rel = row.querySelector('[data-fam="relation"]');
     rel.addEventListener('click', function(){
-      openMenu(rel, famRelationItems(row), rel.classList.contains('filled')?rel.dataset.value:null, function(v){
+      openMenu(rel, withClear(rel, famRelationItems(row)), rel.classList.contains('filled')?rel.dataset.value:null, function(v){
+        if(v === CLEAR){ clearCtrl(rel); renderPedigree(); return; }
         famApplyRelation(row, v);
       });
     });
@@ -20232,15 +20332,21 @@
     /* id type — MRN by default, same picklist as the proband */
     var famIdtype = row.querySelector('[data-fam-seq-idtype]');
     famIdtype.addEventListener('click', function(){
-      openMenu(famIdtype, menuItems('idtype'), famIdtype.dataset.value, function(v){ setSel(famIdtype,'idtype',v); });
+      openMenu(famIdtype, withClear(famIdtype, menuItems('idtype')), famIdtype.dataset.value, function(v){
+        if(v === CLEAR){ clearCtrl(famIdtype); return; }
+        setSel(famIdtype,'idtype',v);
+      });
     });
     /* issuing site defaults to the proband's org (via syncFamilyOrg) but is editable;
        a manual pick sets 'overridden' so it no longer follows the proband */
     var famOrg = row.querySelector('[data-fam-seq-org]');
     famOrg.dataset.ph = t('ph.select');
     famOrg.addEventListener('click', function(){
-      openMenu(famOrg, menuItems('issuing'), famOrg.classList.contains('filled') ? famOrg.dataset.value : null, function(v){
-        setSel(famOrg,'issuing',v); famOrg.dataset.overridden = '1'; clearFieldError(famOrg);
+      openMenu(famOrg, withClear(famOrg, menuItems('issuing')), famOrg.classList.contains('filled') ? famOrg.dataset.value : null, function(v){
+        /* clearing counts as an override too, otherwise syncFamilyOrg refills it from the proband */
+        famOrg.dataset.overridden = '1';
+        if(v === CLEAR){ clearCtrl(famOrg); return; }
+        setSel(famOrg,'issuing',v); clearFieldError(famOrg);
       });
     });
     /* clear a field's submit-time error as soon as it's fixed */
@@ -20583,25 +20689,6 @@
 
   /* ---------- init ---------- */
   document.querySelectorAll('.ctrl.select[data-sel]').forEach(bindSelect);
-
-  (function () {  /* Option C: collapsible optional subgroups, remembered for the session */
-    var KEY = 'caseCreateOptionalOpen';
-    var startOpen = false;
-    try { startOpen = sessionStorage.getItem(KEY) === '1'; } catch(e){}   // file:// origins can block storage
-    document.querySelectorAll('[data-optgroup]').forEach(function (btn) {
-      function setOpen(open){
-        var body = btn.nextElementSibling;
-        btn.setAttribute('aria-expanded', String(open));
-        if(open) body.removeAttribute('hidden'); else body.setAttribute('hidden','');
-      }
-      setOpen(startOpen);
-      btn.addEventListener('click', function () {
-        var open = btn.getAttribute('aria-expanded') !== 'true';
-        setOpen(open);
-        if(open){ try { sessionStorage.setItem(KEY, '1'); } catch(e){} }
-      });
-    });
-  })();
 
   (function () {  /* section expand/collapse — every top-level section is collapsible */
     document.querySelectorAll('.sec').forEach(function (sec) {

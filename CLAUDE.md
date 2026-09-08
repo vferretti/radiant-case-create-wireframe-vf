@@ -27,10 +27,10 @@ changes.
 **Vincent is reviewing version B (`case-create-signs-inline.html`).** Version A is not being
 edited right now; the two have drifted apart as a result.
 
-The review lives in **`revue-maquette-inline.md`** — numbered entries (R1, R2, …) with a status,
-where in the file it applies, the request in Vincent's words, and the decisions taken. **Read it
-before touching anything.** It is the record of what was asked, what was assumed, and what is
-still open.
+The review lives in **`revue-maquette-inline.md`**. Vincent wants it **short**: a one- or two-line
+bullet per change under « Changements effectués », and a « Commentaires » section holding **only
+his own comments** — not mine. Technical caveats, assumptions and open questions go here in
+CLAUDE.md instead, never in that file.
 
 Working rules Vincent set, which still hold unless he says otherwise:
 
@@ -45,9 +45,11 @@ Working rules Vincent set, which still hold unless he says otherwise:
 
 - **`analysis_catalog_qlin.csv`** — the real analysis catalog (37 analyses, tenant `qlin`). It is
   the source for `var ANALYSES` in the wireframe. Columns: `code`, `name` (French, **with the act
-  number as a prefix**), `primary_condition`, `condition_code_system`, `analysis_type_code`.
-- **There is no MONDO label source anywhere on disk**, so most conditions display as a bare code.
-  See "Open questions" below.
+  number as a prefix**), `primary_condition`, `primary_condition_label_en`,
+  `primary_condition_label_fr`, `condition_code_system`, `analysis_type_code`.
+- **The two label columns were added on 2026-09-08**, resolved from the EBI OLS API
+  (`ontologies/mondo` and `ontologies/hp`); the French side is a translation, not an ontology
+  source, and needs a clinician's review.
 - The full HPO ontology (~18,690 terms) is **inlined** in each HTML file. That is what makes the
   files ~1.6 MB and ~20,500 lines.
 
@@ -105,6 +107,10 @@ condition-derivation rules — do the same rather than claiming something works 
   catalog code is kept in `conditionCode` either way.
 - **Case type (germline/somatic) comes from `analysis_type_code`** — the real catalog confirms one
   type per analysis, which was an open assumption in footnote 1.
+- **Every dropdown is clearable** back to its placeholder — required fields and the two that ship
+  with a default (priority, id type) included — through the `↺ clear` row `withClear()` prepends
+  whenever a select is `filled`. Clearing the analysis drops the derived condition suggestions;
+  clearing the issuing site stops relatives inheriting it.
 - **Suggestion lists**: `EPI4` was renamed to the real code `EPIL`. `CARDIO` and `TSOL` are **left
   orphaned and unused** rather than reassigned to a real analysis — that is a clinical call, not a
   technical one.
@@ -113,13 +119,19 @@ condition-derivation rules — do the same rather than claiming something works 
 
 Full detail in `revue-maquette-inline.md`; the ones that will block work:
 
-1. **MONDO labels are missing.** 33 of 34 derived conditions display as a bare code
-   (`MONDO:0019056`). Needs either an external source (ask Vincent before fetching) or a file from
-   him, as he did for the catalog.
+1. **MONDO labels now come from EBI OLS**, fetched on Vincent's go-ahead (2026-09-08). Confirm
+   that source is acceptable, and get the French translations reviewed.
 2. **The catalog has no English names.** In EN the form currently shows the French name.
 3. **Category is not in the catalog**; Postnatal is assumed for all 37.
-4. **Suggested phenotypes per analysis are a first guess**, drafted from HPO rather than a clinical
-   source, and only exist for a couple of analyses now that the real catalog is in.
+4. **Suggested phenotypes are one placeholder list shown for every analysis** (`SUGGESTIONS_DEFAULT`,
+   set 2026-09-08), except RAPIDE and GENOR which get none. Real per-analysis lists are still a
+   clinical call nobody has made; the drafted ones sit unread in `SUGGESTIONS_DRAFTS`.
 5. **French HPO terms are largely machine-translated** and need a French clinician's review.
 6. Whether the search should also apply to **issuing site / ordering site** — plugging in the real
    Quebec establishment list would trip the 8-entry threshold on its own.
+7. **Two apparent duplicates in the catalog**: NPC and NEUTP both read « Neutropénie congénitale » ;
+   HLEB and HLH both carry act number 55412. Data-entry error, or a real distinction?
+8. **Switching analysis does not clear an already-derived condition** — going from MMG to RAPIDE
+   (no derived condition) leaves « Maladie neuromusculaire » in the field. Original behaviour,
+   untouched. Note that *clearing* the analysis does now clear the condition (asked 2026-09-08),
+   so only the switch case is left inconsistent.
