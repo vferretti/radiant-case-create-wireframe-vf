@@ -91,7 +91,9 @@
   .fielderr{display:block;margin-top:4px;font-size:11px;color:var(--req)}
   /* existing-patient lookup status, under the identifier */
   /* always in flow, empty or not: the row below must not move when a message appears */
-  .lookup{display:block;min-height:16px;margin-top:5px;font-size:11px;color:var(--faint)}
+  /* negative margins pull the line into the row gap above and below, so the status text costs
+     the row only its own height instead of a full extra grid row */
+  .lookup{grid-column:1/-1;min-height:15px;line-height:15px;margin:-10px 0 -6px;font-size:11px;color:var(--faint)}
   .lookup.found{color:var(--accent);font-weight:500}
   textarea.ctrl.area{line-height:1.4}
 
@@ -408,12 +410,15 @@
                 <div class="ctrl select filled" tabindex="0" data-sel="idtype" data-value="MRN" data-ph="—" style="flex:0 0 92px">MRN</div>
                 <input class="ctrl" type="text" data-i18n-ph="ph.idValue" placeholder="Identifier value" style="flex:1" data-field="patientid">
               </div>
-              <span class="lookup" id="patient-lookup"></span>
             </div>
             <div class="f">
               <label><span data-i18n="lbl.issuing">Issuing site</span> <span class="req">*</span> <span class="key">(patient_organization_code)</span><sup class="fn">4</sup></label>
               <div class="ctrl select" tabindex="0" data-sel="issuing" data-i18n-ph="ph.select">Select…</div>
             </div>
+            <!-- lookup status spans the whole row rather than sitting inside the identifier cell:
+                 the row is bottom-aligned, so a message growing inside one cell would push its
+                 control out of line with its neighbour's -->
+            <span class="lookup" id="patient-lookup"></span>
             <!-- health number takes the left column on its own row; the cell beside it is
                  intentionally empty, so the name/sex/dob pairs below keep their own rows -->
             <div class="f">
