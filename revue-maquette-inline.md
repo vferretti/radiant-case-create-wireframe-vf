@@ -29,6 +29,11 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
 - **Effacer l'analyse efface aussi la condition MONDO** qui en était dérivée.
 - **Phénotypes suggérés : la même liste pour toutes les analyses** en attendant les vraies listes
   cliniques, sauf l'exome rapide (RAPIDE) et le génome non spécifique (GENOR), qui n'en ont aucune.
+- **Identifiant avant le site émetteur**, avec le CHU Sainte-Justine prérempli (établissement de
+  l'utilisateur), et **recherche simulée du patient existant** : elle part dès que la paire
+  site + identifiant est complète, quel que soit l'ordre de saisie. MRN **1234** trouve un dossier
+  et préremplit RAMQ, prénom, nom, sexe et date de naissance ; tout autre numéro donne « nouveau
+  patient » et vide ce qui avait été prérempli.
 
 ## Commentaires
 

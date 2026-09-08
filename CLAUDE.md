@@ -111,6 +111,12 @@ condition-derivation rules — do the same rather than claiming something works 
   with a default (priority, id type) included — through the `↺ clear` row `withClear()` prepends
   whenever a select is `filled`. Clearing the analysis drops the derived condition suggestions;
   clearing the issuing site stops relatives inheriting it.
+- **The identifier leads section 2, the issuing site is defaulted** to the user's own
+  establishment (stubbed as CHU Sainte-Justine). The existing-patient lookup keys on
+  site + id type + identifier, so it fires whenever that pair is complete, whichever half moved
+  last, and re-fires when either changes. It is mocked (`PATIENT_DB`, one record behind a 700 ms
+  delay): MRN 1234 at Sainte-Justine prefills health number, names, sex and date of birth;
+  anything else reports "new patient" and takes back only the values the lookup itself wrote.
 - **Suggestion lists**: `EPI4` was renamed to the real code `EPIL`. `CARDIO` and `TSOL` are **left
   orphaned and unused** rather than reassigned to a real analysis — that is a clinical call, not a
   technical one.

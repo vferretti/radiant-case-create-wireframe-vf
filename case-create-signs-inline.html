@@ -89,6 +89,10 @@
   /* inline validation for conditionally-required fields (surfaced only at submit) */
   .ctrl.err{border-color:var(--req)}
   .fielderr{display:block;margin-top:4px;font-size:11px;color:var(--req)}
+  /* existing-patient lookup status, under the identifier */
+  /* always in flow, empty or not: the row below must not move when a message appears */
+  .lookup{display:block;min-height:16px;margin-top:5px;font-size:11px;color:var(--faint)}
+  .lookup.found{color:var(--accent);font-weight:500}
   textarea.ctrl.area{line-height:1.4}
 
   /* checkbox — a single boolean, built in the same visual language as the controls */
@@ -394,34 +398,37 @@
       <section class="sec">
         <header><span class="n">2</span><h2 data-i18n="sec.proband">Patient (proband)</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
         <div class="body">
-          <!-- Issuing site sits left of the patient identifier: issuing site · id type · id -->
+          <!-- The identifier leads: it is what the user actually types. The issuing site sits
+               beside it, defaulted to the user's own establishment, because the existing-patient
+               lookup keys on site + identifier and needs both. -->
           <div class="grid align-end">
-            <div class="f">
-              <label><span data-i18n="lbl.issuing">Issuing site</span> <span class="req">*</span> <span class="key">(patient_organization_code)</span><sup class="fn">4</sup></label>
-              <div class="ctrl select" tabindex="0" data-sel="issuing" data-i18n-ph="ph.select">Select…</div>
-            </div>
             <div class="f">
               <label><span data-i18n="lbl.patientId">Patient identifier</span> <span class="req">*</span> <span class="key">(submitter_patient_id_type · submitter_patient_id)</span></label>
               <div style="display:flex;gap:8px">
                 <div class="ctrl select filled" tabindex="0" data-sel="idtype" data-value="MRN" data-ph="—" style="flex:0 0 92px">MRN</div>
                 <input class="ctrl" type="text" data-i18n-ph="ph.idValue" placeholder="Identifier value" style="flex:1" data-field="patientid">
               </div>
+              <span class="lookup" id="patient-lookup"></span>
+            </div>
+            <div class="f">
+              <label><span data-i18n="lbl.issuing">Issuing site</span> <span class="req">*</span> <span class="key">(patient_organization_code)</span><sup class="fn">4</sup></label>
+              <div class="ctrl select" tabindex="0" data-sel="issuing" data-i18n-ph="ph.select">Select…</div>
             </div>
             <!-- health number takes the left column on its own row; the cell beside it is
                  intentionally empty, so the name/sex/dob pairs below keep their own rows -->
             <div class="f">
               <label><span data-i18n="lbl.healthNo">Health number</span> <span class="key">(jhn)</span><sup class="fn">6</sup></label>
-              <input class="ctrl" type="text" data-i18n-ph="ph.jhn" placeholder="RAMQ (QC) or regional JHN">
+              <input class="ctrl" type="text" data-i18n-ph="ph.jhn" placeholder="RAMQ (QC) or regional JHN" data-field="jhn">
             </div>
             <div aria-hidden="true"></div>
             <!-- names captured inline with the other demographics, but optional -->
             <div class="f">
               <label><span data-i18n="lbl.firstName">First name</span> <span class="key">(first_name)</span></label>
-              <input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional">
+              <input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional" data-field="firstname">
             </div>
             <div class="f">
               <label><span data-i18n="lbl.lastName">Last name</span> <span class="key">(last_name)</span></label>
-              <input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional">
+              <input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional" data-field="lastname">
             </div>
             <div class="f">
               <label><span data-i18n="lbl.sex">Sex</span> <span class="req">*</span> <span class="key">(sex_code)</span></label>
@@ -19490,6 +19497,10 @@
       'ph.select':'Select…', 'ph.analysis':'Select an analysis…', 'ph.idValue':'Identifier value',
       'ph.jhn':'RAMQ (QC) or regional JHN', 'ph.optional':'Optional', 'ph.dob':'YYYY-MM-DD',
       'ph.freetext':'Free text', 'ph.condition':'Search condition (MONDO / HPO / free text)…',
+      'lookup.searching':'Looking for an existing patient…',
+      'lookup.found':'Patient already known here — fields prefilled, check them.',
+      'lookup.none':'No patient with this identifier here — new patient.',
+      'lookup.needSite':'Pick the issuing site to run the search.',
       'ph.note':'Diagnostic hypothesis, or any other context relevant to this case…',
       'sex.M':'Male', 'sex.F':'Female', 'sex.U':'Unknown',
       'life.Alive':'Alive', 'life.Deceased':'Deceased', 'life.Unknown':'Unknown',
@@ -19572,6 +19583,10 @@
       'ph.select':'Sélectionner…', 'ph.analysis':'Sélectionner une analyse…', 'ph.idValue':'Valeur de l’identifiant',
       'ph.jhn':'RAMQ (QC) ou NAM régional', 'ph.optional':'Facultatif', 'ph.dob':'AAAA-MM-JJ',
       'ph.freetext':'Texte libre', 'ph.condition':'Rechercher une condition (MONDO / HPO / texte libre)…',
+      'lookup.searching':'Recherche d’un patient existant…',
+      'lookup.found':'Patient déjà connu à ce site — champs préremplis, à vérifier.',
+      'lookup.none':'Aucun patient avec cet identifiant ici — nouveau patient.',
+      'lookup.needSite':'Choisir le site émetteur pour lancer la recherche.',
       'ph.note':'Hypothèse diagnostique ou tout autre contexte pertinent pour ce cas…',
       'sex.M':'Masculin', 'sex.F':'Féminin', 'sex.U':'Inconnu',
       'life.Alive':'Vivant', 'life.Deceased':'Décédé', 'life.Unknown':'Inconnu',
@@ -19851,6 +19866,7 @@
     else if(key === 'ordering'){ state.orderingSet = false; }
     else if(key === 'condition'){ state.conditionSet = false; }
     else if(key === 'issuing'){ state.issuingSet = false; probandOrg = null; syncFamilyOrg(); }
+    if(key === 'issuing' || key === 'idtype') runLookup();
     recompute();
   }
   function bindSelect(el){
@@ -19865,9 +19881,9 @@
         if(v === CLEAR){ clearSelect(el); return; }
         if(key === 'analysis'){ pickAnalysis(v); }
         else if(key === 'ordering'){ setSel(el,'ordering',v); state.orderingSet = true; recompute(); }
-        else if(key === 'issuing'){ setSel(el,'issuing',v); state.issuingSet = true; probandOrg = v; syncFamilyOrg(); recompute(); }
+        else if(key === 'issuing'){ setSel(el,'issuing',v); state.issuingSet = true; probandOrg = v; syncFamilyOrg(); recompute(); runLookup(); }
         else if(key === 'condition'){ setSel(el,'condition',v); state.conditionSet = true; recompute(); }
-        else { setSel(el,key,v); recompute(); }
+        else { setSel(el,key,v); recompute(); if(key === 'idtype') runLookup(); }
       });
     }
     el.addEventListener('click', fire);
@@ -20021,7 +20037,69 @@
   });
 
   /* ---------- proband text fields mirror their value into the summary ---------- */
-  idInput.addEventListener('input', recompute);
+  /* ---------- existing-patient lookup (simulated) ----------
+     The real form queries the registry on site + identifier — the pair is the key, a bare MRN
+     is not unique across establishments. So the search fires whenever the pair is complete,
+     whichever half was filled last, and re-fires if either half changes. Only the identifier
+     is typed, hence it leads the line; the site is defaulted to the user's own establishment.
+     Here it is a mock: one record, behind a 700 ms delay so the demo shows the wait. */
+  var PATIENT_DB = {
+    'CHU Sainte-Justine|MRN|1234': { jhn:'TREL 1953 0801', firstname:'Léa', lastname:'Tremblay', sex:'F', dob:'2019-03-08' }
+  };
+  var LOOKUP_DELAY = 700;
+  var lookupTimer = null, lookupSeq = 0, autofilled = null;
+  function lookupNote(key, found){
+    var el = document.getElementById('patient-lookup');
+    el.classList.toggle('on', !!key);
+    el.classList.toggle('found', !!found);
+    if(key){ el.setAttribute('data-i18n', key); el.textContent = t(key); }
+    else { el.removeAttribute('data-i18n'); el.textContent = ''; }
+  }
+  function lookupKey(){
+    var org = document.querySelector('[data-sel="issuing"]');
+    var idt = document.querySelector('[data-sel="idtype"]');
+    var v = idInput.value.trim();
+    if(!v) return '';
+    if(!org.dataset.value || !idt.dataset.value) return null;   // pair incomplete
+    return org.dataset.value + '|' + idt.dataset.value + '|' + v;
+  }
+  function fld(name){ return document.querySelector('[data-field="'+name+'"]'); }
+  /* only take back what the lookup itself wrote, and only if it hasn't been edited since */
+  function clearAutofill(){
+    if(!autofilled) return;
+    ['jhn','firstname','lastname','dob'].forEach(function(k){
+      var el = fld(k); if(el && el.value === autofilled[k]) el.value = '';
+    });
+    var sexOn = document.querySelector('[data-seg="sex"] .on');
+    if(sexOn && sexOn.dataset.val === autofilled.sex) setSexSeg('');
+    autofilled = null;
+  }
+  function applyRecord(rec){
+    clearAutofill();
+    ['jhn','firstname','lastname','dob'].forEach(function(k){
+      var el = fld(k); if(!el) return;
+      el.value = rec[k];
+      el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+    });
+    setSexSeg(rec.sex);
+    autofilled = rec;
+  }
+  function runLookup(){
+    clearTimeout(lookupTimer);
+    var seq = ++lookupSeq;                 // anything still in flight is stale
+    var key = lookupKey();
+    if(key === ''){ clearAutofill(); lookupNote(null); recompute(); return; }
+    if(key === null){ lookupNote('lookup.needSite'); return; }
+    lookupNote('lookup.searching');
+    lookupTimer = setTimeout(function(){
+      if(seq !== lookupSeq) return;
+      var rec = PATIENT_DB[key];
+      if(rec){ applyRecord(rec); lookupNote('lookup.found', true); }
+      else { clearAutofill(); lookupNote('lookup.none'); }
+      recompute();
+    }, LOOKUP_DELAY);
+  }
+  idInput.addEventListener('input', function(){ recompute(); runLookup(); });
   dobInput.addEventListener('input', recompute);
 
   /* ---------- phenotypes: the HPO clinical-signs picker, INLINE (Version B) ----------
@@ -20707,6 +20785,17 @@
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
       });
     });
+  })();
+
+  /* The issuing site defaults to the establishment the user belongs to — stubbed here as
+     Sainte-Justine. It is what makes the identifier usable as the first field: the lookup key
+     is complete as soon as the MRN is typed. Still a normal, editable, clearable pick. */
+  (function(){
+    var el = document.querySelector('[data-sel="issuing"]');
+    setSel(el, 'issuing', 'CHU Sainte-Justine');
+    state.issuingSet = true;
+    probandOrg = el.dataset.value;
+    syncFamilyOrg();
   })();
 
   applyLang();   // paints the UI in the persisted language and runs the first recompute
