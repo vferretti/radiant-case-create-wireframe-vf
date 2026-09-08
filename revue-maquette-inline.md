@@ -79,8 +79,9 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
   retirer la ligne ; les pastilles barrées des non observés sont remplacées par des lignes
   identiques à celles des observés. Libellés du bloc remis à la couleur du reste du formulaire.
 - **Bloc des signes non observés aligné sur celui des observés** : le bouton « + Signes non
-  observés » devient la consigne « Sélectionnez des signes NON OBSERVÉS pertinents (facultatif) »,
-  suivie de son propre champ de recherche et du bouton « Parcourir l'arbre HPO ».
+  observés » devient une **case à cocher** « Sélectionnez des phénotypes NON OBSERVÉS pertinents
+  (facultatif) » qui révèle le champ de recherche et le bouton « Parcourir l'arbre HPO » ;
+  décocher referme et vide la liste.
 - **Titre « Signes cliniques » retiré** : la consigne « Sélectionnez… » ouvre le bloc et reprend
   les codes de champ et la note 7. Espacements verticaux uniformisés (12 sous la consigne,
   16 avant un sous-titre, 6 en dessous).

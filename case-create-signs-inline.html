@@ -304,7 +304,8 @@
   #signs-block .mhint{margin:6px 0 0}
   #signs-block .showmore{margin:0}
   #signs-block .negrow{margin-top:16px;border-top:1px solid var(--line-soft);padding-top:16px}
-  #signs-block .negrow .instr{margin:0 0 12px}
+  #signs-block .negrow .check{height:auto;font-size:12px;font-weight:500;color:var(--ink)}
+  #signs-block #negsigns-body{margin-top:12px}
   .modal .msearch{position:relative;margin-bottom:6px}
   .modal .msearch input{width:100%}
   /* checkbox picklist rows — reuse .check/.chip vocabulary */
@@ -572,7 +573,10 @@
             <!-- not-observed signs: same shape as the observed block above — the ask, what is
                  already picked, then a search row with the tree button (2026-09-08) -->
             <div class="negrow">
-              <p class="instr" data-i18n="dlg.negInstruction">Select any relevant NOT-OBSERVED phenotypes (optional)</p>
+              <!-- the ask is a checkbox: unchecked, the block is one line; checked, it opens the
+                   search row and whatever has been picked (2026-09-08) -->
+              <label class="check" data-check="negsigns"><span class="box"></span><span data-i18n="dlg.negInstruction">Select any relevant NOT-OBSERVED phenotypes (optional)</span></label>
+              <div id="negsigns-body" hidden>
               <p class="divlabel" id="neg-sel-head" hidden><span data-i18n="dlg.negSelected">Not-observed phenotypes</span> <span class="cnt" id="neg-sel-count"></span></p>
               <div class="hpo-picklist" id="neg-selected"></div>
               <div class="msearchrow">
@@ -584,6 +588,7 @@
               </div>
               <div class="hpo-picklist" id="neg-search-results"></div>
               <p class="mhint" id="neg-search-hint" hidden></p>
+              </div>
             </div>
           </div>
 
@@ -20515,6 +20520,23 @@
     localize(row);
     return row;
   }
+  /* the not-observed half opens on demand; closing it drops what was picked, so nothing hidden
+     ends up in the case */
+  (function(){
+    var box  = document.querySelector('[data-check="negsigns"]');
+    var body = document.getElementById('negsigns-body');
+    box.addEventListener('click', function(){
+      var on = box.classList.toggle('on');
+      if(on){ body.removeAttribute('hidden'); }
+      else {
+        body.setAttribute('hidden','');
+        document.getElementById('neg-search').value = '';
+        if(pheno.negative.length){ pheno.negative = []; renderPheno(); sumPheno(); }
+        else renderSearchResults('negative');
+      }
+    });
+  })();
+
   (function(){
     var box  = document.querySelector('[data-check="famhist"]');
     var body = document.getElementById('famhist-body');
