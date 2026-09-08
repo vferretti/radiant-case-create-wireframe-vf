@@ -400,9 +400,9 @@
       <section class="sec">
         <header><span class="n">2</span><h2 data-i18n="sec.proband">Patient (proband)</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
         <div class="body">
-          <!-- The identifier leads: it is what the user actually types. The issuing site sits
-               beside it, defaulted to the user's own establishment, because the existing-patient
-               lookup keys on site + identifier and needs both. -->
+          <!-- The identifier leads: it is what the user actually types. The patient organization
+               sits beside it; the existing-patient lookup keys on the two together and waits until
+               both are set. No default value — asked 2026-09-08. -->
           <div class="grid align-end">
             <div class="f">
               <label><span data-i18n="lbl.patientId">Patient identifier</span> <span class="req">*</span> <span class="key">(submitter_patient_id_type · submitter_patient_id)</span></label>
@@ -412,7 +412,7 @@
               </div>
             </div>
             <div class="f">
-              <label><span data-i18n="lbl.issuing">Issuing site</span> <span class="req">*</span> <span class="key">(patient_organization_code)</span><sup class="fn">4</sup></label>
+              <label><span data-i18n="lbl.issuing">Patient organization</span> <span class="req">*</span> <span class="key">(patient_organization_code)</span><sup class="fn">4</sup></label>
               <div class="ctrl select" tabindex="0" data-sel="issuing" data-i18n-ph="ph.select">Select…</div>
             </div>
             <!-- lookup status spans the whole row rather than sitting inside the identifier cell:
@@ -555,7 +555,7 @@
         <div class="sumrow" id="sumrow-cat"><span class="k" data-i18n="rail.category">Category</span><span class="v" id="sum-cat">Postnatal</span></div>
         <div class="sumrow" id="sumrow-pri"><span class="k" data-i18n="rail.priority">Priority</span><span class="v" id="sum-pri">Routine</span></div>
         <div class="sumrow"><span class="k" data-i18n="rail.probandId">Proband ID</span><span class="v" id="sum-proband">—</span></div>
-        <div class="sumrow"><span class="k" data-i18n="rail.issuing">Issuing site</span><span class="v" id="sum-issuing">—</span></div>
+        <div class="sumrow"><span class="k" data-i18n="rail.issuing">Patient organization</span><span class="v" id="sum-issuing">—</span></div>
         <div class="sumrow"><span class="k" data-i18n="rail.sex">Sex</span><span class="v" id="sum-sex">—</span></div>
         <div class="sumrow"><span class="k" data-i18n="rail.dob">Date of birth</span><span class="v" id="sum-dob">—</span></div>
 
@@ -581,12 +581,12 @@
         <ol class="notes">
           <li data-i18n-html="note.1"><b>Case type</b> (germline/somatic) is derived from the analysis and shown as a badge — not an input. Assumes one case type per panel; confirm backend&nbsp;#32.</li>
           <li data-i18n-html="note.2">Category (<span class="key">category_code</span>) is required and never null. User control is a Prenatal checkbox, off by default. Unchecked = Postnatal.</li>
-          <li data-i18n-html="note.3">Ordering site is optional here — the org that requested the analysis. Independent of the issuing site. (Diverges from today's required ordering site.)</li>
-          <li data-i18n-html="note.4">Issuing site is an independent required pick — the patient's site of care. This field, not the ordering site, controls per-patient PHI visibility, so it's not derived or hidden.</li>
+          <li data-i18n-html="note.3">Ordering site is optional here — the org that requested the analysis. Independent of the patient organization. (Diverges from today's required ordering site.)</li>
+          <li data-i18n-html="note.4">The patient organization is an independent required pick — the patient's site of care (FHIR <span class="key">managingOrganization</span>). This field, not the ordering site, controls per-patient PHI visibility, so it's not derived or hidden.</li>
           <li data-i18n-html="note.5">Study is optional — usually assigned administratively after intake. (Diverges from today's required project field.)</li>
           <li data-i18n-html="note.6">Health number is nullable — RAMQ in Quebec, other JHN elsewhere.</li>
           <li data-i18n-html="note.7">One onset range per observed term, from the HPO onset value set; optional.</li>
-          <li data-i18n-html="note.8">A sequenced relative needs a real identifier and issuing site. The issuing site defaults to the proband's (it drives per-patient PHI masking) and is editable if the relative was seen elsewhere.</li>
+          <li data-i18n-html="note.8">A sequenced relative needs a real identifier and patient organization. It defaults to the proband's (it drives per-patient PHI masking) and is editable if the relative was seen elsewhere.</li>
         </ol>
       </div>
     </div>
@@ -19472,7 +19472,7 @@
       'lbl.lmpDate':'Date (LMP)', 'lbl.eddDate':'Date (EDD)',
       'rail.priority':'Priority',
       'lbl.ordering':'Ordering site', 'lbl.physician':'Ordering physician', 'lbl.study':'Research study',
-      'lbl.issuing':'Issuing site', 'lbl.patientId':'Identifier', 'lbl.healthNo':'Health number',
+      'lbl.issuing':'Patient organization', 'lbl.patientId':'Identifier', 'lbl.healthNo':'Health number',
       'lbl.firstName':'First name', 'lbl.lastName':'Last name', 'lbl.sex':'Sex', 'lbl.dob':'Date of birth',
       'lbl.condition':'Primary condition / indication', 'lbl.life':'Life status',
       'lbl.phenotypes':'Phenotypes',
@@ -19505,7 +19505,7 @@
       'lookup.searching':'Looking for an existing patient…',
       'lookup.found':'Patient already known here — fields prefilled, check them.',
       'lookup.none':'No patient with this identifier here — new patient.',
-      'lookup.needSite':'Pick the issuing site to run the search.',
+      'lookup.needSite':'Pick the patient organization to run the search.',
       'ph.note':'Diagnostic hypothesis, or any other context relevant to this case…',
       'sex.M':'Male', 'sex.F':'Female', 'sex.U':'Unknown',
       'life.Alive':'Alive', 'life.Deceased':'Deceased', 'life.Unknown':'Unknown',
@@ -19514,7 +19514,7 @@
       'cat.Prenatal':'Prenatal', 'cat.Postnatal':'Postnatal',
       'type.Germline':'Germline', 'type.Somatic':'Somatic',
       'rail.summary':'Case summary', 'rail.analysis':'Analysis', 'rail.category':'Category', 'rail.probandId':'Proband ID',
-      'rail.issuing':'Issuing site', 'rail.sex':'Sex', 'rail.dob':'Date of birth', 'rail.optAdditions':'Optional additions',
+      'rail.issuing':'Patient organization', 'rail.sex':'Sex', 'rail.dob':'Date of birth', 'rail.optAdditions':'Optional additions',
       'rail.condition':'Primary condition', 'rail.pheno':'Phenotypes', 'rail.consang':'Consanguinity', 'rail.ancestry':'Ancestry',
       'rail.note':'Clinical note', 'rail.family':'Family', 'rail.create':'Create case', 'rail.draft':'Save draft',
       'rail.note.hint':'Save draft anytime — a partial requisition can be captured now and finished later. Required fields are only enforced at Create.',
@@ -19536,12 +19536,12 @@
       'note.cap':'Reviewer annotations — not part of the UI.',
       'note.1':'<b>Case type</b> (germline/somatic) is derived from the analysis and shown as a badge — not an input. Assumes one case type per panel; confirm backend&nbsp;#32.',
       'note.2':'Category (<span class="key">category_code</span>) is required and never null. User control is a Prenatal checkbox, off by default. Unchecked = Postnatal.',
-      'note.3':'Ordering site is optional here — the org that requested the analysis. Independent of the issuing site. (Diverges from today\'s required ordering site.)',
-      'note.4':'Issuing site is an independent required pick — the patient\'s site of care. This field, not the ordering site, controls per-patient PHI visibility, so it\'s not derived or hidden.',
+      'note.3':'Ordering site is optional here — the org that requested the analysis. Independent of the patient organization. (Diverges from today\'s required ordering site.)',
+      'note.4':'The patient organization is an independent required pick — the patient\'s site of care (FHIR <span class="key">managingOrganization</span>). This field, not the ordering site, controls per-patient PHI visibility, so it\'s not derived or hidden.',
       'note.5':'Study is optional — usually assigned administratively after intake. (Diverges from today\'s required project field.)',
       'note.6':'Health number is nullable — RAMQ in Quebec, other JHN elsewhere.',
       'note.7':'One onset range per observed term, from the HPO onset value set; optional.',
-      'note.8':'A sequenced relative needs the same fields as the proband — identifier, issuing site, date of birth. The issuing site defaults to the proband\'s (it drives per-patient PHI masking) and is editable if the relative was seen elsewhere.'
+      'note.8':'A sequenced relative needs the same fields as the proband — identifier, patient organization, date of birth. The organization defaults to the proband\'s (it drives per-patient PHI masking) and is editable if the relative was seen elsewhere.'
     },
     fr:{
       'crumb.cases':'Cas', 'crumb.new':'Créer un cas', 'app.title':'Créer un cas • Signes en ligne',
@@ -19558,7 +19558,7 @@
       'lbl.lmpDate':'Date (DDM)', 'lbl.eddDate':'Date (DPA)',
       'rail.priority':'Priorité',
       'lbl.ordering':'Établissement prescripteur', 'lbl.physician':'Médecin prescripteur', 'lbl.study':'Étude de recherche',
-      'lbl.issuing':'Site émetteur', 'lbl.patientId':'Identifiant', 'lbl.healthNo':'RAMQ',
+      'lbl.issuing':'Établissement du patient', 'lbl.patientId':'Identifiant', 'lbl.healthNo':'RAMQ',
       'lbl.firstName':'Prénom', 'lbl.lastName':'Nom', 'lbl.sex':'Sexe', 'lbl.dob':'Date de naissance',
       'lbl.condition':'Condition principale / indication', 'lbl.life':'Statut vital',
       'lbl.phenotypes':'Phénotypes',
@@ -19591,7 +19591,7 @@
       'lookup.searching':'Recherche d’un patient existant…',
       'lookup.found':'Patient déjà connu à ce site — champs préremplis, à vérifier.',
       'lookup.none':'Aucun patient avec cet identifiant ici — nouveau patient.',
-      'lookup.needSite':'Choisir le site émetteur pour lancer la recherche.',
+      'lookup.needSite':'Choisir l’établissement du patient pour lancer la recherche.',
       'ph.note':'Hypothèse diagnostique ou tout autre contexte pertinent pour ce cas…',
       'sex.M':'Masculin', 'sex.F':'Féminin', 'sex.U':'Inconnu',
       'life.Alive':'Vivant', 'life.Deceased':'Décédé', 'life.Unknown':'Inconnu',
@@ -19600,7 +19600,7 @@
       'cat.Prenatal':'Prénatal', 'cat.Postnatal':'Postnatal',
       'type.Germline':'Germinal', 'type.Somatic':'Somatique',
       'rail.summary':'Résumé du cas', 'rail.analysis':'Analyse', 'rail.category':'Catégorie', 'rail.probandId':'ID cas index',
-      'rail.issuing':'Site émetteur', 'rail.sex':'Sexe', 'rail.dob':'Date de naissance', 'rail.optAdditions':'Ajouts facultatifs',
+      'rail.issuing':'Établissement du patient', 'rail.sex':'Sexe', 'rail.dob':'Date de naissance', 'rail.optAdditions':'Ajouts facultatifs',
       'rail.condition':'Condition principale', 'rail.pheno':'Phénotypes', 'rail.consang':'Consanguinité', 'rail.ancestry':'Ascendance',
       'rail.note':'Note clinique', 'rail.family':'Famille', 'rail.create':'Créer le cas', 'rail.draft':'Enregistrer le brouillon',
       'rail.note.hint':'Enregistrez un brouillon à tout moment — une requête partielle peut être saisie maintenant et complétée plus tard. Les champs requis ne sont exigés qu’à la création.',
@@ -19622,12 +19622,12 @@
       'note.cap':'Annotations du réviseur — ne font pas partie de l’interface.',
       'note.1':'Le <b>type de cas</b> (germinal/somatique) est dérivé de l’analyse et affiché comme badge — pas un champ de saisie. Suppose un seul type de cas par panel ; à confirmer avec le backend&nbsp;#32.',
       'note.2':'La catégorie (<span class="key">category_code</span>) est requise et jamais nulle. Le contrôle utilisateur est une case « Cas prénatal », décochée par défaut. Décochée = Postnatal.',
-      'note.3':'L’établissement prescripteur est facultatif ici — l’organisation qui a demandé l’analyse. Indépendant du site émetteur. (Diverge de l’établissement prescripteur actuellement requis.)',
-      'note.4':'Le site émetteur est un choix requis indépendant — le lieu de soins du patient. C’est ce champ, et non l’établissement prescripteur, qui contrôle la visibilité des RPI par patient ; il n’est donc ni dérivé ni masqué.',
+      'note.3':'L’établissement prescripteur est facultatif ici — l’organisation qui a demandé l’analyse. Indépendant de l’établissement du patient. (Diverge de l’établissement prescripteur actuellement requis.)',
+      'note.4':'L’établissement du patient est un choix requis indépendant — le lieu de soins du patient (FHIR <span class="key">managingOrganization</span>). C’est ce champ, et non l’établissement prescripteur, qui contrôle la visibilité des RPI par patient ; il n’est donc ni dérivé ni masqué.',
       'note.5':'L’étude est facultative — habituellement assignée administrativement après l’admission. (Diverge du champ projet actuellement requis.)',
       'note.6':'Le numéro d’assurance maladie est nullable — RAMQ au Québec, autre NAM ailleurs.',
       'note.7':'Une seule plage d’âge d’apparition par terme observé, tirée du jeu de valeurs d’apparition HPO ; optionnel.',
-      'note.8':'Un membre séquencé requiert les mêmes champs que le cas index — identifiant, site émetteur, date de naissance. Le site émetteur reprend par défaut celui du cas index (il pilote le masquage des RPI par patient) et reste modifiable si le membre a été vu ailleurs.'
+      'note.8':'Un membre séquencé requiert les mêmes champs que le cas index — identifiant, établissement du patient, date de naissance. L’établissement reprend par défaut celui du cas index (il pilote le masquage des RPI par patient) et reste modifiable si le membre a été vu ailleurs.'
     }
   };
   /* option-value translations (canonical English value → French display) */
@@ -20356,7 +20356,7 @@
       '</div>' +
       '<div class="famseq" hidden>' +
         '<div class="grid align-end">' +
-          '<div class="f"><label><span data-i18n="lbl.issuing">Issuing site</span> <span class="req">*</span> <span class="key">(patient_organization_code)</span><sup class="fn">8</sup></label>' +
+          '<div class="f"><label><span data-i18n="lbl.issuing">Patient organization</span> <span class="req">*</span> <span class="key">(patient_organization_code)</span><sup class="fn">8</sup></label>' +
             '<div class="ctrl select" tabindex="0" data-fam-seq-org data-i18n-ph="ph.select">Select…</div></div>' +
           '<div class="f"><label><span data-i18n="lbl.patientId">Patient identifier</span> <span class="req">*</span> <span class="key">(submitter_patient_id_type · submitter_patient_id)</span></label>' +
             '<div style="display:flex;gap:8px">' +
@@ -20778,17 +20778,6 @@
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
       });
     });
-  })();
-
-  /* The issuing site defaults to the establishment the user belongs to — stubbed here as
-     Sainte-Justine. It is what makes the identifier usable as the first field: the lookup key
-     is complete as soon as the MRN is typed. Still a normal, editable, clearable pick. */
-  (function(){
-    var el = document.querySelector('[data-sel="issuing"]');
-    setSel(el, 'issuing', 'CHU Sainte-Justine');
-    state.issuingSet = true;
-    probandOrg = el.dataset.value;
-    syncFamilyOrg();
   })();
 
   applyLang();   // paints the UI in the persisted language and runs the first recompute

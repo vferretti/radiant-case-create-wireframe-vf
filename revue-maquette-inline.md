@@ -30,11 +30,13 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
   cliniques, sauf l'exome rapide (RAPIDE) et le génome non spécifique (GENOR), qui n'en ont aucune.
 - **Aucune logique automatique sur la priorité** : ni le prénatal ni « Fœtus décédé » ne la
   changent, l'utilisateur choisit toujours.
-- **Identifiant avant le site émetteur**, avec le CHU Sainte-Justine prérempli (établissement de
-  l'utilisateur), et **recherche simulée du patient existant** : elle part dès que la paire
-  site + identifiant est complète, quel que soit l'ordre de saisie. MRN **1234** trouve un dossier
-  et préremplit RAMQ, prénom, nom, sexe et date de naissance ; tout autre numéro donne « nouveau
-  patient » et vide ce qui avait été prérempli.
+- **« Site émetteur » renommé « Établissement du patient »** (EN : « Patient organization »),
+  sans valeur par défaut.
+- **Identifiant avant l'établissement du patient**, et **recherche simulée du patient existant** :
+  elle part dès que la paire établissement + identifiant est complète, quel que soit l'ordre de
+  saisie. MRN **1234** au CHU Sainte-Justine trouve un dossier et préremplit RAMQ, prénom, nom,
+  sexe et date de naissance ; tout autre numéro donne « nouveau patient » et vide ce qui avait
+  été prérempli.
 
 ## Commentaires
 
