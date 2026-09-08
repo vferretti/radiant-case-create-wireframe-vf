@@ -34,8 +34,9 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
   sans valeur par défaut.
 - **Menu « MRN » retiré** (cas index et ligne famille) ; le libellé devient **« Identifiant
   (numéro de dossier médical, code de l'étude, …) »**.
-- **Section 3 scindée en deux** : **« Signes cliniques »** (observés et non observés) et
-  **« Autre information clinique (facultatif) »** ; la famille devient la section 5.
+- **Section 3 scindée en deux** : **« Signes cliniques »** (observés et non observés, séparés par
+  un trait) et **« Autres informations cliniques (facultatives) »** ; la famille devient la
+  section 5.
 - **« Signe clinique » remplacé par « phénotype »** dans les consignes, les placeholders et les
   en-têtes de listes.
 - **« Condition principale / indication » renommé « Indication principale standardisée (MONDO) »**

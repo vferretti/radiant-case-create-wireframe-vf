@@ -135,7 +135,7 @@ condition-derivation rules — do the same rather than claiming something works 
   `_fen` haystacks, and both the inline search and the tree browser read the one matching `lang`.
   Searching "hearing" in French returns nothing, on purpose. The HP id is in both haystacks.
 - **Five sections since 2026-09-08**: 1 Analyse · 2 Patient (cas index) · 3 Signes cliniques ·
-  4 Autre information clinique (facultatif) · 5 Famille. Section 3 holds only the phenotypes;
+  4 Autres informations cliniques (facultatives) · 5 Famille. Section 3 holds only the phenotypes;
   everything else clinical moved to 4. The word "signe clinique" was replaced by "phénotype" in
   every user-facing string (the section title excepted).
 - **Clinical signs follow version A's picker layout** (2026-09-08): instruction line, then the
