@@ -41,6 +41,10 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
 - **Contexte clinique réorganisé** : statut vital remonté à droite de la consanguinité,
   « Ascendance / origine ethnique » renommé **« Ethnicité »** (EN : « Ethnicity ») et placé sous
   la consanguinité.
+- **Signes cliniques refaits sur le modèle de la version modale** : ligne de consigne, champ de
+  recherche HPO (nom ou HP:…) avec le bouton « Parcourir l'arbre HPO » à sa droite, puis les
+  suggestions pour l'analyse. Un terme choisi — suggestion, recherche ou arbre — monte au-dessus
+  du champ de recherche avec son âge d'apparition, et disparaît des listes du bas.
 - **Identifiant avant l'établissement du patient**, et **recherche simulée du patient existant** :
   elle part dès que la paire établissement + identifiant est complète, quel que soit l'ordre de
   saisie. MRN **1234** au CHU Sainte-Justine trouve un dossier et préremplit RAMQ, prénom, nom,

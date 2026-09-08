@@ -267,6 +267,9 @@
   .modal .mfoot .cta{margin:0;width:auto;min-width:120px;padding:0 16px;height:36px}
   .modal .instr{font-size:12px;color:var(--mut);margin:0 0 12px}
   .modal .instr .req{margin-left:2px}
+  /* same line, inline in the form */
+  #signs-block .instr{font-size:12px;color:var(--mut);margin:0 0 10px}
+  #signs-block .instr .req{margin-left:2px}
   .modal .msearch{position:relative;margin-bottom:6px}
   .modal .msearch input{width:100%}
   /* checkbox picklist rows — reuse .check/.chip vocabulary */
@@ -476,16 +479,24 @@
                set system-side (never shown). Life status now sits in Clinical context, below. -->
           <!-- clinical signs (HPO), inline: suggestions + selected sections live in the form;
                the "Browse HPO tree" and "Not-observed signs" buttons open the browser modal. -->
+          <!-- Same shape as the modal picker of version A, but inline: the ask, then whatever is
+               already picked, then the search row, then the analysis suggestions. A term chosen
+               anywhere — suggestion, search or tree — rises above the search box and takes its
+               onset dropdown with it (2026-09-08). -->
           <div style="margin-top:18px" id="signs-block">
             <p class="flabel"><span data-i18n="sec.clinicalSigns">Clinical signs</span> <span class="key">(observed_phenotypes · non_observed_phenotypes)</span><sup class="fn">7</sup></p>
-            <!-- analysis suggestions lead the list (no header — the section title already frames them); checked float to the top -->
-            <div class="hpo-picklist" id="suggestions" style="margin-top:8px"></div>
+            <p class="instr"><span data-i18n="dlg.instruction">Select at least one OBSERVED clinical sign with its onset</span> <span class="req">*</span></p>
+            <p class="divlabel" id="obs-sel-head" hidden><span data-i18n="dlg.observedSelected">Observed signs</span> <span class="cnt" id="obs-sel-count"></span></p>
+            <div class="hpo-picklist" id="observed-selected"></div>
+            <div class="msearchrow">
+              <input class="ctrl" type="text" id="pheno-search" data-i18n-ph="ph.browseHpo" placeholder="Search a clinical sign (name or HP:…)">
+              <button type="button" class="treebtn" id="browse-obs-btn"><svg class="tico" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.4"/><line x1="10.6" y1="10.6" x2="14" y2="14"/></svg> <span data-i18n="tree.title">Browse the HPO tree</span></button>
+            </div>
+            <div class="hpo-picklist" id="pheno-search-results"></div>
+            <p class="mhint" id="pheno-search-hint" hidden></p>
+            <p class="divlabel" id="sugg-head"><span data-i18n="dlg.suggestions">Suggestions for this analysis</span></p>
+            <div class="hpo-picklist" id="suggestions"></div>
             <button type="button" class="showmore" id="sugg-showmore" hidden></button>
-            <!-- observed terms picked from the browser that aren't in the suggestion list -->
-            <p class="divlabel" id="browser-sel-head" hidden><span data-i18n="dlg.browserSelected">Selected from HPO</span> <span class="cnt" id="browser-sel-count"></span></p>
-            <div class="hpo-picklist" id="browser-selected"></div>
-            <!-- browse the full HPO tree for additional observed terms -->
-            <div style="margin-top:12px"><button type="button" class="treebtn" id="browse-obs-btn"><svg class="tico" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.4"/><line x1="10.6" y1="10.6" x2="14" y2="14"/></svg> <span data-i18n="tree.title">Browse the HPO tree</span></button></div>
             <!-- not-observed signs -->
             <p class="divlabel" id="neg-sel-head" hidden><span data-i18n="dlg.negSelected">Not-observed signs</span> <span class="cnt" id="neg-sel-count"></span></p>
             <div class="chips" id="neg-selected"></div>
@@ -19468,7 +19479,7 @@
       'dlg.instruction':'Select at least one OBSERVED clinical sign with its onset',
       'dlg.browse':'Browse HPO', 'ph.browseHpo':'Search a clinical sign (name or HP:…)',
       'dlg.suggestions':'Suggestions for this analysis',
-      'dlg.browserSelected':'Selected from HPO', 'dlg.negSelected':'Not-observed signs',
+      'dlg.browserSelected':'Selected from HPO', 'dlg.observedSelected':'Observed signs', 'dlg.negSelected':'Not-observed signs',
       'btn.hpoTree':'HPO tree', 'tree.title':'Browse the HPO tree', 'tree.apply':'Apply',
       'btn.negSigns':'Not-observed signs',
       'tree.minChars':'Type at least 3 characters to search the tree.', 'tree.noResults':'No matching term.',
@@ -19554,7 +19565,7 @@
       'dlg.instruction':'Sélectionnez au moins un signe clinique OBSERVÉ avec son âge d’apparition',
       'dlg.browse':'Parcourir HPO', 'ph.browseHpo':'Rechercher un signe (nom ou HP:…)',
       'dlg.suggestions':'Suggestions pour cette analyse',
-      'dlg.browserSelected':'Sélectionnés depuis l’arbre HPO', 'dlg.negSelected':'Signes non observés',
+      'dlg.browserSelected':'Sélectionnés depuis l’arbre HPO', 'dlg.observedSelected':'Signes observés', 'dlg.negSelected':'Signes non observés',
       'btn.hpoTree':'Arbre HPO', 'tree.title':'Parcourir l’arbre HPO', 'tree.apply':'Appliquer',
       'btn.negSigns':'Signes non observés',
       'tree.minChars':'Saisissez au moins 3 caractères pour chercher dans l’arbre.', 'tree.noResults':'Aucun terme correspondant.',
@@ -20127,28 +20138,47 @@
     return row;
   }
 
-  /* observed terms picked from the browser that are NOT in the analysis's suggestion list */
-  function renderBrowserSelected(){
-    var suggSet = suggestionsFor(analysisCode());
-    var ids = pheno.observed.map(function(o){ return o.id; })
-      .filter(function(id){ return suggSet.indexOf(id) === -1; }).sort(byLabel);
-    document.getElementById('browser-sel-head').hidden = ids.length === 0;
-    document.getElementById('browser-sel-count').textContent = ids.length ? '('+ids.length+')' : '';
-    var cont = document.getElementById('browser-selected'); cont.innerHTML = '';
+  /* every observed term, wherever it was picked, in one list above the search box */
+  function renderObservedSelected(){
+    var ids = pheno.observed.map(function(o){ return o.id; }).sort(byLabel);
+    document.getElementById('obs-sel-head').hidden = ids.length === 0;
+    document.getElementById('obs-sel-count').textContent = ids.length ? '('+ids.length+')' : '';
+    var cont = document.getElementById('observed-selected'); cont.innerHTML = '';
     ids.forEach(function(id){ cont.appendChild(makePRow(id, 'observed')); });
   }
   function renderSuggestions(){
-    var ids = suggestionsFor(analysisCode()).slice();
     var cont = document.getElementById('suggestions'); cont.innerHTML = '';
     var more = document.getElementById('sugg-showmore'); more.hidden = true;
-    if(!ids.length) return;
-    /* checked suggestions float to the top (alphabetical), then unchecked (alphabetical) */
-    var checked = ids.filter(function(id){ return phHas('observed', id); }).sort(byLabel);
-    var unchecked = ids.filter(function(id){ return !phHas('observed', id); }).sort(byLabel);
-    var ordered = checked.concat(unchecked);
+    /* a picked suggestion has risen into the list above, so it is no longer offered here */
+    var ordered = suggestionsFor(analysisCode()).filter(function(id){ return !phHas('observed', id); }).sort(byLabel);
+    document.getElementById('sugg-head').hidden = ordered.length === 0;
+    if(!ordered.length) return;
     var LIMIT = 5;
     (suggExpanded ? ordered : ordered.slice(0, LIMIT)).forEach(function(id){ cont.appendChild(makePRow(id, 'observed')); });
     if(ordered.length > LIMIT){ more.hidden = false; more.textContent = suggExpanded ? t('dlg.showLess') : t('dlg.showMore', { n:ordered.length-LIMIT }); }
+  }
+  /* free-text search over the whole ontology, borrowed from version A's picker: it offers only
+     what is not already on screen — nothing already picked, nothing in the suggestion list */
+  function renderSearchResults(){
+    var input = document.getElementById('pheno-search');
+    var cont  = document.getElementById('pheno-search-results');
+    var hint  = document.getElementById('pheno-search-hint');
+    cont.innerHTML = ''; hint.hidden = true;
+    var q = (input.value || '').trim();
+    if(q.length < 2){ if(q.length > 0){ hint.hidden = false; hint.textContent = t('dlg.searchHint'); } return; }
+    var fq = foldAccents(q);
+    var offered = suggestionsFor(analysisCode());
+    var CAP = 50, matches = [];
+    for(var i=0; i<HPO_LIST.length; i++){
+      var x = HPO_LIST[i];
+      if(phHas('observed', x.id)) continue;          // already picked, it is in the list above
+      if(offered.indexOf(x.id) !== -1) continue;      // already offered as a suggestion below
+      if(x._f.indexOf(fq) !== -1){ matches.push(x); if(matches.length > CAP) break; }   // one past cap = there are more
+    }
+    if(!matches.length){ hint.hidden = false; hint.textContent = t('dlg.noResults'); return; }
+    var more = matches.length > CAP;
+    matches.slice(0, CAP).forEach(function(x){ cont.appendChild(makePRow(x.id, 'observed')); });
+    if(more){ hint.hidden = false; hint.textContent = t('dlg.moreResults', { n:CAP }); }
   }
   function renderNegSelected(){
     var ids = pheno.negative.slice().sort(byLabel);
@@ -20172,7 +20202,7 @@
     chip.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); remove(); } });
     return chip;
   }
-  function renderPheno(){ renderBrowserSelected(); renderSuggestions(); renderNegSelected(); }
+  function renderPheno(){ renderObservedSelected(); renderSuggestions(); renderSearchResults(); renderNegSelected(); }
   function sumPheno(){
     var n = pheno.observed.length + pheno.negative.length;
     var el = document.getElementById('sum-pheno');
@@ -20184,6 +20214,7 @@
   document.getElementById('browse-obs-btn').addEventListener('click', function(){ openTree('observed'); });
   document.getElementById('browse-neg-btn').addEventListener('click', function(){ openTree('negative'); });
   document.getElementById('sugg-showmore').addEventListener('click', function(){ suggExpanded = !suggExpanded; renderSuggestions(); });
+  document.getElementById('pheno-search').addEventListener('input', debounce(renderSearchResults, 180));
   document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !document.getElementById('hpo-tree-modal').hasAttribute('hidden')) closeTree(); });
 
   /* ---------- HPO tree browser (Option A: modal over the picker; full DAG, lazy render) ---------- */

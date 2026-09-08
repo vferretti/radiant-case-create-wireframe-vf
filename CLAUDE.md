@@ -16,7 +16,7 @@ Two versions exist, identical except for where the clinical-signs (HPO phenotype
 
 | File | Version | Picker placement |
 |---|---|---|
-| `case-create-signs-inline.html` | **B — inline** | suggestions + selected/not-observed lists sit in the form; only the HPO tree opens a modal |
+| `case-create-signs-inline.html` | **B — inline** | version A's picker, unpacked into the form: instruction, picked terms, search row, suggestions; only the HPO tree opens a modal |
 | `case-create-signs-modal.html` | A — modal | one button opens a picker dialog; the tree opens a second modal on top |
 
 `README.md` is the demo-facing description (pros/cons, demo tips). Keep it in sync when behaviour
@@ -124,6 +124,11 @@ condition-derivation rules — do the same rather than claiming something works 
   field is missing. It is mocked (`PATIENT_DB`, one record behind a 700 ms
   delay): MRN 1234 at Sainte-Justine prefills health number, names, sex and date of birth;
   anything else reports "new patient" and takes back only the values the lookup itself wrote.
+- **Clinical signs follow version A's picker layout** (2026-09-08): instruction line, then the
+  observed terms already picked (each with its onset), then the search row (free-text HPO search +
+  "Browse the HPO tree"), then the analysis suggestions, then not-observed. A term picked anywhere
+  rises into the list above the search box and is dropped from the suggestion and search lists, so
+  it is never shown twice.
 - **Suggestion lists**: `EPI4` was renamed to the real code `EPIL`. `CARDIO` and `TSOL` are **left
   orphaned and unused** rather than reassigned to a real analysis — that is a clinical call, not a
   technical one.
