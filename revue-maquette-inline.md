@@ -39,9 +39,11 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
   section 5.
 - **« Signe clinique » remplacé par « phénotype »** dans les consignes, les placeholders et les
   en-têtes de listes.
-- **« Condition principale / indication » renommé « Indication principale standardisée (MONDO) »**
-  et déplacé juste au-dessus de la note clinique, dans le bloc Contexte clinique. Le résumé parle
-  maintenant d'« Indication principale ».
+- **« Condition principale / indication » renommé « Indication principale (MONDO) »** et déplacé
+  juste au-dessus de la note clinique. Le résumé parle maintenant d'« Indication principale ».
+- **Bouton « Parcourir l'arbre MONDO »** à droite du champ, comme pour les phénotypes. Faute de
+  hiérarchie MONDO dans la maquette, la fenêtre liste à plat les conditions du catalogue, avec
+  recherche ; une note le dit à l'écran.
 - **Contexte clinique réorganisé** : « Ascendance / origine ethnique » renommé **« Ethnicité(s) »**
   (EN : « Ethnicities ») et placé à droite de la consanguinité ; le sous-titre du bloc est retiré,
   les champs commencent directement sous la ligne de séparation.

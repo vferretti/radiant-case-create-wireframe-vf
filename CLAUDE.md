@@ -151,6 +151,9 @@ condition-derivation rules — do the same rather than claiming something works 
 
 Full detail in `revue-maquette-inline.md`; the ones that will block work:
 
+1b. **There is still no MONDO hierarchy on disk.** The "Parcourir l'arbre MONDO" button added on
+   2026-09-08 opens a flat list of the catalog's 26 conditions behind the HPO tree's chrome, and
+   says so on screen. A real subtree would drop into that shell.
 1. **MONDO labels now come from EBI OLS**, fetched on Vincent's go-ahead (2026-09-08). Confirm
    that source is acceptable, and get the French translations reviewed.
 2. **The catalog has no English names.** In EN the form currently shows the French name.
