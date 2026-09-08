@@ -521,9 +521,9 @@
         </div>
       </section>
 
-      <!-- 3. Clinical details (required) -->
+      <!-- 3. Clinical signs (required) -->
       <section class="sec">
-        <header><span class="n">3</span><h2 data-i18n="sec.clinical">Clinical information</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
+        <header><span class="n">3</span><h2 data-i18n="sec.clinical">Clinical signs</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
         <div class="body">
           <!-- Affected status removed: the proband is always affected, so it's inferred and
                set system-side (never shown). Life status now sits in Clinical context, below. -->
@@ -536,12 +536,12 @@
           <div id="signs-block">
             <!-- no "Clinical signs" title: the instruction says it better, and carries the field
                  codes and footnote the title used to hold (2026-09-08) -->
-            <p class="instr"><span data-i18n="dlg.instruction">Select at least one OBSERVED clinical sign with its onset</span> <span class="req">*</span> <span class="key">(observed_phenotypes · non_observed_phenotypes)</span><sup class="fn">7</sup></p>
-            <p class="divlabel" id="obs-sel-head" hidden><span data-i18n="dlg.observedSelected">Observed signs</span> <span class="cnt" id="obs-sel-count"></span></p>
+            <p class="instr"><span data-i18n="dlg.instruction">Select at least one OBSERVED phenotype with its onset</span> <span class="req">*</span> <span class="key">(observed_phenotypes · non_observed_phenotypes)</span><sup class="fn">7</sup></p>
+            <p class="divlabel" id="obs-sel-head" hidden><span data-i18n="dlg.observedSelected">Observed phenotypes</span> <span class="cnt" id="obs-sel-count"></span></p>
             <div class="hpo-picklist" id="observed-selected"></div>
             <div class="msearchrow">
               <div class="msearchbox">
-                <input class="ctrl" type="text" id="pheno-search" data-i18n-ph="ph.browseHpo" placeholder="Search a clinical sign (name or HP:…)">
+                <input class="ctrl" type="text" id="pheno-search" data-i18n-ph="ph.browseHpo" placeholder="Search a phenotype (name or HP:…)">
                 <button type="button" class="searchx" id="pheno-search-x" data-i18n-title="ui.clearSearch" title="Clear the search">✕</button>
               </div>
               <button type="button" class="treebtn" id="browse-obs-btn"><svg class="tico" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.4"/><line x1="10.6" y1="10.6" x2="14" y2="14"/></svg> <span data-i18n="tree.title">Browse the HPO tree</span></button>
@@ -554,12 +554,12 @@
             <!-- not-observed signs: same shape as the observed block above — the ask, what is
                  already picked, then a search row with the tree button (2026-09-08) -->
             <div class="negrow">
-              <p class="instr" data-i18n="dlg.negInstruction">Select any relevant NOT-OBSERVED signs (optional)</p>
-              <p class="divlabel" id="neg-sel-head" hidden><span data-i18n="dlg.negSelected">Not-observed signs</span> <span class="cnt" id="neg-sel-count"></span></p>
+              <p class="instr" data-i18n="dlg.negInstruction">Select any relevant NOT-OBSERVED phenotypes (optional)</p>
+              <p class="divlabel" id="neg-sel-head" hidden><span data-i18n="dlg.negSelected">Not-observed phenotypes</span> <span class="cnt" id="neg-sel-count"></span></p>
               <div class="chips" id="neg-selected"></div>
               <div class="msearchrow">
                 <div class="msearchbox">
-                  <input class="ctrl" type="text" id="neg-search" data-i18n-ph="ph.browseHpo" placeholder="Search a clinical sign (name or HP:…)">
+                  <input class="ctrl" type="text" id="neg-search" data-i18n-ph="ph.browseHpo" placeholder="Search a phenotype (name or HP:…)">
                   <button type="button" class="searchx" id="neg-search-x" data-i18n-title="ui.clearSearch" title="Clear the search">✕</button>
                 </div>
                 <button type="button" class="treebtn" id="browse-neg-btn"><svg class="tico" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.4"/><line x1="10.6" y1="10.6" x2="14" y2="14"/></svg> <span data-i18n="tree.title">Browse the HPO tree</span></button>
@@ -569,27 +569,31 @@
             </div>
           </div>
 
-          <!-- what is left of the clinical block, all optional. No sub-heading: the rule above
-               is separation enough, and the fields start right under it (2026-09-08). -->
-          <div style="margin-top:18px;border-top:1px solid var(--line-soft);padding-top:16px">
-            <div class="grid">
+        </div>
+      </section>
+
+      <!-- 4. Everything clinical that isn't a phenotype — all optional, hence the title
+           (split out of section 3 on 2026-09-08) -->
+      <section class="sec">
+        <header><span class="n">4</span><h2 data-i18n="sec.otherClinical">Other clinical information (optional)</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
+        <div class="body">
+          <div class="grid">
               <div class="f"><label><span data-i18n="lbl.consang">Consanguinity</span> <span class="key">(obs: consanguinity)</span></label><div class="seg" data-seg="consang"><span data-val="Yes" data-i18n="yn.Yes">Yes</span><span data-val="No" data-i18n="yn.No">No</span><span class="on" data-val="Unknown" data-i18n="yn.Unknown">Unknown</span></div></div>
               <div class="f"><label><span data-i18n="lbl.ancestry">Ethnicities</span> <span class="key">(ethnicity_codes)</span></label><div class="ctrl select" tabindex="0" data-sel="ancestry" data-i18n-ph="ph.select">Select…</div></div>
               <!-- the standardized indication sits directly above the free-text note: one is the
                    coded answer, the other the prose around it (moved here 2026-09-08) -->
               <div class="f full"><label><span data-i18n="lbl.condition">Standardized primary indication (MONDO)</span> <span class="key">(primary_condition_value)</span></label>
                 <div class="ctrl select" tabindex="0" data-sel="condition" data-i18n-ph="ph.condition">Search condition (MONDO / HPO / free text)…</div></div>
-              <div class="f full"><label><span data-i18n="lbl.note">Clinical note</span> <span class="key">(note)</span></label><textarea class="ctrl area" data-i18n-ph="ph.note" placeholder="Diagnostic hypothesis, or any other context relevant to this case…" data-field="note"></textarea></div>
-            </div>
+            <div class="f full"><label><span data-i18n="lbl.note">Clinical note</span> <span class="key">(note)</span></label><textarea class="ctrl area" data-i18n-ph="ph.note" placeholder="Diagnostic hypothesis, or any other context relevant to this case…" data-field="note"></textarea></div>
           </div>
         </div>
       </section>
 
       <p class="optlabel" style="margin:22px 2px 8px" data-i18n="ui.optSections">Optional sections</p>
 
-      <!-- 4. Family (optional) -->
+      <!-- 5. Family (optional) -->
       <section class="sec">
-        <header><span class="n">4</span><h2 data-i18n="sec.family">Family members</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
+        <header><span class="n">5</span><h2 data-i18n="sec.family">Family members</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
         <div class="body">
           <div id="family-list"></div>
           <div class="addbtn" id="add-family" data-i18n="lbl.addFamily">＋ Add family member</div>
@@ -662,7 +666,7 @@
         <span class="mclose" id="tree-x" title="Close">✕</span>
       </header>
       <div class="mbody">
-        <input class="ctrl" type="text" id="tree-search" data-i18n-ph="ph.browseHpo" placeholder="Search a clinical sign (name or HP:…)">
+        <input class="ctrl" type="text" id="tree-search" data-i18n-ph="ph.browseHpo" placeholder="Search a phenotype (name or HP:…)">
         <p class="mhint" id="tree-hint" hidden></p>
         <div class="tree" id="tree-root"></div>
       </div>
@@ -19527,7 +19531,7 @@
       'ui.collapse':'－ collapse', 'ui.expand':'＋ expand', 'ui.optSections':'Optional sections',
       'ui.docsToggle':'Field codes',
       'ui.removeSign':'Remove', 'ui.clearSearch':'Clear the search',
-      'sec.analysis':'Analysis', 'sec.proband':'Patient (proband)', 'sec.probandPrenatal':'Patient (proband, mother)', 'sec.clinical':'Clinical information', 'sec.family':'Family',
+      'sec.analysis':'Analysis', 'sec.proband':'Patient (proband)', 'sec.probandPrenatal':'Patient (proband, mother)', 'sec.clinical':'Clinical signs', 'sec.otherClinical':'Other clinical information (optional)', 'sec.family':'Family',
       'lbl.analysis':'Analysis', 'lbl.prenatal':'Prenatal case', 'lbl.priority':'Priority',
       'lbl.prenatalInfo':'Additional information',
       'lbl.fetalSex':'Fetal sex', 'fsex.F':'Female', 'fsex.M':'Male', 'fsex.U':'Undetermined',
@@ -19542,18 +19546,16 @@
       'lbl.phenotypes':'Phenotypes',
       'lbl.obsPheno':'Observed phenotypes', 'lbl.addObs':'＋ add observed term',
       'lbl.negPheno':'Explicitly not observed', 'lbl.addNeg':'＋ add not-observed term',
-      'lbl.addSigns':'＋ Add clinical signs', 'lbl.editSigns':'Edit clinical signs',
-      'dlg.instruction':'Select at least one OBSERVED clinical sign with its onset',
-      'dlg.browse':'Browse HPO', 'ph.browseHpo':'Search a clinical sign (name or HP:…)',
+      'dlg.instruction':'Select at least one OBSERVED phenotype with its onset',
+      'ph.browseHpo':'Search a phenotype (name or HP:…)',
       'dlg.suggestions':'Suggestions for this analysis',
-      'dlg.browserSelected':'Selected from HPO', 'dlg.observedSelected':'Observed signs', 'dlg.negSelected':'Not-observed signs',
+      'dlg.observedSelected':'Observed phenotypes', 'dlg.negSelected':'Not-observed phenotypes',
       'btn.hpoTree':'HPO tree', 'tree.title':'Browse the HPO tree', 'tree.apply':'Apply',
-      'dlg.negInstruction':'Select any relevant NOT-OBSERVED signs (optional)',
+      'dlg.negInstruction':'Select any relevant NOT-OBSERVED phenotypes (optional)',
       'tree.minChars':'Type at least 3 characters to search the tree.', 'tree.noResults':'No matching term.',
       'tree.selected':'{n} selected', 'tree.tooMany':'Too many matches — refine your search.',
       'dlg.noAnalysis':'Select an analysis first to see suggestions.',
       'dlg.showMore':'Show {n} more', 'dlg.showLess':'Show fewer',
-      'dlg.addNegSigns':'＋ Add not-observed signs (optional)',
       'dlg.negHint':'Signs confirmed ABSENT — no onset needed.',
       'dlg.searchHint':'Type at least 2 characters.', 'dlg.noResults':'No matching term.',
       'dlg.moreResults':'Showing the first {n} — refine your search.',
@@ -19612,7 +19614,7 @@
       'ui.collapse':'－ réduire', 'ui.expand':'＋ développer', 'ui.optSections':'Sections facultatives',
       'ui.docsToggle':'Codes',
       'ui.removeSign':'Retirer', 'ui.clearSearch':'Effacer la recherche',
-      'sec.analysis':'Analyse', 'sec.proband':'Patient (cas index)', 'sec.probandPrenatal':'Patient (cas index, mère)', 'sec.clinical':'Information clinique', 'sec.family':'Famille',
+      'sec.analysis':'Analyse', 'sec.proband':'Patient (cas index)', 'sec.probandPrenatal':'Patient (cas index, mère)', 'sec.clinical':'Signes cliniques', 'sec.otherClinical':'Autre information clinique (facultatif)', 'sec.family':'Famille',
       'lbl.analysis':'Analyse', 'lbl.prenatal':'Cas prénatal', 'lbl.priority':'Priorité',
       'lbl.prenatalInfo':'Informations supplémentaires',
       'lbl.fetalSex':'Sexe (fœtus)', 'fsex.F':'Féminin', 'fsex.M':'Masculin', 'fsex.U':'Indéterminé',
@@ -19627,18 +19629,16 @@
       'lbl.phenotypes':'Phénotypes',
       'lbl.obsPheno':'Phénotypes observés', 'lbl.addObs':'＋ ajouter un terme observé',
       'lbl.negPheno':'Explicitement non observés', 'lbl.addNeg':'＋ ajouter un terme non observé',
-      'lbl.addSigns':'＋ Ajouter des signes cliniques', 'lbl.editSigns':'Modifier les signes cliniques',
-      'dlg.instruction':'Sélectionnez au moins un signe clinique OBSERVÉ avec son âge d’apparition',
-      'dlg.browse':'Parcourir HPO', 'ph.browseHpo':'Rechercher un signe (nom ou HP:…)',
+      'dlg.instruction':'Sélectionnez au moins un phénotype OBSERVÉ avec son âge d’apparition',
+      'ph.browseHpo':'Rechercher un phénotype (nom ou HP:…)',
       'dlg.suggestions':'Suggestions pour cette analyse',
-      'dlg.browserSelected':'Sélectionnés depuis l’arbre HPO', 'dlg.observedSelected':'Signes observés', 'dlg.negSelected':'Signes non observés',
+      'dlg.observedSelected':'Phénotypes observés', 'dlg.negSelected':'Phénotypes non observés',
       'btn.hpoTree':'Arbre HPO', 'tree.title':'Parcourir l’arbre HPO', 'tree.apply':'Appliquer',
-      'dlg.negInstruction':'Sélectionnez des signes NON OBSERVÉS pertinents (facultatif)',
+      'dlg.negInstruction':'Sélectionnez des phénotypes NON OBSERVÉS pertinents (facultatif)',
       'tree.minChars':'Saisissez au moins 3 caractères pour chercher dans l’arbre.', 'tree.noResults':'Aucun terme correspondant.',
       'tree.selected':'{n} sélectionné(s)', 'tree.tooMany':'Trop de résultats — précisez votre recherche.',
       'dlg.noAnalysis':'Sélectionnez d’abord une analyse pour voir des suggestions.',
       'dlg.showMore':'Afficher {n} de plus', 'dlg.showLess':'Afficher moins',
-      'dlg.addNegSigns':'＋ Ajouter des signes non observés (facultatif)',
       'dlg.negHint':'Signes confirmés ABSENTS — aucun âge d’apparition requis.',
       'dlg.searchHint':'Saisissez au moins 2 caractères.', 'dlg.noResults':'Aucun terme correspondant.',
       'dlg.moreResults':'Affichage des {n} premiers — précisez votre recherche.',
