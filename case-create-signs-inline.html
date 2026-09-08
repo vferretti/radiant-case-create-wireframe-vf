@@ -281,6 +281,9 @@
   .prow .check{height:auto;flex:0 0 auto}
   .prow .pname{font-size:13px;color:var(--ink)}
   .prow .pid{font-size:11px;color:var(--faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  /* why a search row matched: the hit, and the other-language label when the hit is in it */
+  .prow .hit{background:#e9edf2;border-radius:3px;padding:0 2px}
+  .prow .palt{font-size:12px;color:var(--faint);font-style:italic}
   .prow .onset{margin-left:auto;display:flex;align-items:center;gap:6px}
   .prow .onset label{font-size:11px;color:var(--mut)}
   .prow .mini{height:28px;min-width:150px;border:1px solid var(--line);border-radius:5px;background:#fff;
@@ -20112,15 +20115,30 @@
   }
   function setOnset(id, v){ var o = pheno.observed.filter(function(x){ return x.id===id; })[0]; if(o) o.onset = v; }
 
-  /* a checklist row (reuses .check / .mini vocabulary); observed rows carry an onset when checked */
-  function makePRow(id, mode){
+  /* a checklist row (reuses .check / .mini vocabulary); observed rows carry an onset when checked.
+     `q` is the folded search query, when the row comes from the search: the matched run is
+     highlighted, and if the hit is in the OTHER language — searching "hear" in French matches
+     "Hearing impairment", shown as "Hypoacousie" — that label is appended so the row doesn't
+     look like a mismatch. */
+  function makePRow(id, mode, q){
     var checked = phHas(mode, id);
     var crossDisabled = mode==='observed' ? phHas('negative', id) : phHas('observed', id);
     var row = document.createElement('div'); row.className = 'prow' + (crossDisabled ? ' dis' : '');
     var lab = document.createElement('label'); lab.className = 'check' + (checked ? ' on' : '');
     var box = document.createElement('span'); box.className = 'box'; lab.appendChild(box);
-    var nm = document.createElement('span'); nm.className = 'pname'; nm.dataset.pheno = id; nm.textContent = termLabel(id); lab.appendChild(nm);
-    var ids = document.createElement('span'); ids.className = 'pid'; ids.textContent = id; lab.appendChild(ids);
+    var shown = termLabel(id);
+    var nm = document.createElement('span'); nm.className = 'pname'; nm.dataset.pheno = id;
+    nm.appendChild(markMatch(shown, q || '')); lab.appendChild(nm);
+    if(q){
+      var x = HPO_BY_ID[id];
+      var other = x ? (lang === 'fr' ? x.en : x.fr) : '';
+      if(other && other !== shown && foldAccents(shown).indexOf(q) === -1 && foldAccents(other).indexOf(q) !== -1){
+        var alt = document.createElement('span'); alt.className = 'palt';
+        alt.appendChild(markMatch(other, q)); lab.appendChild(alt);
+      }
+    }
+    var ids = document.createElement('span'); ids.className = 'pid';
+    ids.appendChild(markMatch(id, q || '')); lab.appendChild(ids);
     row.appendChild(lab);
     if(!crossDisabled){ lab.addEventListener('click', function(e){ e.preventDefault(); if(mode==='observed') toggleObserved(id); else toggleNegative(id); }); }
     if(mode==='observed'){
@@ -20177,7 +20195,7 @@
     }
     if(!matches.length){ hint.hidden = false; hint.textContent = t('dlg.noResults'); return; }
     var more = matches.length > CAP;
-    matches.slice(0, CAP).forEach(function(x){ cont.appendChild(makePRow(x.id, 'observed')); });
+    matches.slice(0, CAP).forEach(function(x){ cont.appendChild(makePRow(x.id, 'observed', fq)); });
     if(more){ hint.hidden = false; hint.textContent = t('dlg.moreResults', { n:CAP }); }
   }
   function renderNegSelected(){
