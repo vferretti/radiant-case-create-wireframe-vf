@@ -45,7 +45,10 @@
   body.hide-docs .legend,
   body.hide-docs .tag{ display:none; }
 
-  .layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start}
+  /* min-width:0 on the form column: a grid item is min-width:auto by default, so a single
+     130-character HPO label would widen the column and scroll the page sideways */
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start}
+  .layout > *{min-width:0}
 
   .sec{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:16px;overflow:hidden}
   .sec > header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line-soft);background:#fbfbfc}
@@ -278,13 +281,16 @@
   .prow{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:6px}
   .prow:hover{background:var(--box)}
   .prow.dis{opacity:.42}
-  .prow .check{height:auto;flex:0 0 auto}
-  .prow .pname{font-size:13px;color:var(--ink)}
-  .prow .pid{font-size:11px;color:var(--faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  /* HPO labels run past 120 characters. The name is the only part allowed to shrink, and it
+     ellipsizes rather than wrap, so the onset control keeps its place on the right; the full
+     term is on the row's tooltip. */
+  .prow .check{height:auto;flex:1 1 auto;min-width:0}
+  .prow .pname{font-size:13px;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .prow .pid{font-size:11px;color:var(--faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;flex:0 0 auto}
   /* the run a search matched */
   .prow .hit{background:#e9edf2;border-radius:3px;padding:0 2px}
-  .prow .onset{margin-left:auto;display:flex;align-items:center;gap:6px}
-  .prow .onset label{font-size:11px;color:var(--mut)}
+  .prow .onset{margin-left:auto;flex:0 0 auto;display:flex;align-items:center;gap:6px}
+  .prow .onset label{font-size:11px;color:var(--mut);white-space:nowrap}
   .prow .mini{height:28px;min-width:150px;border:1px solid var(--line);border-radius:5px;background:#fff;
         display:flex;align-items:center;padding:0 8px;color:var(--ink);font-size:12px;cursor:pointer}
   .prow .mini.select::after{content:"▾";margin-left:auto;color:var(--faint);padding-left:8px}
@@ -20130,6 +20136,7 @@
     var box = document.createElement('span'); box.className = 'box'; lab.appendChild(box);
     var shown = termLabel(id);
     var nm = document.createElement('span'); nm.className = 'pname'; nm.dataset.pheno = id;
+    nm.title = shown;                              // the whole term, for the ellipsized ones
     nm.appendChild(markMatch(shown, q || '')); lab.appendChild(nm);
     var ids = document.createElement('span'); ids.className = 'pid';
     ids.appendChild(markMatch(id, q || '')); lab.appendChild(ids);
