@@ -123,6 +123,9 @@
      its right edge aligned to the full-width analysis field above */
   .row-split{display:flex;justify-content:space-between;align-items:flex-start;gap:18px}
   .f.pri{flex:0 0 150px}
+  /* the prenatal checkbox stands in for the Category field, so it carries that field's
+     annotations beside it rather than under a label of its own */
+  .checkline{display:flex;align-items:center;gap:6px;margin-top:6px}
 
   .seg{display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden;width:fit-content}
   .seg span{padding:7px 14px;font-size:12px;color:var(--mut);border-right:1px solid var(--line);cursor:pointer;user-select:none}
@@ -382,29 +385,30 @@
         <div class="body">
           <!-- Analysis leads AND derives case type: picking a panel sets the case type
                system-side (shown as a badge on the Analysis row in the rail), so it's not a
-               field here. Category is NOT derived — it stays a user control (checkbox). -->
-          <div class="f full" style="margin-bottom:14px">
-            <label><span data-i18n="lbl.analysis">Analysis / panel</span> <span class="req">*</span> <span class="key">(analysis_code)</span><sup class="fn">1</sup></label>
-            <div class="ctrl select" tabindex="0" data-sel="analysis" data-i18n-ph="ph.analysis">Select an analysis from the catalog…</div>
-          </div>
+               field here. Priority shares its line. Category is NOT derived — it stays a user
+               control, and the checkbox alone says it: the "Category" label was dropped and its
+               annotations moved onto the checkbox line (2026-09-08). -->
           <div class="row-split">
             <div style="flex:1 1 auto;min-width:0">
               <div class="f">
-                <label><span data-i18n="lbl.category">Category</span> <span class="key">(category_code)</span><sup class="fn">2</sup></label>
-                <label class="check" data-check="prenatal"><span class="box"></span><span data-i18n="lbl.prenatal">Prenatal case</span></label>
+                <label><span data-i18n="lbl.analysis">Analysis / panel</span> <span class="req">*</span> <span class="key">(analysis_code)</span><sup class="fn">1</sup></label>
+                <div class="ctrl select" tabindex="0" data-sel="analysis" data-i18n-ph="ph.analysis">Select an analysis from the catalog…</div>
               </div>
-              <!-- Study sits right under the Prenatal checkbox and is always offered. The
-                   research-consent checkbox that used to gate it, down in the optional group,
-                   was dropped (2026-09-08). -->
-              <div class="f" id="study-field" style="margin-top:10px">
-                <label><span data-i18n="lbl.study">Research study</span> <span class="key">(project_code)</span><sup class="fn">5</sup></label>
-                <div class="ctrl select" tabindex="0" data-sel="project" data-i18n-ph="ph.select">Select…</div>
+              <div class="checkline">
+                <label class="check" data-check="prenatal"><span class="box"></span><span data-i18n="lbl.prenatal">Prenatal case</span></label>
+                <span class="key">(category_code)</span><sup class="fn">2</sup>
               </div>
             </div>
             <div class="f pri">
               <label><span data-i18n="lbl.priority">Priority</span> <span class="key">(priority_code)</span></label>
               <div class="ctrl select filled" tabindex="0" data-sel="priority" data-value="Routine">Routine</div>
             </div>
+          </div>
+          <!-- Study runs the full width, under the pair above. The research-consent checkbox that
+               used to gate it, down in the optional group, was dropped (2026-09-08). -->
+          <div class="f" id="study-field" style="margin-top:14px">
+            <label><span data-i18n="lbl.study">Research study</span> <span class="key">(project_code)</span><sup class="fn">5</sup></label>
+            <div class="ctrl select" tabindex="0" data-sel="project" data-i18n-ph="ph.select">Select…</div>
           </div>
 
           <!-- Ordering physician and site: they used to sit in a collapsed "Optional details"
@@ -19498,7 +19502,7 @@
       'ui.docsToggle':'Field codes',
       'ui.removeSign':'Remove', 'ui.clearSearch':'Clear the search',
       'sec.analysis':'Analysis', 'sec.proband':'Patient (proband)', 'sec.probandPrenatal':'Patient (proband, mother)', 'sec.clinical':'Clinical information', 'sec.family':'Family',
-      'lbl.analysis':'Analysis', 'lbl.category':'Category', 'lbl.prenatal':'Prenatal case', 'lbl.priority':'Priority',
+      'lbl.analysis':'Analysis', 'lbl.prenatal':'Prenatal case', 'lbl.priority':'Priority',
       'lbl.prenatalInfo':'Additional information',
       'lbl.fetalSex':'Fetal sex', 'fsex.F':'Female', 'fsex.M':'Male', 'fsex.U':'Undetermined',
       'lbl.gestAge':'Gestational age',
@@ -19583,7 +19587,7 @@
       'ui.docsToggle':'Codes',
       'ui.removeSign':'Retirer', 'ui.clearSearch':'Effacer la recherche',
       'sec.analysis':'Analyse', 'sec.proband':'Patient (cas index)', 'sec.probandPrenatal':'Patient (cas index, mère)', 'sec.clinical':'Information clinique', 'sec.family':'Famille',
-      'lbl.analysis':'Analyse', 'lbl.category':'Catégorie', 'lbl.prenatal':'Cas prénatal', 'lbl.priority':'Priorité',
+      'lbl.analysis':'Analyse', 'lbl.prenatal':'Cas prénatal', 'lbl.priority':'Priorité',
       'lbl.prenatalInfo':'Informations supplémentaires',
       'lbl.fetalSex':'Sexe (fœtus)', 'fsex.F':'Féminin', 'fsex.M':'Masculin', 'fsex.U':'Indéterminé',
       'lbl.gestAge':'Âge gestationnel',
