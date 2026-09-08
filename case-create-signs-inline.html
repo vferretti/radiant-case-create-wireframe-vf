@@ -560,7 +560,9 @@
               <div class="f"><label><span data-i18n="lbl.consang">Consanguinity</span> <span class="key">(obs: consanguinity)</span></label><div class="seg" data-seg="consang"><span data-val="Yes" data-i18n="yn.Yes">Yes</span><span data-val="No" data-i18n="yn.No">No</span><span class="on" data-val="Unknown" data-i18n="yn.Unknown">Unknown</span></div></div>
               <div class="f"><label><span data-i18n="lbl.life">Life status</span> <span class="req">*</span> <span class="key">(life_status_code)</span></label>
                 <div class="seg" data-seg="life"><span class="on" data-val="Alive" data-i18n="life.Alive">Alive</span><span data-val="Deceased" data-i18n="life.Deceased">Deceased</span><span data-val="Unknown" data-i18n="life.Unknown">Unknown</span></div></div>
-              <div class="f"><label><span data-i18n="lbl.ancestry">Ethnicity</span> <span class="key">(ethnicity_codes)</span></label><div class="ctrl select" tabindex="0" data-sel="ancestry" data-i18n-ph="ph.select">Select…</div></div>
+              <!-- full width: several ethnicities show as chips inside the control, and four of
+                   them need the whole row -->
+              <div class="f full"><label><span data-i18n="lbl.ancestry">Ethnicity</span> <span class="key">(ethnicity_codes)</span></label><div class="ctrl select" tabindex="0" data-sel="ancestry" data-i18n-ph="ph.select">Select…</div></div>
               <!-- the standardized indication sits directly above the free-text note: one is the
                    coded answer, the other the prose around it (moved here 2026-09-08) -->
               <div class="f full"><label><span data-i18n="lbl.condition">Standardized primary indication (MONDO)</span> <span class="key">(primary_condition_value)</span></label>
@@ -19788,7 +19790,7 @@
     var r = anchor.getBoundingClientRect();
     menuEl = document.createElement('div');
     menuEl.className = 'menu' + (multi ? ' multi' : '');
-    var searchable = items.filter(function(it){ return !it.clear; }).length >= MENU_SEARCH_MIN;
+    var searchable = opts.search !== false && items.filter(function(it){ return !it.clear; }).length >= MENU_SEARCH_MIN;
     var list = document.createElement('div');
     list.className = 'mlist';
     var input = null;
@@ -19973,7 +19975,7 @@
         var vals = multiValues(el), i = vals.indexOf(v);
         if(i === -1) vals.push(v); else vals.splice(i, 1);
         setMulti(el, key, vals);
-      }, { multi:true, selected:function(){ return multiValues(el); } });
+      }, { multi:true, search:false, selected:function(){ return multiValues(el); } });
     }
     el.addEventListener('click', fire);
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); fire(); } });
