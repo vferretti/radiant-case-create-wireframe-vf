@@ -293,6 +293,8 @@
   #signs-block .mhint{margin:6px 0 0}
   #signs-block .showmore{margin:0}
   #signs-block .negrow{margin-top:16px}
+  #signs-block .negrow .instr{margin:0 0 12px}
+  #signs-block .chips{margin:0 0 6px}
   .modal .msearch{position:relative;margin-bottom:6px}
   .modal .msearch input{width:100%}
   /* checkbox picklist rows — reuse .check/.chip vocabulary */
@@ -549,10 +551,22 @@
             <p class="divlabel" id="sugg-head"><span data-i18n="dlg.suggestions">Suggestions for this analysis</span></p>
             <div class="hpo-picklist" id="suggestions"></div>
             <button type="button" class="showmore" id="sugg-showmore" hidden></button>
-            <!-- not-observed signs -->
-            <p class="divlabel" id="neg-sel-head" hidden><span data-i18n="dlg.negSelected">Not-observed signs</span> <span class="cnt" id="neg-sel-count"></span></p>
-            <div class="chips" id="neg-selected"></div>
-            <div class="negrow"><button type="button" class="ghostbtn" id="browse-neg-btn"><span class="ic" aria-hidden="true">+</span> <span data-i18n="btn.negSigns">Not-observed signs</span></button></div>
+            <!-- not-observed signs: same shape as the observed block above — the ask, what is
+                 already picked, then a search row with the tree button (2026-09-08) -->
+            <div class="negrow">
+              <p class="instr" data-i18n="dlg.negInstruction">Select any relevant NOT-OBSERVED signs (optional)</p>
+              <p class="divlabel" id="neg-sel-head" hidden><span data-i18n="dlg.negSelected">Not-observed signs</span> <span class="cnt" id="neg-sel-count"></span></p>
+              <div class="chips" id="neg-selected"></div>
+              <div class="msearchrow">
+                <div class="msearchbox">
+                  <input class="ctrl" type="text" id="neg-search" data-i18n-ph="ph.browseHpo" placeholder="Search a clinical sign (name or HP:…)">
+                  <button type="button" class="searchx" id="neg-search-x" data-i18n-title="ui.clearSearch" title="Clear the search">✕</button>
+                </div>
+                <button type="button" class="treebtn" id="browse-neg-btn"><svg class="tico" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.4"/><line x1="10.6" y1="10.6" x2="14" y2="14"/></svg> <span data-i18n="tree.title">Browse the HPO tree</span></button>
+              </div>
+              <div class="hpo-picklist" id="neg-search-results"></div>
+              <p class="mhint" id="neg-search-hint" hidden></p>
+            </div>
           </div>
 
           <!-- what is left of the clinical block, all optional. No sub-heading: the rule above
@@ -19534,7 +19548,7 @@
       'dlg.suggestions':'Suggestions for this analysis',
       'dlg.browserSelected':'Selected from HPO', 'dlg.observedSelected':'Observed signs', 'dlg.negSelected':'Not-observed signs',
       'btn.hpoTree':'HPO tree', 'tree.title':'Browse the HPO tree', 'tree.apply':'Apply',
-      'btn.negSigns':'Not-observed signs',
+      'dlg.negInstruction':'Select any relevant NOT-OBSERVED signs (optional)',
       'tree.minChars':'Type at least 3 characters to search the tree.', 'tree.noResults':'No matching term.',
       'tree.selected':'{n} selected', 'tree.tooMany':'Too many matches — refine your search.',
       'dlg.noAnalysis':'Select an analysis first to see suggestions.',
@@ -19619,7 +19633,7 @@
       'dlg.suggestions':'Suggestions pour cette analyse',
       'dlg.browserSelected':'Sélectionnés depuis l’arbre HPO', 'dlg.observedSelected':'Signes observés', 'dlg.negSelected':'Signes non observés',
       'btn.hpoTree':'Arbre HPO', 'tree.title':'Parcourir l’arbre HPO', 'tree.apply':'Appliquer',
-      'btn.negSigns':'Signes non observés',
+      'dlg.negInstruction':'Sélectionnez des signes NON OBSERVÉS pertinents (facultatif)',
       'tree.minChars':'Saisissez au moins 3 caractères pour chercher dans l’arbre.', 'tree.noResults':'Aucun terme correspondant.',
       'tree.selected':'{n} sélectionné(s)', 'tree.tooMany':'Trop de résultats — précisez votre recherche.',
       'dlg.noAnalysis':'Sélectionnez d’abord une analyse pour voir des suggestions.',
@@ -20244,7 +20258,7 @@
       e.preventDefault();
       /* picking from the search answers it: empty the box (renderPheno then clears the results
          and hides the ✕) and hand the focus back for the next sign */
-      var fromSearch = !!q, input = document.getElementById('pheno-search');
+      var fromSearch = !!q, input = document.getElementById(searchIds(mode).input);
       if(fromSearch) input.value = '';
       if(mode==='observed') toggleObserved(id); else toggleNegative(id);
       if(fromSearch) input.focus();
@@ -20284,28 +20298,34 @@
     (suggExpanded ? ordered : ordered.slice(0, LIMIT)).forEach(function(id){ cont.appendChild(makePRow(id, 'observed')); });
     if(ordered.length > LIMIT){ more.hidden = false; more.textContent = suggExpanded ? t('dlg.showLess') : t('dlg.showMore', { n:ordered.length-LIMIT }); }
   }
-  /* free-text search over the whole ontology, borrowed from version A's picker: it offers only
-     what is not already on screen — nothing already picked, nothing in the suggestion list */
-  function renderSearchResults(){
-    var input = document.getElementById('pheno-search');
-    var cont  = document.getElementById('pheno-search-results');
-    var hint  = document.getElementById('pheno-search-hint');
+  /* free-text search over the whole ontology, borrowed from version A's picker. Both lists have
+     one: it offers only what is not already on screen — nothing already picked in that list, and
+     for the observed one, nothing already in the suggestions. */
+  function searchIds(mode){ return mode === 'observed'
+    ? { input:'pheno-search', cont:'pheno-search-results', hint:'pheno-search-hint', x:'pheno-search-x' }
+    : { input:'neg-search',   cont:'neg-search-results',   hint:'neg-search-hint',   x:'neg-search-x' }; }
+  function renderSearchResults(mode){
+    mode = mode || 'observed';
+    var ids   = searchIds(mode);
+    var input = document.getElementById(ids.input);
+    var cont  = document.getElementById(ids.cont);
+    var hint  = document.getElementById(ids.hint);
     cont.innerHTML = ''; hint.hidden = true;
-    document.getElementById('pheno-search-x').classList.toggle('on', !!input.value);
+    document.getElementById(ids.x).classList.toggle('on', !!input.value);
     var q = (input.value || '').trim();
     if(q.length < 2){ if(q.length > 0){ hint.hidden = false; hint.textContent = t('dlg.searchHint'); } return; }
     var fq = foldAccents(q);
-    var offered = suggestionsFor(analysisCode());
+    var offered = mode === 'observed' ? suggestionsFor(analysisCode()) : [];
     var CAP = 10, matches = [];
     for(var i=0; i<HPO_LIST.length; i++){
       var x = HPO_LIST[i];
-      if(phHas('observed', x.id)) continue;          // already picked, it is in the list above
+      if(phHas(mode, x.id)) continue;                 // already picked, it is in the list above
       if(offered.indexOf(x.id) !== -1) continue;      // already offered as a suggestion below
       if(termHay(x).indexOf(fq) !== -1){ matches.push(x); if(matches.length > CAP) break; }   // one past cap = there are more
     }
     if(!matches.length){ hint.hidden = false; hint.textContent = t('dlg.noResults'); return; }
     var more = matches.length > CAP;
-    matches.slice(0, CAP).forEach(function(x){ cont.appendChild(makePRow(x.id, 'observed', fq)); });
+    matches.slice(0, CAP).forEach(function(x){ cont.appendChild(makePRow(x.id, mode, fq)); });
     if(more){ hint.hidden = false; hint.textContent = t('dlg.moreResults', { n:CAP }); }
   }
   function renderNegSelected(){
@@ -20330,7 +20350,8 @@
     chip.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); remove(); } });
     return chip;
   }
-  function renderPheno(){ renderObservedSelected(); renderSuggestions(); renderSearchResults(); renderNegSelected(); }
+  function renderPheno(){ renderObservedSelected(); renderSuggestions(); renderSearchResults('observed');
+                          renderNegSelected(); renderSearchResults('negative'); }
   function sumPheno(){
     var n = pheno.observed.length + pheno.negative.length;
     var el = document.getElementById('sum-pheno');
@@ -20342,10 +20363,13 @@
   document.getElementById('browse-obs-btn').addEventListener('click', function(){ openTree('observed'); });
   document.getElementById('browse-neg-btn').addEventListener('click', function(){ openTree('negative'); });
   document.getElementById('sugg-showmore').addEventListener('click', function(){ suggExpanded = !suggExpanded; renderSuggestions(); });
-  document.getElementById('pheno-search').addEventListener('input', debounce(renderSearchResults, 180));
-  document.getElementById('pheno-search-x').addEventListener('click', function(){
-    var input = document.getElementById('pheno-search');
-    input.value = ''; renderSearchResults(); input.focus();
+  ['observed','negative'].forEach(function(mode){
+    var ids = searchIds(mode);
+    document.getElementById(ids.input).addEventListener('input', debounce(function(){ renderSearchResults(mode); }, 180));
+    document.getElementById(ids.x).addEventListener('click', function(){
+      var input = document.getElementById(ids.input);
+      input.value = ''; renderSearchResults(mode); input.focus();
+    });
   });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !document.getElementById('hpo-tree-modal').hasAttribute('hidden')) closeTree(); });
 

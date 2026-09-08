@@ -62,6 +62,9 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
   860 px) ; les termes longs ne sont plus tronqués mais passent sur plusieurs lignes, sauf ceux
   qui portent déjà leur menu d'âge d'apparition.
 - **Le champ de recherche se vide** dès qu'un terme y est retenu, et garde le focus.
+- **Bloc des signes non observés aligné sur celui des observés** : le bouton « + Signes non
+  observés » devient la consigne « Sélectionnez des signes NON OBSERVÉS pertinents (facultatif) »,
+  suivie de son propre champ de recherche et du bouton « Parcourir l'arbre HPO ».
 - **Titre « Signes cliniques » retiré** : la consigne « Sélectionnez… » ouvre le bloc et reprend
   les codes de champ et la note 7. Espacements verticaux uniformisés (12 sous la consigne,
   16 avant un sous-titre, 6 en dessous).
