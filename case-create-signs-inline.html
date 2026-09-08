@@ -220,14 +220,17 @@
         padding:12px;border:1px solid var(--line-soft);border-radius:5px;margin-bottom:10px;background:#fafbfc}
   .del{color:var(--faint);font-size:16px;align-self:center;cursor:pointer}
   .addbtn{border:1px dashed var(--line);border-radius:5px;padding:9px;text-align:center;color:var(--mut);font-size:12px;background:#fff;cursor:pointer}
-  /* family history: one compact line per relative, on the same column track as its header */
-  .fhrow, .fhhead{display:grid;grid-template-columns:minmax(130px,1fr) max-content max-content minmax(120px,1.1fr) 14px;
-        gap:8px;align-items:center}
-  .fhhead{font-size:11px;color:var(--mut);margin:8px 0 4px}
-  .fhrow{margin-bottom:6px}
+  /* family history: header and rows share ONE grid — display:contents on each row hands its
+     cells to the parent, so a column is as wide as the widest cell in it, header included.
+     Relationship is kept narrow; the free text takes everything that is left. */
+  .fhgrid{display:grid;grid-template-columns:150px max-content max-content minmax(140px,1fr) 14px;
+        gap:6px 8px;align-items:center;margin:8px 0 6px}
+  .fhhead, #famhist-list, .fhrow{display:contents}
+  .fhhead span{font-size:11px;color:var(--mut)}
+  .fhrow .ctrl.select{min-width:0;white-space:nowrap;overflow:hidden}
   .fhrow .seg span{padding:6px 10px}
   .fhrow .famx{justify-self:center;align-self:center;padding-bottom:0}
-  .fhadd{margin-top:2px;padding:7px}
+  .fhadd{padding:7px}
   .addbtn:hover{color:var(--ink);border-color:var(--accent)}
 
   /* live pedigree preview, drawn from the proband + family members */
@@ -596,14 +599,16 @@
               <label><span data-i18n="lbl.famHistory">Family history</span> <span class="key">(family_history)</span></label>
               <label class="check" data-check="famhist"><span class="box"></span><span data-i18n="lbl.famHistoryOn">Known family history</span></label>
               <div id="famhist-body" hidden>
-                <div class="fhhead">
-                  <span data-i18n="lbl.relation">Relationship</span>
-                  <span data-i18n="lbl.sex">Sex</span>
-                  <span data-i18n="lbl.affected">Affected status</span>
-                  <span data-i18n="lbl.fhSpecify">Specify</span>
-                  <span></span>
+                <div class="fhgrid">
+                  <div class="fhhead">
+                    <span data-i18n="lbl.relation">Relationship</span>
+                    <span data-i18n="lbl.sex">Sex</span>
+                    <span data-i18n="lbl.affected">Affected status</span>
+                    <span data-i18n="lbl.fhSpecify">Specify</span>
+                    <span></span>
+                  </div>
+                  <div id="famhist-list"></div>
                 </div>
-                <div id="famhist-list"></div>
                 <div class="addbtn fhadd" id="famhist-add" data-i18n="lbl.addFamHistory">＋ Add a relative</div>
               </div>
             </div>
