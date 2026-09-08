@@ -45,8 +45,8 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
   recherche HPO (nom ou HP:…) avec le bouton « Parcourir l'arbre HPO » à sa droite, puis les
   suggestions pour l'analyse. Un terme choisi — suggestion, recherche ou arbre — monte au-dessus
   du champ de recherche avec son âge d'apparition, et disparaît des listes du bas.
-- **La recherche cherche dans les deux langues** ; quand le terme trouvé l'est par son libellé
-  anglais, celui-ci s'affiche à côté du nom français, avec la portion trouvée surlignée.
+- **La recherche HPO ne porte que sur la langue affichée** (champ de recherche et arbre) ;
+  la portion trouvée est surlignée. L'identifiant HP reste cherchable dans les deux langues.
 - **Identifiant avant l'établissement du patient**, et **recherche simulée du patient existant** :
   elle part dès que la paire établissement + identifiant est complète, quel que soit l'ordre de
   saisie. MRN **1234** au CHU Sainte-Justine trouve un dossier et préremplit RAMQ, prénom, nom,

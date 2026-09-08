@@ -124,6 +124,9 @@ condition-derivation rules — do the same rather than claiming something works 
   field is missing. It is mocked (`PATIENT_DB`, one record behind a 700 ms
   delay): MRN 1234 at Sainte-Justine prefills health number, names, sex and date of birth;
   anything else reports "new patient" and takes back only the values the lookup itself wrote.
+- **HPO search is scoped to the displayed language** (2026-09-08): each term carries `_ffr` and
+  `_fen` haystacks, and both the inline search and the tree browser read the one matching `lang`.
+  Searching "hearing" in French returns nothing, on purpose. The HP id is in both haystacks.
 - **Clinical signs follow version A's picker layout** (2026-09-08): instruction line, then the
   observed terms already picked (each with its onset), then the search row (free-text HPO search +
   "Browse the HPO tree"), then the analysis suggestions, then not-observed. A term picked anywhere

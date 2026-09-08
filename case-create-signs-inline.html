@@ -281,9 +281,8 @@
   .prow .check{height:auto;flex:0 0 auto}
   .prow .pname{font-size:13px;color:var(--ink)}
   .prow .pid{font-size:11px;color:var(--faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-  /* why a search row matched: the hit, and the other-language label when the hit is in it */
+  /* the run a search matched */
   .prow .hit{background:#e9edf2;border-radius:3px;padding:0 2px}
-  .prow .palt{font-size:12px;color:var(--faint);font-style:italic}
   .prow .onset{margin-left:auto;display:flex;align-items:center;gap:6px}
   .prow .onset label{font-size:11px;color:var(--mut)}
   .prow .mini{height:28px;min-width:150px;border:1px solid var(--line);border-radius:5px;background:#fff;
@@ -19413,7 +19412,10 @@
       var id = hpid(n);
       var fr = f[1] || f[2] || ''; if(FR_FIX[id]) fr = FR_FIX[id];
       var t = { id:id, fr:fr, en:f[2]||f[1]||'', parents:(f[4]?f[4].split(',').map(function(x){return hpid(+x);}):[]), kids:[] };
-      t._f = fold(t.en)+'|'+fold(t.fr)+'|'+id.toLowerCase();
+      /* one haystack per language — a search in French only looks at French labels, like the
+         tree browser. The HP id belongs to both. */
+      t._fen = fold(t.en)+'|'+id.toLowerCase();
+      t._ffr = fold(t.fr)+'|'+id.toLowerCase();
       HPO_BY_ID[id]=t; HPO_LIST.push(t);
     });
     HPO_LIST.forEach(function(t){ t.parents.forEach(function(p){ if(HPO_BY_ID[p]) HPO_BY_ID[p].kids.push(t.id); }); });
@@ -19682,6 +19684,7 @@
   function typeLabel(tp){ return t('type.'+tp); }
   /* HPO phenotype + onset labels (canonical value = HP id; display follows the language) */
   function termLabel(id){ var x = HPO_BY_ID[id]; return x ? (lang==='fr'?x.fr:x.en) : id; }
+  function termHay(x){ return lang === 'fr' ? x._ffr : x._fen; }   // what a search looks at
   function ageLabel(id){ var a = AGE_BY_ID[id]; return a ? (lang==='fr'?a.fr:a.en) : id; }
   function ageMenuItems(){ return AGES.map(function(a){ return { value:a.id, label:ageLabel(a.id) }; }); }
   function foldAccents(s){ return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(); }
@@ -20117,9 +20120,8 @@
 
   /* a checklist row (reuses .check / .mini vocabulary); observed rows carry an onset when checked.
      `q` is the folded search query, when the row comes from the search: the matched run is
-     highlighted, and if the hit is in the OTHER language — searching "hear" in French matches
-     "Hearing impairment", shown as "Hypoacousie" — that label is appended so the row doesn't
-     look like a mismatch. */
+     highlighted, in the name or in the HP id. The search only looks at the displayed language,
+     so there is always something to highlight. */
   function makePRow(id, mode, q){
     var checked = phHas(mode, id);
     var crossDisabled = mode==='observed' ? phHas('negative', id) : phHas('observed', id);
@@ -20129,14 +20131,6 @@
     var shown = termLabel(id);
     var nm = document.createElement('span'); nm.className = 'pname'; nm.dataset.pheno = id;
     nm.appendChild(markMatch(shown, q || '')); lab.appendChild(nm);
-    if(q){
-      var x = HPO_BY_ID[id];
-      var other = x ? (lang === 'fr' ? x.en : x.fr) : '';
-      if(other && other !== shown && foldAccents(shown).indexOf(q) === -1 && foldAccents(other).indexOf(q) !== -1){
-        var alt = document.createElement('span'); alt.className = 'palt';
-        alt.appendChild(markMatch(other, q)); lab.appendChild(alt);
-      }
-    }
     var ids = document.createElement('span'); ids.className = 'pid';
     ids.appendChild(markMatch(id, q || '')); lab.appendChild(ids);
     row.appendChild(lab);
@@ -20191,7 +20185,7 @@
       var x = HPO_LIST[i];
       if(phHas('observed', x.id)) continue;          // already picked, it is in the list above
       if(offered.indexOf(x.id) !== -1) continue;      // already offered as a suggestion below
-      if(x._f.indexOf(fq) !== -1){ matches.push(x); if(matches.length > CAP) break; }   // one past cap = there are more
+      if(termHay(x).indexOf(fq) !== -1){ matches.push(x); if(matches.length > CAP) break; }   // one past cap = there are more
     }
     if(!matches.length){ hint.hidden = false; hint.textContent = t('dlg.noResults'); return; }
     var more = matches.length > CAP;
@@ -20275,7 +20269,7 @@
   function updateTreeCount(){ document.getElementById('tree-count').textContent = t('tree.selected', { n:Object.keys(treeState.sel).length }); }
   function treeMatches(fq){
     var matched = {}, count = 0, CAP = 300;
-    for(var i=0; i<HPO_LIST.length; i++){ var x = HPO_LIST[i]; if(x._f.indexOf(fq) !== -1){ matched[x.id] = true; if(++count > CAP) return null; } }
+    for(var i=0; i<HPO_LIST.length; i++){ var x = HPO_LIST[i]; if(termHay(x).indexOf(fq) !== -1){ matched[x.id] = true; if(++count > CAP) return null; } }
     return matched;
   }
   function treeAncestors(matched){
