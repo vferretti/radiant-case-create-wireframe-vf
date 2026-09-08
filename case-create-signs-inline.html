@@ -220,6 +220,14 @@
         padding:12px;border:1px solid var(--line-soft);border-radius:5px;margin-bottom:10px;background:#fafbfc}
   .del{color:var(--faint);font-size:16px;align-self:center;cursor:pointer}
   .addbtn{border:1px dashed var(--line);border-radius:5px;padding:9px;text-align:center;color:var(--mut);font-size:12px;background:#fff;cursor:pointer}
+  /* family history: one compact line per relative, on the same column track as its header */
+  .fhrow, .fhhead{display:grid;grid-template-columns:minmax(130px,1fr) max-content max-content minmax(120px,1.1fr) 14px;
+        gap:8px;align-items:center}
+  .fhhead{font-size:11px;color:var(--mut);margin:8px 0 4px}
+  .fhrow{margin-bottom:6px}
+  .fhrow .seg span{padding:6px 10px}
+  .fhrow .famx{justify-self:center;align-self:center;padding-bottom:0}
+  .fhadd{margin-top:2px;padding:7px}
   .addbtn:hover{color:var(--ink);border-color:var(--accent)}
 
   /* live pedigree preview, drawn from the proband + family members */
@@ -582,6 +590,23 @@
               <div class="f"><label><span data-i18n="lbl.ancestry">Ethnicities</span> <span class="key">(ethnicity_codes)</span></label><div class="ctrl select" tabindex="0" data-sel="ancestry" data-i18n-ph="ph.select">Select…</div></div>
               <!-- the standardized indication sits directly above the free-text note: one is the
                    coded answer, the other the prose around it (moved here 2026-09-08) -->
+            <!-- Family history: a checkbox, then one compact row per relative — relationship,
+                 sex, status, free text — added and removed by hand (2026-09-08) -->
+            <div class="f full" id="famhist-field">
+              <label><span data-i18n="lbl.famHistory">Family history</span> <span class="key">(family_history)</span></label>
+              <label class="check" data-check="famhist"><span class="box"></span><span data-i18n="lbl.famHistoryOn">Known family history</span></label>
+              <div id="famhist-body" hidden>
+                <div class="fhhead">
+                  <span data-i18n="lbl.relation">Relationship</span>
+                  <span data-i18n="lbl.sex">Sex</span>
+                  <span data-i18n="lbl.affected">Affected status</span>
+                  <span data-i18n="lbl.fhSpecify">Specify</span>
+                  <span></span>
+                </div>
+                <div id="famhist-list"></div>
+                <div class="addbtn fhadd" id="famhist-add" data-i18n="lbl.addFamHistory">＋ Add a relative</div>
+              </div>
+            </div>
             <div class="f full"><label><span data-i18n="lbl.condition">Primary indication (MONDO)</span> <span class="key">(primary_condition_value)</span></label>
               <!-- same shape as the phenotype rows: the field, then a browse button (2026-09-08) -->
               <div class="msearchrow">
@@ -19560,7 +19585,7 @@
       'app.tag':'Version B · signs inline · browser in modal',
       'ui.collapse':'－ collapse', 'ui.expand':'＋ expand', 'ui.optSections':'Optional sections',
       'ui.docsToggle':'Field codes',
-      'ui.removeSign':'Remove', 'ui.clearSearch':'Clear the search',
+      'ui.removeSign':'Remove', 'ui.clearSearch':'Clear the search', 'ui.removeRow':'Remove this row',
       'sec.analysis':'Analysis', 'sec.proband':'Patient (proband)', 'sec.probandPrenatal':'Patient (proband, mother)', 'sec.clinical':'Clinical signs', 'sec.otherClinical':'Other clinical information (optional)', 'sec.family':'Family',
       'lbl.analysis':'Analysis', 'lbl.prenatal':'Prenatal case', 'lbl.priority':'Priority',
       'lbl.prenatalInfo':'Additional information',
@@ -19596,6 +19621,8 @@
       'lbl.consang':'Consanguinity', 'lbl.ancestry':'Ethnicities', 'lbl.note':'Clinical note',
       'lbl.onset':'Onset', 'lbl.addFamily':'＋ Add family member',
       'lbl.relation':'Relationship', 'lbl.affected':'Affected status', 'lbl.willSeq':'Will be sequenced',
+      'lbl.famHistory':'Family history', 'lbl.famHistoryOn':'Known family history',
+      'lbl.fhSpecify':'Specify', 'lbl.addFamHistory':'＋ Add a relative', 'ph.specify':'Free text',
       'ph.select':'Select…', 'ph.analysis':'Select an analysis…', 'ph.idValue':'Identifier value',
       'ph.jhn':'RAMQ (QC) or regional JHN', 'ph.optional':'Optional', 'ph.dob':'YYYY-MM-DD',
       'ph.freetext':'Free text', 'ph.condition':'Search an indication (name or MONDO:…)',
@@ -19645,7 +19672,7 @@
       'app.tag':'Version B · signes en ligne · navigateur en modale',
       'ui.collapse':'－ réduire', 'ui.expand':'＋ développer', 'ui.optSections':'Sections facultatives',
       'ui.docsToggle':'Codes',
-      'ui.removeSign':'Retirer', 'ui.clearSearch':'Effacer la recherche',
+      'ui.removeSign':'Retirer', 'ui.clearSearch':'Effacer la recherche', 'ui.removeRow':'Retirer cette ligne',
       'sec.analysis':'Analyse', 'sec.proband':'Patient (cas index)', 'sec.probandPrenatal':'Patient (cas index, mère)', 'sec.clinical':'Signes cliniques', 'sec.otherClinical':'Autres informations cliniques (facultatives)', 'sec.family':'Famille',
       'lbl.analysis':'Analyse', 'lbl.prenatal':'Cas prénatal', 'lbl.priority':'Priorité',
       'lbl.prenatalInfo':'Informations supplémentaires',
@@ -19681,6 +19708,8 @@
       'lbl.consang':'Consanguinité', 'lbl.ancestry':'Ethnicité(s)', 'lbl.note':'Note clinique',
       'lbl.onset':'Âge d’apparition', 'lbl.addFamily':'＋ Ajouter un membre de la famille',
       'lbl.relation':'Lien de parenté', 'lbl.affected':'Statut', 'lbl.willSeq':'Sera séquencé',
+      'lbl.famHistory':'Histoire familiale', 'lbl.famHistoryOn':'Antécédents familiaux connus',
+      'lbl.fhSpecify':'Préciser', 'lbl.addFamHistory':'＋ Ajouter un apparenté', 'ph.specify':'Texte libre',
       'ph.select':'Sélectionner…', 'ph.analysis':'Sélectionner une analyse…', 'ph.idValue':'Valeur de l’identifiant',
       'ph.jhn':'RAMQ (QC) ou NAM régional', 'ph.optional':'Facultatif', 'ph.dob':'AAAA-MM-JJ',
       'ph.freetext':'Texte libre', 'ph.condition':'Rechercher une indication (nom ou MONDO:…)',
@@ -20411,6 +20440,57 @@
     if(!document.getElementById('hpo-tree-modal').hasAttribute('hidden')){ closeTree(); return; }
     if(!document.getElementById('mondo-modal').hasAttribute('hidden')) closeMondo();
   });
+
+  /* ---------- family history: compact rows, revealed by a checkbox ----------
+     Relationship · sex · status · free text, one line each, added and removed by hand. Nothing
+     is derived from them and they don't feed the pedigree — that is the Family section's job;
+     this records relatives who are simply reported, not sequenced. */
+  function fhRow(){
+    var row = document.createElement('div');
+    row.className = 'fhrow';
+    row.innerHTML =
+      '<div class="ctrl select" tabindex="0" data-fh="relation" data-i18n-ph="ph.select">Select…</div>' +
+      '<div class="seg" data-fh-seg="sex"><span data-val="M">M</span><span data-val="F">F</span><span data-val="U">U</span></div>' +
+      '<div class="seg" data-fh-seg="status"><span data-val="Affected" data-i18n="aff.Affected">Affected</span>' +
+        '<span data-val="NotAffected" data-i18n="aff.NotAffected">Not affected</span></div>' +
+      '<input class="ctrl" type="text" data-fh="note" data-i18n-ph="ph.specify" placeholder="Free text">' +
+      '<span class="famx" data-i18n-title="ui.removeRow" title="Remove">✕</span>';
+    var rel = row.querySelector('[data-fh="relation"]');
+    rel.addEventListener('click', function(){
+      openMenu(rel, withClear(rel, menuItems('relation')), rel.classList.contains('filled') ? rel.dataset.value : null, function(v){
+        if(v === CLEAR){ clearCtrl(rel); return; }
+        setSel(rel, 'relation', v);
+        /* the same inference as the Family section: an unambiguous relationship gives the sex */
+        var sex = { Female:'F', Male:'M' }[REL_SEX[v]];
+        if(sex){
+          var seg = row.querySelector('[data-fh-seg="sex"]');
+          Array.prototype.forEach.call(seg.children, function(sp){ sp.classList.toggle('on', sp.dataset.val === sex); });
+          seg.classList.remove('flash'); void seg.offsetWidth; seg.classList.add('flash');
+        }
+      });
+    });
+    row.querySelectorAll('.seg').forEach(function(seg){
+      seg.addEventListener('click', function(e){
+        var span = e.target.closest('span'); if(!span) return;
+        Array.prototype.forEach.call(seg.children, function(sp){ sp.classList.remove('on'); });
+        span.classList.add('on');
+      });
+    });
+    row.querySelector('.famx').addEventListener('click', function(){ row.remove(); });
+    localize(row);
+    return row;
+  }
+  (function(){
+    var box  = document.querySelector('[data-check="famhist"]');
+    var body = document.getElementById('famhist-body');
+    var list = document.getElementById('famhist-list');
+    document.getElementById('famhist-add').addEventListener('click', function(){ list.appendChild(fhRow()); });
+    box.addEventListener('click', function(){
+      var on = box.classList.toggle('on');
+      if(on){ body.removeAttribute('hidden'); if(!list.children.length) list.appendChild(fhRow()); }
+      else { body.setAttribute('hidden',''); list.innerHTML = ''; }   // nothing hidden submits
+    });
+  })();
 
   /* ---------- the indication field is a typeahead, same shape as the phenotype searches ----------
      Type, pick from the list, ✕ to clear. The canonical value lives in data-value; the input

@@ -44,6 +44,10 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
 - **Bouton « Parcourir l'arbre MONDO »** à droite du champ, comme pour les phénotypes. Faute de
   hiérarchie MONDO dans la maquette, la fenêtre liste à plat les conditions du catalogue, avec
   recherche ; une note le dit à l'écran.
+- **Nouveau champ « Histoire familiale »** entre consanguinité et indication : une case
+  « Antécédents familiaux connus » ouvre une ligne compacte par apparenté — lien de parenté, sexe,
+  statut (atteint / non atteint, sans « inconnu »), texte libre — avec un bouton pour en ajouter
+  et un ✕ par ligne. Décocher referme et vide.
 - **Le champ Indication devient une recherche**, identique à celle des phénotypes : champ texte
   « Rechercher une indication (nom ou MONDO:…) », résultats filtrés sous le champ avec surlignage,
   et ✕ pour effacer.
