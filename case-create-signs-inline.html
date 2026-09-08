@@ -297,15 +297,14 @@
   .modal .instr .req{margin-left:2px}
   /* same line, inline in the form. One rhythm for the whole block: 12 under the ask, 16 before
      a sub-heading, 6 between a sub-heading and its list. */
-  #signs-block .instr{font-size:12px;color:var(--mut);margin:0 0 12px}
+  #signs-block .instr{font-size:12px;color:var(--ink);font-weight:500;margin:0 0 12px}
   #signs-block .instr .req{margin-left:2px}
-  #signs-block .divlabel{margin:16px 0 6px}
+  #signs-block .divlabel{margin:16px 0 6px;color:var(--ink);font-weight:500}
   #signs-block .hpo-picklist{margin:6px 0}
   #signs-block .mhint{margin:6px 0 0}
   #signs-block .showmore{margin:0}
   #signs-block .negrow{margin-top:16px;border-top:1px solid var(--line-soft);padding-top:16px}
   #signs-block .negrow .instr{margin:0 0 12px}
-  #signs-block .chips{margin:0 0 6px}
   .modal .msearch{position:relative;margin-bottom:6px}
   .modal .msearch input{width:100%}
   /* checkbox picklist rows — reuse .check/.chip vocabulary */
@@ -339,6 +338,14 @@
         display:flex;align-items:center;padding:0 8px;color:var(--ink);font-size:12px;cursor:pointer}
   .prow .mini.select::after{content:"▾";margin-left:auto;color:var(--faint);padding-left:8px}
   .prow .onset[hidden]{display:none}
+  /* a picked term is not a checkbox any more: a marker says which list it is in — green ✓ for
+     observed, red ✗ for not observed — and an ✕ on the right drops it */
+  .prow .pmark{flex:0 0 auto;width:16px;text-align:center;font-size:13px;line-height:1}
+  .prow .pmark.obs{color:#3f8f5f}
+  .prow .pmark.neg{color:var(--req)}
+  .prow .pterm{display:flex;align-items:center;gap:9px;min-width:0;flex:1 1 auto}
+  .prow .prowx{flex:0 0 auto;margin-left:10px;color:var(--faint);font-size:12px;line-height:1;cursor:pointer}
+  .prow .prowx:hover{color:var(--req)}
   .msubhead{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);margin:16px 0 4px;
         display:flex;align-items:center;gap:8px}
   .msubhead .req{color:var(--req)}
@@ -567,7 +574,7 @@
             <div class="negrow">
               <p class="instr" data-i18n="dlg.negInstruction">Select any relevant NOT-OBSERVED phenotypes (optional)</p>
               <p class="divlabel" id="neg-sel-head" hidden><span data-i18n="dlg.negSelected">Not-observed phenotypes</span> <span class="cnt" id="neg-sel-count"></span></p>
-              <div class="chips" id="neg-selected"></div>
+              <div class="hpo-picklist" id="neg-selected"></div>
               <div class="msearchrow">
                 <div class="msearchbox">
                   <input class="ctrl" type="text" id="neg-search" data-i18n-ph="ph.browseHpo" placeholder="Search a phenotype (name or HP:…)">
@@ -20354,7 +20361,7 @@
     document.getElementById('obs-sel-head').hidden = ids.length === 0;
     document.getElementById('obs-sel-count').textContent = ids.length ? '('+ids.length+')' : '';
     var cont = document.getElementById('observed-selected'); cont.innerHTML = '';
-    ids.forEach(function(id){ cont.appendChild(makePRow(id, 'observed')); });
+    ids.forEach(function(id){ cont.appendChild(makeSelRow(id, 'observed')); });
   }
   function renderSuggestions(){
     var cont = document.getElementById('suggestions'); cont.innerHTML = '';
@@ -20402,22 +20409,45 @@
     document.getElementById('neg-sel-head').hidden = ids.length === 0;
     document.getElementById('neg-sel-count').textContent = ids.length ? '('+ids.length+')' : '';
     var cont = document.getElementById('neg-selected'); cont.innerHTML = '';
-    ids.forEach(function(id){ cont.appendChild(makeNegChip(id)); });
+    ids.forEach(function(id){ cont.appendChild(makeSelRow(id, 'negative')); });
   }
-  /* not-observed signs render as compact, dismissable strikethrough pills (chip vocabulary) —
-     more vertically economical than checklist rows, and they carry no onset. */
-  function makeNegChip(id){
-    var chip = document.createElement('span'); chip.className = 'chip neg';
-    chip.setAttribute('role', 'button'); chip.setAttribute('tabindex', '0');
-    chip.title = t('ui.removeSign');
-    chip.setAttribute('aria-label', t('ui.removeSign') + ' — ' + termLabel(id));
-    var nm = document.createElement('span'); nm.dataset.pheno = id; nm.textContent = termLabel(id);
-    var x = document.createElement('span'); x.className = 'chipx'; x.setAttribute('aria-hidden', 'true'); x.textContent = '✕';
-    chip.appendChild(nm); chip.appendChild(x);
-    function remove(){ toggleNegative(id); }
-    chip.addEventListener('click', remove);
-    chip.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); remove(); } });
-    return chip;
+  /* A term that has been picked is no longer a choice to make, so it drops the checkbox: the
+     marker on the left says which list it is in (green ✓ observed, red ✗ not observed) and the ✕
+     on the right takes it out. Both lists read the same way; only the marker and the onset differ. */
+  function makeSelRow(id, mode){
+    var row = document.createElement('div'); row.className = 'prow' + (mode === 'observed' ? ' onsetrow' : '');
+    var term = document.createElement('span'); term.className = 'pterm';
+    var mark = document.createElement('span');
+    mark.className = 'pmark ' + (mode === 'observed' ? 'obs' : 'neg');
+    mark.setAttribute('aria-hidden', 'true');
+    mark.textContent = mode === 'observed' ? '✓' : '✗';
+    term.appendChild(mark);
+    var nm = document.createElement('span'); nm.className = 'pname'; nm.dataset.pheno = id;
+    nm.title = termLabel(id); nm.textContent = termLabel(id); term.appendChild(nm);
+    var ids2 = document.createElement('span'); ids2.className = 'pid'; ids2.textContent = id; term.appendChild(ids2);
+    row.appendChild(term);
+    if(mode === 'observed'){
+      var onset = document.createElement('div'); onset.className = 'onset';
+      var olab = document.createElement('label'); olab.setAttribute('data-i18n','lbl.onset'); olab.textContent = t('lbl.onset');
+      var mini = document.createElement('div'); mini.className = 'mini select'; mini.tabIndex = 0; mini.dataset.onset = '';
+      var cur = onsetOf(id);
+      mini.dataset.value = cur; mini.textContent = ageLabel(cur);
+      mini.addEventListener('click', function(){ openMenu(mini, ageMenuItems(), mini.dataset.value, function(v){
+        mini.dataset.value = v; mini.textContent = ageLabel(v); setOnset(id, v);
+      }); });
+      onset.appendChild(olab); onset.appendChild(mini);
+      row.appendChild(onset);
+    }
+    var x = document.createElement('span'); x.className = 'prowx';
+    x.setAttribute('role', 'button'); x.setAttribute('tabindex', '0');
+    x.setAttribute('data-i18n-title', 'ui.removeSign'); x.title = t('ui.removeSign');
+    x.setAttribute('aria-label', t('ui.removeSign') + ' — ' + termLabel(id));
+    x.textContent = '✕';
+    function drop(){ if(mode === 'observed') toggleObserved(id); else toggleNegative(id); }
+    x.addEventListener('click', drop);
+    x.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); drop(); } });
+    row.appendChild(x);
+    return row;
   }
   function renderPheno(){ renderObservedSelected(); renderSuggestions(); renderSearchResults('observed');
                           renderNegSelected(); renderSearchResults('negative'); }

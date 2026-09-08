@@ -75,6 +75,9 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
   860 px) ; les termes longs ne sont plus tronqués mais passent sur plusieurs lignes, sauf ceux
   qui portent déjà leur menu d'âge d'apparition.
 - **Le champ de recherche se vide** dès qu'un terme y est retenu, et garde le focus.
+- **Phénotypes retenus : ✓ vert (observé) ou ✗ rouge (non observé) à gauche, ✕ à droite** pour
+  retirer la ligne ; les pastilles barrées des non observés sont remplacées par des lignes
+  identiques à celles des observés. Libellés du bloc remis à la couleur du reste du formulaire.
 - **Bloc des signes non observés aligné sur celui des observés** : le bouton « + Signes non
   observés » devient la consigne « Sélectionnez des signes NON OBSERVÉS pertinents (facultatif) »,
   suivie de son propre champ de recherche et du bouton « Parcourir l'arbre HPO ».
