@@ -44,6 +44,9 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
 - **Bouton « Parcourir l'arbre MONDO »** à droite du champ, comme pour les phénotypes. Faute de
   hiérarchie MONDO dans la maquette, la fenêtre liste à plat les conditions du catalogue, avec
   recherche ; une note le dit à l'écran.
+- **Le champ Indication devient une recherche**, identique à celle des phénotypes : champ texte
+  « Rechercher une indication (nom ou MONDO:…) », résultats filtrés sous le champ avec surlignage,
+  et ✕ pour effacer.
 - **Contexte clinique réorganisé** : « Ascendance / origine ethnique » renommé **« Ethnicité(s) »**
   (EN : « Ethnicities ») et placé à droite de la consanguinité ; le sous-titre du bloc est retiré,
   les champs commencent directement sous la ligne de séparation.

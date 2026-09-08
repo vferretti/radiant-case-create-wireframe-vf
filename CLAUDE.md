@@ -76,6 +76,10 @@ They are single 1.6 MB HTML files. A few habits that make that bearable:
   `data-i18n-ph`. Adding visible text means adding both keys.
 - **Selects are not `<select>`**. They are `div.ctrl.select[data-sel]` driven by `openMenu()`. The
   canonical value lives in `dataset.value`; the visible text is the translated label.
+- **The indication field is a typeahead, not a select** (2026-09-08): an `input[data-sel=condition]`
+  whose canonical value stays in `dataset.value` while `.value` shows the translated label —
+  `setSel()` and `clearCtrl()` branch on `tagName === 'INPUT'`. Free text is never a value: on
+  blur the label of the actual selection comes back.
 - **Ethnicity is the one multi-valued select** (2026-09-08): `bindMultiSelect()` stores the picks
   pipe-separated in `dataset.values`, paints them as removable chips inside the control, and opens
   `openMenu()` with `{multi:true}` so the menu stays open and ticks what is selected.

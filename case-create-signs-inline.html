@@ -585,9 +585,13 @@
             <div class="f full"><label><span data-i18n="lbl.condition">Primary indication (MONDO)</span> <span class="key">(primary_condition_value)</span></label>
               <!-- same shape as the phenotype rows: the field, then a browse button (2026-09-08) -->
               <div class="msearchrow">
-                <div class="ctrl select" tabindex="0" data-sel="condition" data-i18n-ph="ph.condition" style="flex:1;min-width:0">Search condition (MONDO / HPO / free text)…</div>
+                <div class="msearchbox">
+                  <input class="ctrl" type="text" id="condition-search" data-sel="condition" data-i18n-ph="ph.condition" placeholder="Search an indication (name or MONDO:…)">
+                  <button type="button" class="searchx" id="condition-search-x" data-i18n-title="ui.clearSearch" title="Clear the search">✕</button>
+                </div>
                 <button type="button" class="treebtn" id="browse-mondo-btn"><svg class="tico" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.4"/><line x1="10.6" y1="10.6" x2="14" y2="14"/></svg> <span data-i18n="mondo.title">Browse the MONDO tree</span></button>
               </div>
+              <div class="hpo-picklist" id="condition-results"></div>
             </div>
             <div class="f full"><label><span data-i18n="lbl.note">Clinical note</span> <span class="key">(note)</span></label><textarea class="ctrl area" data-i18n-ph="ph.note" placeholder="Diagnostic hypothesis, or any other context relevant to this case…" data-field="note"></textarea></div>
           </div>
@@ -674,7 +678,7 @@
         <span class="mclose" id="mondo-x" title="Close">✕</span>
       </header>
       <div class="mbody">
-        <input class="ctrl" type="text" id="mondo-search" data-i18n-ph="mondo.search" placeholder="Search a condition (name or MONDO:…)">
+        <input class="ctrl" type="text" id="mondo-search" data-i18n-ph="mondo.search" placeholder="Search an indication (name or MONDO:…)">
         <p class="mhint" id="mondo-note" data-i18n="mondo.note">The mock lists the catalog's conditions; the real browser would show the MONDO hierarchy.</p>
         <p class="mhint" id="mondo-hint" hidden></p>
         <div class="tree" id="mondo-list"></div>
@@ -19577,7 +19581,7 @@
       'dlg.suggestions':'Suggestions for this analysis',
       'dlg.observedSelected':'Observed phenotypes', 'dlg.negSelected':'Not-observed phenotypes',
       'btn.hpoTree':'HPO tree', 'tree.title':'Browse the HPO tree',
-      'mondo.title':'Browse the MONDO tree', 'mondo.search':'Search a condition (name or MONDO:…)',
+      'mondo.title':'Browse the MONDO tree', 'mondo.search':'Search an indication (name or MONDO:…)',
       'mondo.note':'The mock lists the catalog’s conditions; the real browser would show the MONDO hierarchy.', 'tree.apply':'Apply',
       'dlg.negInstruction':'Select any relevant NOT-OBSERVED phenotypes (optional)',
       'tree.minChars':'Type at least 3 characters to search the tree.', 'tree.noResults':'No matching term.',
@@ -19594,7 +19598,7 @@
       'lbl.relation':'Relationship', 'lbl.affected':'Affected status', 'lbl.willSeq':'Will be sequenced',
       'ph.select':'Select…', 'ph.analysis':'Select an analysis…', 'ph.idValue':'Identifier value',
       'ph.jhn':'RAMQ (QC) or regional JHN', 'ph.optional':'Optional', 'ph.dob':'YYYY-MM-DD',
-      'ph.freetext':'Free text', 'ph.condition':'Search condition (MONDO / HPO / free text)…',
+      'ph.freetext':'Free text', 'ph.condition':'Search an indication (name or MONDO:…)',
       'lookup.searching':'Looking for an existing patient…',
       'lookup.found':'Patient already known here — fields prefilled, check them.',
       'lookup.none':'No patient with this identifier here — new patient.',
@@ -19662,7 +19666,7 @@
       'dlg.suggestions':'Suggestions pour cette analyse',
       'dlg.observedSelected':'Phénotypes observés', 'dlg.negSelected':'Phénotypes non observés',
       'btn.hpoTree':'Arbre HPO', 'tree.title':'Parcourir l’arbre HPO',
-      'mondo.title':'Parcourir l’arbre MONDO', 'mondo.search':'Rechercher une condition (nom ou MONDO:…)',
+      'mondo.title':'Parcourir l’arbre MONDO', 'mondo.search':'Rechercher une indication (nom ou MONDO:…)',
       'mondo.note':'La maquette liste les conditions du catalogue ; le vrai navigateur montrerait la hiérarchie MONDO.', 'tree.apply':'Appliquer',
       'dlg.negInstruction':'Sélectionnez des phénotypes NON OBSERVÉS pertinents (facultatif)',
       'tree.minChars':'Saisissez au moins 3 caractères pour chercher dans l’arbre.', 'tree.noResults':'Aucun terme correspondant.',
@@ -19679,7 +19683,7 @@
       'lbl.relation':'Lien de parenté', 'lbl.affected':'Statut', 'lbl.willSeq':'Sera séquencé',
       'ph.select':'Sélectionner…', 'ph.analysis':'Sélectionner une analyse…', 'ph.idValue':'Valeur de l’identifiant',
       'ph.jhn':'RAMQ (QC) ou NAM régional', 'ph.optional':'Facultatif', 'ph.dob':'AAAA-MM-JJ',
-      'ph.freetext':'Texte libre', 'ph.condition':'Rechercher une condition (MONDO / HPO / texte libre)…',
+      'ph.freetext':'Texte libre', 'ph.condition':'Rechercher une indication (nom ou MONDO:…)',
       'lookup.searching':'Recherche d’un patient existant…',
       'lookup.found':'Patient déjà connu à ce site — champs préremplis, à vérifier.',
       'lookup.none':'Aucun patient avec cet identifiant ici — nouveau patient.',
@@ -19944,7 +19948,11 @@
     return OPTIONS[key].map(function(v){ return { value:v, label:optLabel(key, v) }; });
   }
   /* store the canonical value in data-value; show the translated label */
-  function setSel(el, key, value){ el.dataset.value = value; el.textContent = optLabel(key, value); el.classList.add('filled'); }
+  function setSel(el, key, value){
+    el.dataset.value = value;
+    if(el.tagName === 'INPUT') el.value = optLabel(key, value); else el.textContent = optLabel(key, value);
+    el.classList.add('filled');
+  }
 
   /* ---------- state ---------- */
   var state = { analysisSet:false, orderingSet:false, issuingSet:false, conditionSet:false };
@@ -19963,7 +19971,7 @@
   /* the plain version: restore the placeholder, drop the value. clearSelect adds the
      side effects the wired-up proband selects also need. */
   function clearCtrl(el){
-    el.textContent = el.dataset.ph || t('ph.select');
+    if(el.tagName === 'INPUT') el.value = ''; else el.textContent = el.dataset.ph || t('ph.select');
     el.classList.remove('filled');
     delete el.dataset.value;
   }
@@ -19973,14 +19981,12 @@
     if(key === 'analysis'){
       state.analysisSet = false;
       /* the primary condition was derived from the analysis, so it goes with it */
-      var cond = document.querySelector('[data-sel="condition"]');
-      if(cond.classList.contains('filled')) clearSelect(cond);
+      if(document.querySelector('[data-sel="condition"]').classList.contains('filled')) clearCondition();
       /* the suggestion list hangs off the analysis — with none picked, it empties out */
       renderPheno();
       if(!document.getElementById('hpo-tree-modal').hasAttribute('hidden')) renderTree();
     }
     else if(key === 'ordering'){ state.orderingSet = false; }
-    else if(key === 'condition'){ state.conditionSet = false; }
     else if(key === 'issuing'){ state.issuingSet = false; probandOrg = null; syncFamilyOrg(); }
     if(key === 'issuing') runLookup();
     recompute();
@@ -20037,7 +20043,6 @@
         if(key === 'analysis'){ pickAnalysis(v); }
         else if(key === 'ordering'){ setSel(el,'ordering',v); state.orderingSet = true; recompute(); }
         else if(key === 'issuing'){ setSel(el,'issuing',v); state.issuingSet = true; probandOrg = v; syncFamilyOrg(); recompute(); runLookup(); }
-        else if(key === 'condition'){ setSel(el,'condition',v); state.conditionSet = true; recompute(); }
         else { setSel(el,key,v); recompute(); }
       });
     }
@@ -20405,6 +20410,57 @@
     if(e.key !== 'Escape') return;
     if(!document.getElementById('hpo-tree-modal').hasAttribute('hidden')){ closeTree(); return; }
     if(!document.getElementById('mondo-modal').hasAttribute('hidden')) closeMondo();
+  });
+
+  /* ---------- the indication field is a typeahead, same shape as the phenotype searches ----------
+     Type, pick from the list, ✕ to clear. The canonical value lives in data-value; the input
+     shows its translated label. Free text is not a value: leaving the field puts back the label
+     of whatever is actually selected. */
+  function conditionInput(){ return document.getElementById('condition-search'); }
+  function renderConditionResults(){
+    var input = conditionInput();
+    var cont  = document.getElementById('condition-results');
+    cont.innerHTML = '';
+    document.getElementById('condition-search-x').classList.toggle('on', !!input.value);
+    var q = foldAccents((input.value || '').trim());
+    if(!q || (input.dataset.value && optLabel('condition', input.dataset.value) === input.value)) return;
+    var CAP = 10;
+    var shown = menuItems('condition').filter(function(it){ return foldAccents(it.label).indexOf(q) !== -1; }).slice(0, CAP);
+    shown.forEach(function(it){
+      var row = document.createElement('div'); row.className = 'prow';
+      var lab = document.createElement('label'); lab.className = 'check';
+      var box = document.createElement('span'); box.className = 'box'; lab.appendChild(box);
+      var nm = document.createElement('span'); nm.className = 'pname'; nm.appendChild(markMatch(it.label, q)); lab.appendChild(nm);
+      lab.addEventListener('mousedown', function(e){ e.preventDefault(); });   // beat the blur
+      lab.addEventListener('click', function(e){
+        e.preventDefault();
+        setSel(input, 'condition', it.value); state.conditionSet = true;
+        cont.innerHTML = ''; document.getElementById('condition-search-x').classList.add('on');
+        recompute();
+      });
+      row.appendChild(lab);
+      cont.appendChild(row);
+    });
+  }
+  function clearCondition(){
+    var input = conditionInput();
+    clearCtrl(input); state.conditionSet = false;
+    document.getElementById('condition-results').innerHTML = '';
+    document.getElementById('condition-search-x').classList.remove('on');
+    recompute();
+  }
+  conditionInput().addEventListener('input', debounce(renderConditionResults, 180));
+  conditionInput().addEventListener('blur', function(){
+    setTimeout(function(){
+      var input = conditionInput();
+      document.getElementById('condition-results').innerHTML = '';
+      if(input.dataset.value) input.value = optLabel('condition', input.dataset.value);
+      else if(input.value){ input.value = ''; }
+      document.getElementById('condition-search-x').classList.toggle('on', !!input.value);
+    }, 150);
+  });
+  document.getElementById('condition-search-x').addEventListener('click', function(){
+    clearCondition(); conditionInput().focus();
   });
 
   /* ---------- MONDO browser ----------
@@ -20955,6 +21011,8 @@
     document.documentElement.lang = lang;
     localize(document);
     /* re-derive the display label of every filled select from its stored canonical value */
+    var condEl = document.querySelector('[data-sel="condition"]');
+    if(condEl.dataset.value) condEl.value = optLabel('condition', condEl.dataset.value);
     document.querySelectorAll('.ctrl.select[data-sel]').forEach(function(el){
       var key = el.getAttribute('data-sel');
       if(el.classList.contains('multi')){ renderChips(el, key); return; }
