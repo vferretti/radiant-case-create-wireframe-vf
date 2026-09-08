@@ -38,6 +38,9 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
 - **« Condition principale / indication » renommé « Indication principale standardisée (MONDO) »**
   et déplacé juste au-dessus de la note clinique, dans le bloc Contexte clinique. Le résumé parle
   maintenant d'« Indication principale ».
+- **Contexte clinique réorganisé** : statut vital remonté à droite de la consanguinité,
+  « Ascendance / origine ethnique » renommé **« Ethnicité »** (EN : « Ethnicity ») et placé sous
+  la consanguinité.
 - **Identifiant avant l'établissement du patient**, et **recherche simulée du patient existant** :
   elle part dès que la paire établissement + identifiant est complète, quel que soit l'ordre de
   saisie. MRN **1234** au CHU Sainte-Justine trouve un dossier et préremplit RAMQ, prénom, nom,
