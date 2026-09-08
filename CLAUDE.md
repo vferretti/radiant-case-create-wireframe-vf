@@ -1,31 +1,32 @@
 # CLAUDE.md
 
 Notes for whoever (human or Claude) picks this repo up next — including on a different machine.
+Last brought up to date: **2026-09-08**, end of the review session with Vincent.
 
 ## What this repo is
 
 An interactive wireframe for Radiant's **case-creation form**, used to gather feedback from the
-team and the PM. It is a demo artifact, not production code: no build, no dependencies, no tests.
-Each wireframe is **one self-contained `.html` file** you open in a browser.
+team and the PM. It is a demo artifact, not production code: no build, no dependencies, no test
+runner. Each wireframe is **one self-contained `.html` file** you open in a browser.
 
 The design idea it explores is **"derive-and-hide"**: any required value the system can work out
 from something already entered is dropped from the form and set behind the scenes. Case type, for
 example, comes from the chosen analysis and shows as a badge instead of a field.
 
-Two versions exist, identical except for where the clinical-signs (HPO phenotype) picker sits:
-
 | File | Version | Picker placement |
 |---|---|---|
-| `case-create-signs-inline.html` | **B — inline** | version A's picker, unpacked into the form: instruction, picked terms, search row, suggestions; only the HPO tree opens a modal |
+| `case-create-signs-inline.html` | **B — inline** | version A's picker unpacked into the form; only the HPO tree and the MONDO browser open a modal |
 | `case-create-signs-modal.html` | A — modal | one button opens a picker dialog; the tree opens a second modal on top |
 
-`README.md` is the demo-facing description (pros/cons, demo tips). Keep it in sync when behaviour
-changes.
+`README.md` is the demo-facing description (pros/cons, demo tips). It has **not** been updated
+through this session — it still describes the pre-review form. Fix it before the next demo.
 
 ## Current work — read this first
 
-**Vincent is reviewing version B (`case-create-signs-inline.html`).** Version A is not being
-edited right now; the two have drifted apart as a result.
+**Vincent is reviewing version B (`case-create-signs-inline.html`).** Version A has not been
+touched since 2026-09-07 and the two have drifted far apart: A still has the consent checkbox, the
+old section titles, the id-type dropdown, the fake analyses' suggestion lists. Do not assume a
+change made in B exists in A.
 
 The review lives in **`revue-maquette-inline.md`**. Vincent wants it **short**: a one- or two-line
 bullet per change under « Changements effectués », and a « Commentaires » section holding **only
@@ -34,73 +35,141 @@ CLAUDE.md instead, never in that file.
 
 Working rules Vincent set, which still hold unless he says otherwise:
 
-- **Notes go in `revue-maquette-inline.md` first.** Only edit the wireframe when he asks for it
-  explicitly. Several entries are recorded but deliberately not applied (R1, for one).
+- **Only edit the wireframe when he asks for it explicitly.** Otherwise the note goes in the
+  review file.
 - **His notes are French-only.** No English translation to maintain for them.
-- There is an idea — not built — to surface his notes inside the wireframe as a second tab in the
-  existing `.notes-legend` block, under the **Codes** toggle. Nothing has been implemented.
-- Vincent writes in French. Answer in French.
+- **Vincent writes in French. Answer in French.**
+- Idea recorded but never built: surface his notes inside the wireframe as a second tab in the
+  `.notes-legend` block, under the **Codes** toggle.
+- Commits: he asks for them explicitly, and asks to push separately. Everything so far is on
+  `main`, pushed to `origin` (github.com:vferretti/radiant-case-create-wireframe-vf).
 
 ## Data sources
 
-- **`analysis_catalog_qlin.csv`** — the real analysis catalog (37 analyses, tenant `qlin`). It is
-  the source for `var ANALYSES` in the wireframe. Columns: `code`, `name` (French, **with the act
-  number as a prefix**), `primary_condition`, `primary_condition_label_en`,
-  `primary_condition_label_fr`, `condition_code_system`, `analysis_type_code`.
+- **`analysis_catalog_qlin.csv`** — the real analysis catalog (37 analyses, tenant `qlin`), the
+  source for `var ANALYSES`. Columns: `id`, `code`, `name` (French, **with the act number as a
+  prefix**), `description`, `primary_condition`, `primary_condition_label_en`,
+  `primary_condition_label_fr`, `condition_code_system`, `analysis_type_code`, `tenant_code`.
 - **The two label columns were added on 2026-09-08**, resolved from the EBI OLS API
-  (`ontologies/mondo` and `ontologies/hp`); the French side is a translation, not an ontology
+  (`ontologies/mondo` and `ontologies/hp`); the French side is my translation, not an ontology
   source, and needs a clinician's review.
-- The full HPO ontology (~18,690 terms) is **inlined** in each HTML file. That is what makes the
-  files ~1.6 MB and ~20,500 lines.
+- The full HPO ontology (~18,690 terms) is **inlined** in each HTML file, between
+  `/*HPO-DATA-BEGIN*/` and `/*HPO-DATA-END*/`. That is what makes the files ~1.6 MB.
+- **No MONDO hierarchy anywhere on disk** — only the 26 conditions the catalog references.
 
 ## Working on these files
 
-They are single 1.6 MB HTML files. A few habits that make that bearable:
+Single 1.6 MB HTML files. Habits that make that bearable:
 
-- **Never read a whole file.** Use `grep -n` to locate, then `sed -n 'A,Bp'` to read the region.
-- **Edit with a Python script** (`python3 - <<'PY'`) doing an exact string replace with an
-  `assert s.count(old)==1` guard. `sed -i` on this content is a trap.
-- Structure, in order: CSS in one `<style>`, the form markup, then one big `<script>` holding data
-  (`ANALYSES`, `OPTIONS`, `HPO_*`, `SUGGESTIONS_BY_ANALYSIS`), the i18n dictionaries, and the
-  behaviour. Line numbers shift constantly — grep for a symbol, don't trust remembered numbers.
-- **Syntax-check after editing the script block:**
+- **Never read a whole file.** `grep -n` to locate, then `sed -n 'A,Bp'` to read the region.
+- **Edit with a Python script** (`python3 - <<'PY'`) doing exact string replaces behind an
+  `assert s.count(old)==1` guard. `sed -i` on this content is a trap. A helper worth re-declaring
+  each time:
+  ```python
+  def rep(a,b,n=1):
+      global s
+      assert s.count(a)==n, (a[:70], s.count(a)); s=s.replace(a,b)
+  ```
+- Structure, in order: one `<style>`, the form markup, the modals, then one big `<script>` holding
+  the data (`ANALYSES`, `OPTIONS`, `HPO_RAW`, `SUGGESTIONS_*`, `PATIENT_DB`, `AGES`), the i18n
+  dictionaries, and the behaviour. Line numbers shift constantly — grep for a symbol.
+- **Syntax-check after every script edit:**
   ```bash
   sed -n '/<script>/,/<\/script>/p' case-create-signs-inline.html | sed '1d;$d' > /tmp/check.js
   node --check /tmp/check.js
   ```
+- After markup surgery, check the tags balance:
+  ```bash
+  python3 -c "import io,re; s=io.open('case-create-signs-inline.html',encoding='utf-8').read(); h=s[:s.index('<script>')]; print(len(re.findall(r'<div\b',h)), len(re.findall(r'</div>',h)))"
+  ```
+
+### Testing — no runner, drive headless Chrome
+
+`google-chrome` is installed. Copy the file to the scratch directory, inject a `<script>` before
+`</body>` that drives the DOM and dumps `PASS`/`FAIL` lines into a `<pre id="TESTOUT">`, then:
+
+```bash
+google-chrome --headless --disable-gpu --no-sandbox \
+  --virtual-time-budget=12000 --window-size=1280,1400 --dump-dom test.html \
+  | sed -n '/<pre id="TESTOUT">/,/<\/pre>/p' | sed 's/<[^>]*>//g'
+```
+
+`--screenshot=out.png` on the same command gives a visual check. Every change in this session was
+verified this way (10–30 assertions each) — do the same rather than claiming something works.
+Useful patterns:
+
+- Measure layout with `getBoundingClientRect()` and assert on positions, not on looks.
+- Re-run older suites against the current file by re-injecting their `<script>` block. Expect
+  failures from assertions the user has since asked you to change — read them, don't just rerun.
+- Timers: the patient lookup resolves after 700 ms and searches debounce 180 ms, so wrap late
+  assertions in `setTimeout(…, 900)`.
+- A menu item is `.menu .mlist button`; the clear row is `button.clear`; a tree row is
+  `#tree-root .trow` and you click its `label.check`.
+
+## The form as it stands
+
+Five sections, French by default.
+
+**1 · Analyse** — Analyse\* (searchable menu over the 37 catalog entries) | Priorité (Routine);
+under them the ☐ **Cas prénatal** checkbox (it carries the `category_code` annotation and
+footnote 2, the "Catégorie" label having been dropped); Étude de recherche (Pragmatic ·
+Care4Rare · RQDM), full width; Médecin prescripteur | Établissement prescripteur.
+
+**2 · Patient (cas index)** — title becomes « Patient (cas index, mère) » in prenatal mode, where
+Sexe is also prefilled Féminin. Identifiant\* | Établissement du patient\*, then the lookup status
+line spanning the row, then RAMQ | Date de naissance\*, Sexe\* | Statut vital\*, Prénom | Nom. The
+prenatal-only block (sexe fœtal, âge gestationnel, dates DDM/DPA) opens at the **end of this
+section**, driven by the checkbox in section 1.
+
+**3 · Signes cliniques** — the ask, then « Phénotypes observés (n) » (each row: green ✓, term,
+HP id, onset menu, ✕), the search row (HPO search + « Parcourir l'arbre HPO »), then
+« Suggestions pour cette analyse » (two columns read top to bottom, 6 shown, « Afficher n de
+plus »). A rule, then a **checkbox** « Sélectionnez des phénotypes NON OBSERVÉS pertinents
+(facultatif) » that reveals the same shape for the not-observed list (red ✗ instead of ✓, no
+onset). Vertical rhythm inside the block: **12 px** under an instruction, **16 px** before a
+sub-heading, **6 px** under one.
+
+**4 · Autres informations cliniques (facultatives)** — Consanguinité | Ethnicité(s) (multi-valued,
+chips); **Histoire familiale** (checkbox « Antécédents familiaux connus » → one compact row per
+relative: lien de parenté · sexe · statut · texte libre · ✕, plus an add button); Indication
+principale (MONDO) typeahead + « Parcourir l'arbre MONDO »; Note clinique.
+
+**5 · Famille** — under the « Sections facultatives » divider: add-a-member rows and the live
+pedigree.
+
+**Rail** — Analyse (+ germline/somatic badge) · Catégorie · Priorité · ID cas index ·
+Établissement du patient · Sexe · Date de naissance, then « Ajouts facultatifs »: Indication
+principale · Phénotypes · Consanguinité · Ethnicité(s) · Note clinique · Famille, and the
+`x sur 5 champs requis` gate.
 
 ### Conventions inside the wireframe
 
 - **Bilingual, French by default** (`var lang = 'fr'`). Every user-visible string is a key in the
   `en` and `fr` dictionaries, referenced from markup by `data-i18n` / `data-i18n-html` /
-  `data-i18n-ph`. Adding visible text means adding both keys.
-- **Selects are not `<select>`**. They are `div.ctrl.select[data-sel]` driven by `openMenu()`. The
-  canonical value lives in `dataset.value`; the visible text is the translated label.
-- **The indication field is a typeahead, not a select** (2026-09-08): an `input[data-sel=condition]`
-  whose canonical value stays in `dataset.value` while `.value` shows the translated label —
-  `setSel()` and `clearCtrl()` branch on `tagName === 'INPUT'`. Free text is never a value: on
-  blur the label of the actual selection comes back.
-- **Ethnicity is the one multi-valued select** (2026-09-08): `bindMultiSelect()` stores the picks
-  pipe-separated in `dataset.values`, paints them as removable chips inside the control, and opens
-  `openMenu()` with `{multi:true}` so the menu stays open and ticks what is selected.
-- **Reviewer annotations** — the `field_code` hints, the numbered footnotes (`note.1`…`note.8`) and
-  the `.notes-legend` block — are toggled by the **Codes** button (`#docs-toggle`, which flips
-  `body.hide-docs`). They are hidden by default: that is the clean view users see.
+  `data-i18n-ph` / `data-i18n-title` (the last one sets `title` **and** `aria-label`). Adding
+  visible text means adding both keys.
+- **Selects are not `<select>`**. They are `div.ctrl.select[data-sel]` driven by `openMenu()`; the
+  canonical value lives in `dataset.value`, the visible text is the translated label. `openMenu`
+  takes `(anchor, items, current, onPick, opts)` where `opts.multi` keeps it open and ticks the
+  picks, `opts.search:false` suppresses the filter box, `opts.selected()` re-reads the selection.
+- **Every dropdown is clearable** back to its placeholder through the `↺` row `withClear()`
+  prepends whenever a control is `filled`.
+- **The indication field is a typeahead, not a select**: an `input[data-sel=condition]` whose
+  canonical value stays in `dataset.value` while `.value` shows the translated label — `setSel()`
+  and `clearCtrl()` branch on `tagName === 'INPUT'`. Free text is never a value: on blur the label
+  of the actual selection comes back.
+- **Ethnicity is the one multi-valued control**: `bindMultiSelect()` stores the picks
+  pipe-separated in `dataset.values` and paints them as removable chips inside the control.
+- **Two kinds of phenotype row**: `makePRow(id, mode, q)` for a list you pick *from* (checkbox,
+  optional match highlight), `makeSelRow(id, mode)` for a term already picked (✓/✗ marker, onset
+  for observed, ✕ to drop). A picked term never appears in both.
+- **Blocks that open behind a checkbox clear themselves when closed** — prenatal fields, family
+  history, not-observed phenotypes. Nothing hidden should end up in the case.
+- **Reviewer annotations** — the `field_code` hints, footnotes `note.1`…`note.8` and the
+  `.notes-legend` block — are toggled by the **Codes** button (`#docs-toggle`, flips
+  `body.hide-docs`), hidden by default. When a label is dropped, its annotations move to whatever
+  replaced it rather than disappearing.
 - Comments in the file explain *why* a thing is the way it is. Match that when adding code.
-
-### Testing — there is no test runner, use headless Chrome
-
-`google-chrome` is installed. Copy the file to a scratch directory, inject a `<script>` before
-`</body>` that drives the DOM and dumps `PASS`/`FAIL` lines into a `<pre id="TESTOUT">`, then:
-
-```bash
-google-chrome --headless --disable-gpu --no-sandbox \
-  --virtual-time-budget=8000 --dump-dom test.html
-```
-
-and grep the `TESTOUT` block out of the dump. `--screenshot=out.png` on the same command gives a
-visual check. This was used to verify the searchable analysis menu (19 assertions) and the
-condition-derivation rules — do the same rather than claiming something works untested.
 
 ## Decisions already made (don't re-litigate)
 
@@ -110,64 +179,52 @@ condition-derivation rules — do the same rather than claiming something works 
   accent- and case-insensitively, and highlights the run it matched.
 - **The real 37-analysis catalog replaced the 4 fake ones**, in CSV order.
 - **The primary condition is derived only from a MONDO code.** An HPO code or a blank leaves the
-  field empty for the user. 34 of 37 derive; RHAB (HPO), RAPIDE and GENOR (blank) do not. The raw
-  catalog code is kept in `conditionCode` either way.
+  field empty. 34 of 37 derive; RHAB (HPO), RAPIDE and GENOR (blank) do not. The raw catalog code
+  is kept in `conditionCode` either way.
+- **Case type (germline/somatic) comes from `analysis_type_code`** — one type per analysis in the
+  real catalog, which settles the open assumption in footnote 1.
 - **Priority is never derived.** Prenatal used to force STAT and a fetal demise used to undo it;
-  both rules were dropped (2026-09-08) — the user always picks. The rail still shows the field
-  with Routine as its default.
-- **Case type (germline/somatic) comes from `analysis_type_code`** — the real catalog confirms one
-  type per analysis, which was an open assumption in footnote 1.
-- **Every dropdown is clearable** back to its placeholder — required fields and the two that ship
-  with a default (priority, id type) included — through the `↺ clear` row `withClear()` prepends
-  whenever a select is `filled`. Clearing the analysis drops the derived condition suggestions;
-  clearing the issuing site stops relatives inheriting it.
-- **The field once called "issuing site" is "Établissement du patient" / "Patient organization"**
-  (renamed 2026-09-08 — it is FHIR's `managingOrganization`, not HL7v2's sending facility). The
-  internal key stays `issuing`; only the visible strings changed. **No default value.**
+  both rules were dropped — the user always picks.
+- **The field once called "issuing site" is « Établissement du patient » / "Patient organization"**
+  — it is FHIR's `managingOrganization`, not HL7v2's sending facility. The internal key stays
+  `issuing`. **No default value.**
 - **The identifier leads section 2**, labelled « Identifiant (numéro de dossier médical, code de
-  l'étude, …) ». The
-  id-type dropdown (MRN / Other) was removed on 2026-09-08, proband and family row alike, so the
-  existing-patient lookup keys on organization + identifier: it fires whenever that pair is
-  complete, whichever half moved last, and re-fires when either changes; until then it says which
-  field is missing. It is mocked (`PATIENT_DB`, one record behind a 700 ms
-  delay): MRN 1234 at Sainte-Justine prefills health number, names, sex and date of birth;
-  anything else reports "new patient" and takes back only the values the lookup itself wrote.
-- **HPO search is scoped to the displayed language** (2026-09-08): each term carries `_ffr` and
-  `_fen` haystacks, and both the inline search and the tree browser read the one matching `lang`.
-  Searching "hearing" in French returns nothing, on purpose. The HP id is in both haystacks.
-- **Five sections since 2026-09-08**: 1 Analyse · 2 Patient (cas index) · 3 Signes cliniques ·
-  4 Autres informations cliniques (facultatives) · 5 Famille. Section 3 holds only the phenotypes;
-  everything else clinical moved to 4. The word "signe clinique" was replaced by "phénotype" in
-  every user-facing string (the section title excepted).
-- **Clinical signs follow version A's picker layout** (2026-09-08): instruction line, then the
-  observed terms already picked (each with its onset), then the search row (free-text HPO search +
-  "Browse the HPO tree"), then the analysis suggestions, then not-observed. A term picked anywhere
-  rises into the list above the search box and is dropped from the suggestion and search lists, so
-  it is never shown twice.
-- **Suggestion lists**: `EPI4` was renamed to the real code `EPIL`. `CARDIO` and `TSOL` are **left
-  orphaned and unused** rather than reassigned to a real analysis — that is a clinical call, not a
-  technical one.
+  l'étude, …) »; the id-type dropdown (MRN / Other) is gone, proband and family row alike. The
+  existing-patient lookup therefore keys on **organization + identifier**: it fires whenever that
+  pair is complete, whichever half moved last, re-fires when either changes, and says which field
+  it is waiting for. Mocked in `PATIENT_DB`, one record behind a 700 ms delay — **1234** at
+  Sainte-Justine prefills health number, names, sex and date of birth; anything else reports
+  "nouveau patient" and takes back only what the lookup itself wrote.
+- **HPO search is scoped to the displayed language**: each term carries `_ffr` and `_fen`
+  haystacks and both the inline searches and the tree read the one matching `lang`. Searching
+  "hearing" in French returns nothing, on purpose. The HP id is in both haystacks.
+- **Suggested phenotypes are one placeholder list for every analysis** (`SUGGESTIONS_DEFAULT`),
+  except RAPIDE and GENOR which get none — they are the non-specific analyses. The drafted
+  per-analysis lists sit unread in `SUGGESTIONS_DRAFTS`; `EPI4` was renamed to the real code
+  `EPIL`, and `CARDIO`/`TSOL` are orphaned rather than reassigned (a clinical call).
+- **The MONDO browser is a shell.** With no hierarchy on disk it lists the catalog's conditions
+  flat, behind the HPO tree's chrome, and says so on screen. A real subtree drops into it.
+- **Long HPO labels wrap** rather than truncate, except on a row that shows its onset menu, where
+  the name ellipsizes and keeps the full term in its tooltip. `.layout` uses `minmax(0,1fr)` +
+  `min-width:0` so a 130-character label can never widen the column again.
 
 ## Open questions
 
-Full detail in `revue-maquette-inline.md`; the ones that will block work:
+Ranked by how much they block work:
 
-1b. **There is still no MONDO hierarchy on disk.** The "Parcourir l'arbre MONDO" button added on
-   2026-09-08 opens a flat list of the catalog's 26 conditions behind the HPO tree's chrome, and
-   says so on screen. A real subtree would drop into that shell.
-1. **MONDO labels now come from EBI OLS**, fetched on Vincent's go-ahead (2026-09-08). Confirm
-   that source is acceptable, and get the French translations reviewed.
-2. **The catalog has no English names.** In EN the form currently shows the French name.
-3. **Category is not in the catalog**; Postnatal is assumed for all 37.
-4. **Suggested phenotypes are one placeholder list shown for every analysis** (`SUGGESTIONS_DEFAULT`,
-   set 2026-09-08), except RAPIDE and GENOR which get none. Real per-analysis lists are still a
-   clinical call nobody has made; the drafted ones sit unread in `SUGGESTIONS_DRAFTS`.
+1. **MONDO labels come from EBI OLS**, fetched on Vincent's go-ahead. Confirm that source is
+   acceptable, and get the French translations reviewed. There is still **no MONDO hierarchy** to
+   put behind the browse button.
+2. **Real per-analysis phenotype suggestions** — a clinical call nobody has made. Vincent can
+   supply lists, or I draft them from HPO as provisional.
+3. **The catalog has no English names.** In EN the form shows the French name.
+4. **Category is not in the catalog**; Postnatal is assumed for all 37.
 5. **French HPO terms are largely machine-translated** and need a French clinician's review.
-6. Whether the search should also apply to **issuing site / ordering site** — plugging in the real
-   Quebec establishment list would trip the 8-entry threshold on its own.
-7. **Two apparent duplicates in the catalog**: NPC and NEUTP both read « Neutropénie congénitale » ;
+6. **Two apparent duplicates in the catalog**: NPC and NEUTP both read « Neutropénie congénitale »;
    HLEB and HLH both carry act number 55412. Data-entry error, or a real distinction?
-8. **Switching analysis does not clear an already-derived condition** — going from MMG to RAPIDE
-   (no derived condition) leaves « Maladie neuromusculaire » in the field. Original behaviour,
-   untouched. Note that *clearing* the analysis does now clear the condition (asked 2026-09-08),
-   so only the switch case is left inconsistent.
+7. **Switching analysis does not clear an already-derived indication** — MMG → RAPIDE (no derived
+   condition) leaves « Maladie neuromusculaire » in the field. *Clearing* the analysis does clear
+   it. Only the switch case is inconsistent.
+8. Whether the search should also apply to **établissement prescripteur / du patient** — plugging
+   in the real Quebec establishment list would trip the 8-entry threshold on its own.
+9. **`README.md` is stale**, and **version A** has not followed any of this.
