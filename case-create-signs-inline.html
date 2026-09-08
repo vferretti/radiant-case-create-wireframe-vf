@@ -82,6 +82,13 @@
         display:flex;align-items:center;padding:0 10px;color:var(--faint);font-size:12px;gap:8px}
   .ctrl.select{cursor:pointer}
   .ctrl.select::after{content:"▾";margin-left:auto;color:var(--faint)}
+  /* multi-valued select: the picks live in the control as removable chips, so it grows with them */
+  .ctrl.select.multi{height:auto;min-height:34px;flex-wrap:wrap;gap:5px;padding:4px 10px;align-items:center}
+  .ctrl.select.multi::after{align-self:center}
+  .tagchip{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:2px 6px 2px 8px;
+        border-radius:4px;background:var(--accent);color:#fff;font-size:11.5px;line-height:1.6}
+  .tagchip .tagx{cursor:pointer;opacity:.75;font-size:11px}
+  .tagchip .tagx:hover{opacity:1}
   .ctrl.area{height:120px;align-items:flex-start;padding-top:8px}
   .ctrl.filled{color:var(--ink);background:#fff}
   .opts{font-size:11px;color:var(--mut);margin-top:1px}
@@ -144,6 +151,10 @@
         padding:7px 9px;font:inherit;font-size:12px;color:var(--ink);cursor:pointer;white-space:nowrap}
   .menu button:hover{background:var(--box)}
   .menu button.on{color:var(--accent);font-weight:600}
+  /* a menu that allows several picks marks them instead of closing */
+  .menu.multi button{display:flex;align-items:center;gap:10px}
+  .menu.multi button.on{background:var(--box)}
+  .menu .mtick{margin-left:auto;color:var(--accent)}
   .menu button.clear{color:var(--faint);border-bottom:1px solid var(--line-soft);border-radius:0;margin-bottom:2px}
   .menu button:disabled{color:var(--faint);cursor:not-allowed;font-style:italic}
   .menu button:disabled:hover{background:none}
@@ -737,7 +748,8 @@
       'Severe congenital neutropenia (MONDO:0018542)',
       'Undiagnosed — see phenotypes'
     ],
-    ancestry:  ['French-Canadian','European','Indigenous','Other','Not specified'],
+    ancestry:  ['French-Canadian','European Caucasian','African or Caribbean','Hispanic',
+                'East and Southeast Asian','South Asian','Amerindian','Mixed origin'],
     relation:  ['Mother','Father','Sister','Brother','Daughter','Son','Half-sibling','Other']
   };
   /* relationship → inferred sex (only where unambiguous; Half-sibling / Other leave it blank) */
@@ -19668,7 +19680,10 @@
   };
   /* option-value translations (canonical English value → French display) */
   var OPT_FR = {
-    ancestry: { 'French-Canadian':'Canadien-français', European:'Européen', Indigenous:'Autochtone', Other:'Autre', 'Not specified':'Non précisé' },
+    ancestry: { 'French-Canadian':'Canadien français', 'European Caucasian':'Caucasien européen',
+                'African or Caribbean':'Africain ou caribéen', Hispanic:'Hispanique',
+                'East and Southeast Asian':'Asiatique de l’est et du sud-est', 'South Asian':'Asiatique du sud',
+                Amerindian:'Amérindien', 'Mixed origin':'Origine mixte' },
     relation: { Mother:'Mère', Father:'Père', Sister:'Sœur', Brother:'Frère', Daughter:'Fille', Son:'Fils', 'Half-sibling':'Demi-frère / sœur', Other:'Autre' },
     condition:{
       'Amyotrophic lateral sclerosis (MONDO:0004976)':'Sclérose latérale amyotrophique (MONDO:0004976)',
@@ -19761,12 +19776,18 @@
      The filter matches the label AND the short code, ANYWHERE in the string — analysis names open
      with the act number ("55340 - Maladies musculaires globales"), so a prefix-only match would
      never find "muscul". Accent- and case-insensitive. */
-  function openMenu(anchor, items, currentValue, onPick){
+  /* opts.multi keeps the menu open and ticks what is picked; opts.selected() re-reads the
+     selection after each pick so the ticks stay right */
+  function openMenu(anchor, items, currentValue, onPick, opts){
+    opts = opts || {};
+    var multi = !!opts.multi;
+    var sel = multi ? (currentValue || []).slice() : null;
+    function isOn(v){ return multi ? sel.indexOf(v) !== -1 : v === currentValue; }
     closeMenu();
     openEl = anchor;
     var r = anchor.getBoundingClientRect();
     menuEl = document.createElement('div');
-    menuEl.className = 'menu';
+    menuEl.className = 'menu' + (multi ? ' multi' : '');
     var searchable = items.filter(function(it){ return !it.clear; }).length >= MENU_SEARCH_MIN;
     var list = document.createElement('div');
     list.className = 'mlist';
@@ -19790,7 +19811,7 @@
     function row(it, q){
       var b = document.createElement('button');
       b.type = 'button';
-      if(it.value === currentValue) b.className = 'on';
+      if(isOn(it.value)) b.className = 'on';
       if(it.clear) b.className = 'clear';
       if(it.disabled){
         b.disabled = true;
@@ -19803,7 +19824,17 @@
         c.appendChild(markMatch(it.code, q));
         b.appendChild(c);
       }
-      b.addEventListener('click', function(e){ e.stopPropagation(); onPick(it.value); closeMenu(); });
+      if(multi && !it.clear){
+        var tick = document.createElement('span'); tick.className = 'mtick';
+        tick.textContent = isOn(it.value) ? '✓' : '';
+        b.appendChild(tick);
+      }
+      b.addEventListener('click', function(e){
+        e.stopPropagation();
+        onPick(it.value);
+        if(multi && !it.clear){ sel = opts.selected(); paint(input ? input.value : ''); }
+        else closeMenu();
+      });
       return b;
     }
     function paint(raw){
@@ -19910,8 +19941,47 @@
     if(key === 'issuing') runLookup();
     recompute();
   }
+  /* ---------- multi-valued select (ethnicity) ----------
+     Values live in data-values, pipe-separated, and show as removable chips inside the control.
+     The menu stays open so several can be picked in one go. */
+  function multiValues(el){ return el.dataset.values ? el.dataset.values.split('|') : []; }
+  function renderChips(el, key){
+    var vals = multiValues(el);
+    el.textContent = '';
+    if(!vals.length){ el.textContent = el.dataset.ph || t('ph.select'); return; }
+    vals.forEach(function(v){
+      var chip = document.createElement('span'); chip.className = 'tagchip';
+      chip.appendChild(document.createTextNode(optLabel(key, v)));
+      var x = document.createElement('span'); x.className = 'tagx'; x.setAttribute('aria-hidden','true'); x.textContent = '✕';
+      x.addEventListener('click', function(e){ e.stopPropagation(); closeMenu(); setMulti(el, key, multiValues(el).filter(function(w){ return w !== v; })); });
+      chip.appendChild(x);
+      el.appendChild(chip);
+    });
+  }
+  function setMulti(el, key, vals){
+    if(vals.length) el.dataset.values = vals.join('|'); else delete el.dataset.values;
+    el.classList.toggle('filled', vals.length > 0);
+    renderChips(el, key);
+    recompute();
+  }
+  function bindMultiSelect(el, key){
+    el.classList.add('multi');
+    renderChips(el, key);
+    function fire(){
+      openMenu(el, withClear(el, menuItems(key)), multiValues(el), function(v){
+        if(v === CLEAR){ setMulti(el, key, []); closeMenu(); return; }
+        var vals = multiValues(el), i = vals.indexOf(v);
+        if(i === -1) vals.push(v); else vals.splice(i, 1);
+        setMulti(el, key, vals);
+      }, { multi:true, selected:function(){ return multiValues(el); } });
+    }
+    el.addEventListener('click', fire);
+    el.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); fire(); } });
+  }
+
   function bindSelect(el){
     var key = el.getAttribute('data-sel');
+    if(key === 'ancestry'){ bindMultiSelect(el, key); return; }
     /* every dropdown can go back to "nothing selected" — required fields and the two that
        ship with a default (priority, id type) included. Clearing a required one simply
        un-satisfies the gate, which is exactly what it should show. */
@@ -20636,12 +20706,12 @@
     var cEl = document.getElementById('sum-consang');
     cEl.textContent = cons ? t('yn.'+cons.dataset.val) : '—';
     cEl.classList.toggle('done', !!cons && cons.dataset.val !== 'Unknown');
-    /* ancestry — show the picked value */
+    /* ethnicity — several values, listed in the order they were picked */
     var anc = document.querySelector('[data-sel="ancestry"]');
-    var aFilled = anc && anc.classList.contains('filled');
+    var aVals = anc ? multiValues(anc) : [];
     var aEl = document.getElementById('sum-ancestry');
-    aEl.textContent = aFilled ? optLabel('ancestry', anc.dataset.value) : '—';
-    aEl.classList.toggle('done', !!aFilled);
+    aEl.textContent = aVals.length ? aVals.map(function(v){ return optLabel('ancestry', v); }).join(', ') : '—';
+    aEl.classList.toggle('done', aVals.length > 0);
     /* clinical note — free text, so show only an indicator, never the text itself */
     var note = document.querySelector('[data-field="note"]');
     var nFilled = note && note.value.trim() !== '';
@@ -20786,7 +20856,9 @@
     localize(document);
     /* re-derive the display label of every filled select from its stored canonical value */
     document.querySelectorAll('.ctrl.select[data-sel]').forEach(function(el){
-      if(el.classList.contains('filled') && el.dataset.value) el.textContent = optLabel(el.getAttribute('data-sel'), el.dataset.value);
+      var key = el.getAttribute('data-sel');
+      if(el.classList.contains('multi')){ renderChips(el, key); return; }
+      if(el.classList.contains('filled') && el.dataset.value) el.textContent = optLabel(key, el.dataset.value);
     });
     document.querySelectorAll('[data-fam="relation"]').forEach(function(el){
       if(el.classList.contains('filled') && el.dataset.value) el.textContent = optLabel('relation', el.dataset.value);

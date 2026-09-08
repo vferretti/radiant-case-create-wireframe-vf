@@ -76,6 +76,9 @@ They are single 1.6 MB HTML files. A few habits that make that bearable:
   `data-i18n-ph`. Adding visible text means adding both keys.
 - **Selects are not `<select>`**. They are `div.ctrl.select[data-sel]` driven by `openMenu()`. The
   canonical value lives in `dataset.value`; the visible text is the translated label.
+- **Ethnicity is the one multi-valued select** (2026-09-08): `bindMultiSelect()` stores the picks
+  pipe-separated in `dataset.values`, paints them as removable chips inside the control, and opens
+  `openMenu()` with `{multi:true}` so the menu stays open and ticks what is selected.
 - **Reviewer annotations** — the `field_code` hints, the numbered footnotes (`note.1`…`note.8`) and
   the `.notes-legend` block — are toggled by the **Codes** button (`#docs-toggle`, which flips
   `body.hide-docs`). They are hidden by default: that is the clean view users see.
