@@ -112,9 +112,6 @@ condition-derivation rules — do the same rather than claiming something works 
 - **The primary condition is derived only from a MONDO code.** An HPO code or a blank leaves the
   field empty for the user. 34 of 37 derive; RHAB (HPO), RAPIDE and GENOR (blank) do not. The raw
   catalog code is kept in `conditionCode` either way.
-- **Life status is out of the form** since 2026-09-08 ("pour le moment"). Its `lbl.life` /
-  `life.*` keys and the pedigree's deceased handling are deliberately kept, so putting the
-  control back is all it takes.
 - **Priority is never derived.** Prenatal used to force STAT and a fetal demise used to undo it;
   both rules were dropped (2026-09-08) — the user always picks. The rail still shows the field
   with Routine as its default.

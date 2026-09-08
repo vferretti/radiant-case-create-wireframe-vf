@@ -482,13 +482,25 @@
                  the row is bottom-aligned, so a message growing inside one cell would push its
                  control out of line with its neighbour's -->
             <span class="lookup" id="patient-lookup"></span>
-            <!-- health number takes the left column on its own row; the cell beside it is
-                 intentionally empty, so the name/sex/dob pairs below keep their own rows -->
+            <!-- the identifying pair first, then the demographics two by two: health number and
+                 date of birth, sex and life status, and the optional names last (2026-09-08) -->
             <div class="f">
               <label><span data-i18n="lbl.healthNo">Health number</span> <span class="key">(jhn)</span><sup class="fn">6</sup></label>
               <input class="ctrl" type="text" data-i18n-ph="ph.jhn" placeholder="RAMQ (QC) or regional JHN" data-field="jhn">
             </div>
-            <div aria-hidden="true"></div>
+            <div class="f">
+              <label><span data-i18n="lbl.dob">Date of birth</span> <span class="req">*</span> <span class="key">(date_of_birth)</span></label>
+              <input class="ctrl" type="date" data-i18n-ph="ph.dob" placeholder="YYYY-MM-DD" data-field="dob">
+            </div>
+            <div class="f">
+              <label><span data-i18n="lbl.sex">Sex</span> <span class="req">*</span> <span class="key">(sex_code)</span></label>
+              <div class="seg" data-seg="sex"><span data-val="M" data-i18n="sex.M">Male</span><span data-val="F" data-i18n="sex.F">Female</span><span data-val="U" data-i18n="sex.U">Unknown</span></div>
+            </div>
+            <!-- life status is back (it was pulled on 2026-09-08, restored here beside Sex) -->
+            <div class="f">
+              <label><span data-i18n="lbl.life">Life status</span> <span class="req">*</span> <span class="key">(life_status_code)</span></label>
+              <div class="seg" data-seg="life"><span class="on" data-val="Alive" data-i18n="life.Alive">Alive</span><span data-val="Deceased" data-i18n="life.Deceased">Deceased</span><span data-val="Unknown" data-i18n="life.Unknown">Unknown</span></div>
+            </div>
             <!-- names captured inline with the other demographics, but optional -->
             <div class="f">
               <label><span data-i18n="lbl.firstName">First name</span> <span class="key">(first_name)</span></label>
@@ -497,14 +509,6 @@
             <div class="f">
               <label><span data-i18n="lbl.lastName">Last name</span> <span class="key">(last_name)</span></label>
               <input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional" data-field="lastname">
-            </div>
-            <div class="f">
-              <label><span data-i18n="lbl.sex">Sex</span> <span class="req">*</span> <span class="key">(sex_code)</span></label>
-              <div class="seg" data-seg="sex"><span data-val="M" data-i18n="sex.M">Male</span><span data-val="F" data-i18n="sex.F">Female</span><span data-val="U" data-i18n="sex.U">Unknown</span></div>
-            </div>
-            <div class="f">
-              <label><span data-i18n="lbl.dob">Date of birth</span> <span class="req">*</span> <span class="key">(date_of_birth)</span></label>
-              <input class="ctrl" type="date" data-i18n-ph="ph.dob" placeholder="YYYY-MM-DD" data-field="dob">
             </div>
           </div>
 
@@ -20901,8 +20905,6 @@
 
     var pSexOn = document.querySelector('[data-seg="sex"] .on');
     var pSex = pSexOn ? pSexOn.dataset.val : 'U';
-    /* Life status was pulled from the form on 2026-09-08; until it comes back the proband is
-       never drawn deceased. The lookup is kept so restoring the control is enough. */
     var pLifeOn = document.querySelector('[data-seg="life"] .on');
     var proband = { relation:'Proband', sex:pSex, aff:'Affected', proband:true,
                     deceased: !!(pLifeOn && pLifeOn.dataset.val==='Deceased') };

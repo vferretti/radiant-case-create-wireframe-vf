@@ -24,7 +24,9 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
   en mode prénatal (sans trait d'union : « cas index » n'en prend pas).
 - **Prénatal : le sexe est prérempli à Féminin** — la patiente est la mère. Reste modifiable, et
   la valeur choisie avant est restituée si on décoche.
-- **RAMQ alignée à gauche**, sous le site émetteur, au lieu de la colonne de droite.
+- **Section Patient réordonnée** : identifiant | établissement, puis RAMQ | date de naissance,
+  puis sexe | statut vital, et enfin prénom | nom. Le **statut vital est de retour**, à droite du
+  sexe.
 - **Effacer l'analyse efface aussi la condition MONDO** qui en était dérivée.
 - **Phénotypes suggérés : la même liste pour toutes les analyses** en attendant les vraies listes
   cliniques, sauf l'exome rapide (RAPIDE) et le génome non spécifique (GENOR), qui n'en ont aucune.
