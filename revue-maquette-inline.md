@@ -50,6 +50,7 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
 - **Les termes trop longs sont tronqués** (…) avec le nom complet en infobulle, pour que le menu
   d'âge d'apparition reste visible à droite ; au passage, un terme long ne fait plus déborder la
   page vers la droite.
+- **Recherche HPO : 10 résultats au maximum**, et un « ✕ » dans le champ pour l'effacer d'un clic.
 - **Identifiant avant l'établissement du patient**, et **recherche simulée du patient existant** :
   elle part dès que la paire établissement + identifiant est complète, quel que soit l'ordre de
   saisie. MRN **1234** au CHU Sainte-Justine trouve un dossier et préremplit RAMQ, prénom, nom,

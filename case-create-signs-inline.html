@@ -305,6 +305,14 @@
   /* search row: input + inline "HPO tree" button on one line (preserve vertical space) */
   .msearchrow{display:flex;gap:8px;align-items:center}
   .msearchrow input{flex:1;min-width:0}
+  /* the input and its clear button share one box; the ✕ only shows when there is text to drop */
+  .msearchbox{position:relative;flex:1 1 auto;min-width:0;display:flex}
+  .msearchbox input{padding-right:30px}
+  .searchx{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:20px;height:20px;padding:0;
+        border:0;border-radius:4px;background:none;color:var(--faint);font:inherit;font-size:12px;line-height:1;
+        cursor:pointer;display:none;align-items:center;justify-content:center}
+  .searchx.on{display:flex}
+  .searchx:hover{color:var(--ink);background:var(--box)}
   .treebtn{flex:0 0 auto;height:34px;padding:0 12px;border:1px solid var(--line);border-radius:5px;background:#fff;
         color:var(--mut);font:inherit;font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
   .treebtn:hover{color:var(--ink);border-color:var(--accent)}
@@ -497,7 +505,10 @@
             <p class="divlabel" id="obs-sel-head" hidden><span data-i18n="dlg.observedSelected">Observed signs</span> <span class="cnt" id="obs-sel-count"></span></p>
             <div class="hpo-picklist" id="observed-selected"></div>
             <div class="msearchrow">
-              <input class="ctrl" type="text" id="pheno-search" data-i18n-ph="ph.browseHpo" placeholder="Search a clinical sign (name or HP:…)">
+              <div class="msearchbox">
+                <input class="ctrl" type="text" id="pheno-search" data-i18n-ph="ph.browseHpo" placeholder="Search a clinical sign (name or HP:…)">
+                <button type="button" class="searchx" id="pheno-search-x" data-i18n-title="ui.clearSearch" title="Clear the search">✕</button>
+              </div>
               <button type="button" class="treebtn" id="browse-obs-btn"><svg class="tico" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.4"/><line x1="10.6" y1="10.6" x2="14" y2="14"/></svg> <span data-i18n="tree.title">Browse the HPO tree</span></button>
             </div>
             <div class="hpo-picklist" id="pheno-search-results"></div>
@@ -19469,7 +19480,7 @@
       'app.tag':'Version B · signs inline · browser in modal',
       'ui.collapse':'－ collapse', 'ui.expand':'＋ expand', 'ui.optSections':'Optional sections',
       'ui.docsToggle':'Field codes',
-      'ui.removeSign':'Remove',
+      'ui.removeSign':'Remove', 'ui.clearSearch':'Clear the search',
       'sec.analysis':'Analysis', 'sec.proband':'Patient (proband)', 'sec.probandPrenatal':'Patient (proband, mother)', 'sec.clinical':'Clinical information', 'sec.family':'Family',
       'lbl.analysis':'Analysis', 'lbl.category':'Category', 'lbl.prenatal':'Prenatal case', 'lbl.priority':'Priority',
       'lbl.prenatalInfo':'Additional information',
@@ -19555,7 +19566,7 @@
       'app.tag':'Version B · signes en ligne · navigateur en modale',
       'ui.collapse':'－ réduire', 'ui.expand':'＋ développer', 'ui.optSections':'Sections facultatives',
       'ui.docsToggle':'Codes',
-      'ui.removeSign':'Retirer',
+      'ui.removeSign':'Retirer', 'ui.clearSearch':'Effacer la recherche',
       'sec.analysis':'Analyse', 'sec.proband':'Patient (cas index)', 'sec.probandPrenatal':'Patient (cas index, mère)', 'sec.clinical':'Information clinique', 'sec.family':'Famille',
       'lbl.analysis':'Analyse', 'lbl.category':'Catégorie', 'lbl.prenatal':'Cas prénatal', 'lbl.priority':'Priorité',
       'lbl.prenatalInfo':'Informations supplémentaires',
@@ -20183,11 +20194,12 @@
     var cont  = document.getElementById('pheno-search-results');
     var hint  = document.getElementById('pheno-search-hint');
     cont.innerHTML = ''; hint.hidden = true;
+    document.getElementById('pheno-search-x').classList.toggle('on', !!input.value);
     var q = (input.value || '').trim();
     if(q.length < 2){ if(q.length > 0){ hint.hidden = false; hint.textContent = t('dlg.searchHint'); } return; }
     var fq = foldAccents(q);
     var offered = suggestionsFor(analysisCode());
-    var CAP = 50, matches = [];
+    var CAP = 10, matches = [];
     for(var i=0; i<HPO_LIST.length; i++){
       var x = HPO_LIST[i];
       if(phHas('observed', x.id)) continue;          // already picked, it is in the list above
@@ -20234,6 +20246,10 @@
   document.getElementById('browse-neg-btn').addEventListener('click', function(){ openTree('negative'); });
   document.getElementById('sugg-showmore').addEventListener('click', function(){ suggExpanded = !suggExpanded; renderSuggestions(); });
   document.getElementById('pheno-search').addEventListener('input', debounce(renderSearchResults, 180));
+  document.getElementById('pheno-search-x').addEventListener('click', function(){
+    var input = document.getElementById('pheno-search');
+    input.value = ''; renderSearchResults(); input.focus();
+  });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !document.getElementById('hpo-tree-modal').hasAttribute('hidden')) closeTree(); });
 
   /* ---------- HPO tree browser (Option A: modal over the picker; full DAG, lazy render) ---------- */
@@ -20728,6 +20744,10 @@
     root.querySelectorAll('[data-i18n]').forEach(function(el){ el.textContent = t(el.getAttribute('data-i18n')); });
     root.querySelectorAll('[data-i18n-html]').forEach(function(el){ el.innerHTML = t(el.getAttribute('data-i18n-html')); });
     /* placeholders: real inputs vs. div-selects (whose placeholder is their empty-state text) */
+    root.querySelectorAll('[data-i18n-title]').forEach(function(el){
+      var s = t(el.getAttribute('data-i18n-title'));
+      el.title = s; el.setAttribute('aria-label', s);
+    });
     root.querySelectorAll('[data-i18n-ph]').forEach(function(el){
       var s = t(el.getAttribute('data-i18n-ph'));
       if(el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'){ el.placeholder = s; }
