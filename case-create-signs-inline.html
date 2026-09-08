@@ -20160,7 +20160,15 @@
     var ids = document.createElement('span'); ids.className = 'pid';
     ids.appendChild(markMatch(id, q || '')); lab.appendChild(ids);
     row.appendChild(lab);
-    if(!crossDisabled){ lab.addEventListener('click', function(e){ e.preventDefault(); if(mode==='observed') toggleObserved(id); else toggleNegative(id); }); }
+    if(!crossDisabled){ lab.addEventListener('click', function(e){
+      e.preventDefault();
+      /* picking from the search answers it: empty the box (renderPheno then clears the results
+         and hides the ✕) and hand the focus back for the next sign */
+      var fromSearch = !!q, input = document.getElementById('pheno-search');
+      if(fromSearch) input.value = '';
+      if(mode==='observed') toggleObserved(id); else toggleNegative(id);
+      if(fromSearch) input.focus();
+    }); }
     if(mode==='observed'){
       if(checked) row.classList.add('onsetrow');    // an onset on the right: the name ellipsizes
       var onset = document.createElement('div'); onset.className = 'onset'; if(!checked) onset.setAttribute('hidden','');

@@ -54,6 +54,7 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
 - **Suggestions sur deux colonnes** (6 visibles, une colonne sous 860 px) ; les termes longs ne
   sont plus tronqués mais passent sur plusieurs lignes, sauf ceux qui portent déjà leur menu
   d'âge d'apparition.
+- **Le champ de recherche se vide** dès qu'un terme y est retenu, et garde le focus.
 - **Identifiant avant l'établissement du patient**, et **recherche simulée du patient existant** :
   elle part dès que la paire établissement + identifiant est complète, quel que soit l'ordre de
   saisie. MRN **1234** au CHU Sainte-Justine trouve un dossier et préremplit RAMQ, prénom, nom,
