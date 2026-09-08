@@ -32,8 +32,8 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
   changent, l'utilisateur choisit toujours.
 - **« Site émetteur » renommé « Établissement du patient »** (EN : « Patient organization »),
   sans valeur par défaut.
-- **Menu « MRN » retiré** (cas index et ligne famille) ; le libellé devient **« Identifiant (NDD,
-  code de l'étude, …) »**.
+- **Menu « MRN » retiré** (cas index et ligne famille) ; le libellé devient **« Identifiant
+  (numéro de dossier médical, code de l'étude, …) »**.
 - **Section 3 renommée « Information clinique »** (EN : « Clinical information »).
 - **« Condition principale / indication » renommé « Indication principale standardisée (MONDO) »**
   et déplacé juste au-dessus de la note clinique, dans le bloc Contexte clinique. Le résumé parle

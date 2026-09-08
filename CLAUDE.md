@@ -117,7 +117,8 @@ condition-derivation rules — do the same rather than claiming something works 
 - **The field once called "issuing site" is "Établissement du patient" / "Patient organization"**
   (renamed 2026-09-08 — it is FHIR's `managingOrganization`, not HL7v2's sending facility). The
   internal key stays `issuing`; only the visible strings changed. **No default value.**
-- **The identifier leads section 2**, labelled « Identifiant (NDD, code de l'étude, …) ». The
+- **The identifier leads section 2**, labelled « Identifiant (numéro de dossier médical, code de
+  l'étude, …) ». The
   id-type dropdown (MRN / Other) was removed on 2026-09-08, proband and family row alike, so the
   existing-patient lookup keys on organization + identifier: it fires whenever that pair is
   complete, whichever half moved last, and re-fires when either changes; until then it says which
