@@ -56,9 +56,9 @@ _Version B (signes en ligne). Dernière mise à jour : 2026-09-08._
   d'âge d'apparition reste visible à droite ; au passage, un terme long ne fait plus déborder la
   page vers la droite.
 - **Recherche HPO : 10 résultats au maximum**, et un « ✕ » dans le champ pour l'effacer d'un clic.
-- **Suggestions sur deux colonnes** (6 visibles, une colonne sous 860 px) ; les termes longs ne
-  sont plus tronqués mais passent sur plusieurs lignes, sauf ceux qui portent déjà leur menu
-  d'âge d'apparition.
+- **Suggestions sur deux colonnes qui se lisent de haut en bas** (6 visibles, une colonne sous
+  860 px) ; les termes longs ne sont plus tronqués mais passent sur plusieurs lignes, sauf ceux
+  qui portent déjà leur menu d'âge d'apparition.
 - **Le champ de recherche se vide** dès qu'un terme y est retenu, et garde le focus.
 - **Titre « Signes cliniques » retiré** : la consigne « Sélectionnez… » ouvre le bloc et reprend
   les codes de champ et la note 7. Espacements verticaux uniformisés (12 sous la consigne,

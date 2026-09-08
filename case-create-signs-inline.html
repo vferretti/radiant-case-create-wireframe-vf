@@ -297,11 +297,13 @@
   .modal .msearch input{width:100%}
   /* checkbox picklist rows — reuse .check/.chip vocabulary */
   .hpo-picklist{display:flex;flex-direction:column;gap:2px;margin:6px 0}
-  /* the analysis suggestions are a short, scannable list: two columns, one per column on narrow
-     screens. Wrapping names make rows uneven, so cells align on their top edge. */
-  #suggestions{display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;align-items:start}
+  /* the analysis suggestions are a short, scannable list: two columns read top to bottom, so
+     CSS columns rather than a grid — a grid would fill left to right. One column on narrow
+     screens. Rows must not split across the fold. */
+  #suggestions{display:block;columns:2;column-gap:14px}
+  #suggestions .prow{break-inside:avoid;margin-bottom:2px}
   #suggestions:empty{display:none}   /* the id would otherwise beat .hpo-picklist:empty */
-  @media(max-width:860px){#suggestions{grid-template-columns:1fr}}
+  @media(max-width:860px){#suggestions{columns:1}}
   .hpo-picklist:empty{display:none}
   .prow{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:6px}
   .prow:hover{background:var(--box)}
