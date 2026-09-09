@@ -20121,9 +20121,9 @@
   function bindSelect(el){
     var key = el.getAttribute('data-sel');
     if(key === 'ancestry'){ bindMultiSelect(el, key); return; }
-    /* every dropdown can go back to "nothing selected": a filled one shows an inline ✕ (the
-       in-menu clear row was dropped for it). Clearing a required one un-satisfies the gate. */
-    el.classList.add('clearable');
+    /* an optional dropdown shows an inline ✕ to clear it (the in-menu clear row was dropped).
+       A required select (★) keeps no ✕ — clearing one would only un-satisfy the gate. */
+    if(!(el.closest('.f') && el.closest('.f').querySelector('label .req'))) el.classList.add('clearable');
     function items(){ return menuItems(key); }
     function fire(){
       var cur = el.classList.contains('filled') ? el.dataset.value : null;
@@ -20875,9 +20875,6 @@
        a manual pick sets 'overridden' so it no longer follows the proband */
     var famOrg = row.querySelector('[data-fam-seq-org]');
     famOrg.dataset.ph = t('ph.select');
-    famOrg.classList.add('clearable');
-    /* the inline ✕ clears the row's org and marks it overridden so syncFamilyOrg won't refill it */
-    famOrg._clearFn = function(){ famOrg.dataset.overridden = '1'; clearCtrl(famOrg); clearFieldError(famOrg); };
     famOrg.addEventListener('click', function(){
       openMenu(famOrg, menuItems('issuing'), famOrg.classList.contains('filled') ? famOrg.dataset.value : null, function(v){
         famOrg.dataset.overridden = '1';   // a manual pick also counts as an override
