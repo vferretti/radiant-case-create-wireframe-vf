@@ -28,16 +28,15 @@ touched since 2026-09-07 and the two have drifted far apart: A still has the con
 old section titles, the id-type dropdown, the fake analyses' suggestion lists. Do not assume a
 change made in B exists in A.
 
-The review lives in **`revue-maquette-inline.md`**. Vincent wants it **short**: a one- or two-line
-bullet per change under « Changements effectués », and a « Commentaires » section holding **only
-his own comments** — not mine. Technical caveats, assumptions and open questions go here in
-CLAUDE.md instead, never in that file.
+There is no longer a separate review file. `revue-maquette-inline.md` was deleted on 2026-09-08,
+once version B had changed enough that a running changelog stopped earning its keep — feedback now
+happens directly in conversation and in commit messages. Technical caveats, assumptions and open
+questions live here in CLAUDE.md.
 
 Working rules Vincent set, which still hold unless he says otherwise:
 
-- **Only edit the wireframe when he asks for it explicitly.** Otherwise the note goes in the
-  review file.
-- **His notes are French-only.** No English translation to maintain for them.
+- **Only edit the wireframe when he asks for it explicitly.** Otherwise the point stays in the
+  conversation (or a commit message), not by editing the file.
 - **Vincent writes in French. Answer in French.**
 - Idea recorded but never built: surface his notes inside the wireframe as a second tab in the
   `.notes-legend` block, under the **Codes** toggle.
