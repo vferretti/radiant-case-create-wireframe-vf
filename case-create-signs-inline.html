@@ -272,7 +272,7 @@
   .sumrow[hidden]{display:none}
   /* family-member header: relative caption on the left, remove on the right (2026-09-08:
      each relative is now shown as a Patient-style card of identifying fields) */
-  .famhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .famhead{display:flex;align-items:center;justify-content:flex-end;margin-bottom:2px}
   .famhead .fammember{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
   /* the compact family-history-style line (relationship · affected status · free text) */
   .famtop{display:grid;grid-template-columns:minmax(110px,150px) max-content minmax(160px,1fr);gap:0 16px;align-items:end}
@@ -20829,7 +20829,6 @@
        needs too, so they are always shown (no per-row "will be sequenced" toggle any more). */
     row.innerHTML =
       '<div class="famhead">' +
-        '<span class="fammember" data-i18n="lbl.relative">Relative</span>' +
         '<span class="famx" data-i18n-title="ui.removeRow" title="Remove">✕</span>' +
       '</div>' +
       /* the family-history line, minus sex: relationship, affected status, free text */
