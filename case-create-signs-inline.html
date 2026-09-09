@@ -254,6 +254,7 @@
   .sumrow .k{color:var(--mut)}
   .sumrow .v{color:var(--faint);text-align:right}
   .sumrow .v.done{color:var(--ink)}
+  #sum-cat, #sum-pri{color:var(--ink)}   /* category & priority always shown dark, even at their default */
   .pct{margin:14px 0 4px;height:6px;background:var(--line-soft);border-radius:3px;overflow:hidden}
   .pct i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s ease}
   .cta{margin-top:14px;height:40px;border-radius:6px;background:var(--faint);color:#fff;
@@ -451,7 +452,7 @@
               </div>
             </div>
             <div class="f pri">
-              <label><span data-i18n="lbl.priority">Priority</span> <span class="key">(priority_code)</span></label>
+              <label><span data-i18n="lbl.priority">Priority</span> <span class="req">*</span> <span class="key">(priority_code)</span></label>
               <div class="ctrl select filled" tabindex="0" data-sel="priority" data-value="Routine">Routine</div>
             </div>
           </div>
@@ -629,8 +630,7 @@
             <!-- Family history: a checkbox, then one compact row per relative — relationship,
                  sex, status, free text — added and removed by hand (2026-09-08) -->
             <div class="f full" id="famhist-field">
-              <label><span data-i18n="lbl.famHistory">Family history</span> <span class="key">(family_history)</span></label>
-              <label class="check" data-check="famhist"><span class="box"></span><span data-i18n="lbl.famHistoryOn">Known family history</span></label>
+              <label class="check" data-check="famhist"><span class="box"></span><span data-i18n="lbl.famHistoryOn">Known family history</span> <span class="key">(family_history)</span></label>
               <div id="famhist-body" hidden>
                 <div class="fhgrid">
                   <div class="fhhead">
@@ -19675,7 +19675,7 @@
       'ph.note':'Diagnostic hypothesis, results of paraclinical tests, or any other information relevant to the analysis of the case',
       'sex.M':'Male', 'sex.F':'Female', 'sex.U':'Unknown',
       'life.Alive':'Alive', 'life.Deceased':'Deceased', 'life.Unknown':'Unknown',
-      'yn.Yes':'Yes', 'yn.No':'No', 'yn.Unknown':'Unknown',
+      'yn.Yes':'Yes', 'yn.No':'No', 'yn.Unknown':'Unknown', 'abbr.sexU':'U',
       'aff.Affected':'Affected', 'aff.NotAffected':'Not affected', 'aff.Unknown':'Unknown',
       'cat.Prenatal':'Prenatal', 'cat.Postnatal':'Postnatal',
       'type.Germline':'Germline', 'type.Somatic':'Somatic',
@@ -19763,7 +19763,7 @@
       'ph.note':'Hypothèse diagnostique, résultat d’examens para-cliniques ou toute autre information pertinente pour l’analyse du cas',
       'sex.M':'Masculin', 'sex.F':'Féminin', 'sex.U':'Inconnu',
       'life.Alive':'Vivant', 'life.Deceased':'Décédé', 'life.Unknown':'Inconnu',
-      'yn.Yes':'Oui', 'yn.No':'Non', 'yn.Unknown':'Inconnu',
+      'yn.Yes':'Oui', 'yn.No':'Non', 'yn.Unknown':'Inconnue', 'abbr.sexU':'I',
       'aff.Affected':'Atteint', 'aff.NotAffected':'Non atteint', 'aff.Unknown':'Inconnu',
       'cat.Prenatal':'Prénatal', 'cat.Postnatal':'Postnatal',
       'type.Germline':'Germinal', 'type.Somatic':'Somatique',
@@ -20539,7 +20539,7 @@
     row.className = 'fhrow';
     row.innerHTML =
       '<div class="ctrl select" tabindex="0" data-fh="relation" data-i18n-ph="ph.select">Select…</div>' +
-      '<div class="seg" data-fh-seg="sex"><span data-val="M">M</span><span data-val="F">F</span><span data-val="U">U</span></div>' +
+      '<div class="seg" data-fh-seg="sex"><span data-val="M" data-i18n-title="sex.M">M</span><span data-val="F" data-i18n-title="sex.F">F</span><span data-val="U" data-i18n="abbr.sexU" data-i18n-title="sex.U">U</span></div>' +
       '<div class="seg" data-fh-seg="status"><span data-val="Affected" data-i18n="aff.Affected">Affected</span>' +
         '<span data-val="NotAffected" data-i18n="aff.NotAffected">Not affected</span></div>' +
       '<input class="ctrl" type="text" data-fh="note" data-i18n-ph="ph.specify" placeholder="Free text">' +
