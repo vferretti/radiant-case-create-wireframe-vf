@@ -82,6 +82,12 @@
         display:flex;align-items:center;padding:0 10px;color:var(--faint);font-size:12px;gap:8px}
   .ctrl.select{cursor:pointer}
   .ctrl.select::after{content:"▾";margin-left:auto;color:var(--faint)}
+  /* inline clear on a filled, clearable select — sits just left of the ▾ caret, which keeps
+     signalling "this is a list" (2026-09-08, replaces the in-menu "clear selection" row) */
+  .selx{flex:0 0 auto;margin-left:auto;width:18px;height:18px;border-radius:4px;color:var(--faint);
+        font-size:11px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .selx:hover{color:var(--ink);background:var(--box)}
+  .ctrl.select.clearable.filled::after{margin-left:0}   /* the ✕ now owns the auto gap */
   /* multi-valued select: the picks live in the control as removable chips, so it grows with them */
   .ctrl.select.multi{height:auto;min-height:34px;flex-wrap:wrap;gap:5px;padding:4px 10px;align-items:center}
   .ctrl.select.multi::after{align-self:center}
@@ -226,7 +232,7 @@
   .fhgrid{display:grid;grid-template-columns:150px max-content max-content minmax(140px,1fr) 14px;
         gap:6px 8px;align-items:center;margin:8px 0 6px}
   .fhhead, #famhist-list, .fhrow{display:contents}
-  .fhhead span{font-size:11px;color:var(--mut)}
+  .fhhead span{font-size:12px;color:var(--ink);font-weight:500}
   .fhrow .ctrl.select{min-width:0;white-space:nowrap;overflow:hidden}
   .fhrow .seg span{padding:6px 10px}
   .fhrow .famx{justify-self:center;align-self:center;padding-bottom:0}
@@ -264,6 +270,15 @@
   .badge.somatic{border-color:#c08a5a;color:#9c5f2a}
   /* category summary row shows only when it diverges from the Postnatal default */
   .sumrow[hidden]{display:none}
+  /* family-member header: relative caption on the left, remove on the right (2026-09-08:
+     each relative is now shown as a Patient-style card of identifying fields) */
+  .famhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .famhead .fammember{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+  /* the compact family-history-style line (relationship · affected status · free text) */
+  .famtop{display:grid;grid-template-columns:minmax(110px,150px) max-content minmax(160px,1fr);gap:0 16px;align-items:end}
+  .famtop .ctrl.select{min-width:0}
+  /* the Patient-style identifying fields sit under the line, set off by a dashed rule */
+  .famids{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line-soft)}
   /* family-member footer: sequencing toggle on the left, remove on the right */
   .famfoot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
   /* revealed only when a family member will be sequenced: identity fields it then needs */
@@ -366,7 +381,7 @@
   .searchx.on{display:flex}
   .searchx:hover{color:var(--ink);background:var(--box)}
   .treebtn{flex:0 0 auto;height:34px;padding:0 12px;border:1px solid var(--line);border-radius:5px;background:#fff;
-        color:var(--mut);font:inherit;font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+        color:var(--ink);font:inherit;font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
   .treebtn:hover{color:var(--ink);border-color:var(--accent)}
   .treebtn .tico{flex:0 0 auto}
   /* ghost button (no border) for the secondary "not-observed signs" action */
@@ -471,7 +486,7 @@
                both are set. No default value — asked 2026-09-08. -->
           <div class="grid align-end">
             <div class="f">
-              <label><span data-i18n="lbl.patientId">Identifier (medical record number, study code, …)</span> <span class="req">*</span> <span class="key">(submitter_patient_id)</span></label>
+              <label><span data-i18n="lbl.patientId">Identifier (MRN, study code, …)</span> <span class="req">*</span> <span class="key">(submitter_patient_id)</span></label>
               <input class="ctrl" type="text" data-i18n-ph="ph.idValue" placeholder="Identifier value" data-field="patientid">
             </div>
             <div class="f">
@@ -579,7 +594,7 @@
             <div class="negrow">
               <!-- the ask is a checkbox: unchecked, the block is one line; checked, it opens the
                    search row and whatever has been picked (2026-09-08) -->
-              <label class="check" data-check="negsigns"><span class="box"></span><span data-i18n="dlg.negInstruction">Select any relevant NOT-OBSERVED phenotypes (optional)</span></label>
+              <label class="check" data-check="negsigns"><span class="box"></span><span data-i18n="dlg.negInstruction">NOT-OBSERVED phenotypes (optional)</span></label>
               <div id="negsigns-body" hidden>
               <p class="divlabel" id="neg-sel-head" hidden><span data-i18n="dlg.negSelected">Not-observed phenotypes</span> <span class="cnt" id="neg-sel-count"></span></p>
               <div class="hpo-picklist" id="neg-selected"></div>
@@ -601,7 +616,9 @@
 
       <!-- 4. Everything clinical that isn't a phenotype — all optional, hence the title
            (split out of section 3 on 2026-09-08) -->
-      <section class="sec">
+      <!-- collapsed by default (2026-09-08): section 4 is entirely optional, so it starts hidden;
+           refreshChevrons() relabels the chevron to "expand" at init from the .collapsed state -->
+      <section class="sec collapsed">
         <header><span class="n">4</span><h2 data-i18n="sec.otherClinical">Other clinical information (optional)</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
         <div class="body">
           <div class="grid">
@@ -639,20 +656,23 @@
               </div>
               <div class="hpo-picklist" id="condition-results"></div>
             </div>
-            <div class="f full"><label><span data-i18n="lbl.note">Clinical note</span> <span class="key">(note)</span></label><textarea class="ctrl area" data-i18n-ph="ph.note" placeholder="Diagnostic hypothesis, or any other context relevant to this case…" data-field="note"></textarea></div>
+            <div class="f full"><label><span data-i18n="lbl.note">Clinical note</span> <span class="key">(note)</span></label><textarea class="ctrl area" data-i18n-ph="ph.note" placeholder="Diagnostic hypothesis, paraclinical tests, or any other information relevant to the analysis of the case" data-field="note"></textarea></div>
           </div>
         </div>
       </section>
 
-      <p class="optlabel" style="margin:22px 2px 8px" data-i18n="ui.optSections">Optional sections</p>
-
       <!-- 5. Family (optional) -->
       <section class="sec">
-        <header><span class="n">5</span><h2 data-i18n="sec.family">Family members</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
+        <header><span class="n">5</span><h2 data-i18n="sec.family">Family analysis</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
         <div class="body">
-          <div id="family-list"></div>
-          <div class="addbtn" id="add-family" data-i18n="lbl.addFamily">＋ Add family member</div>
-          <div id="pedigree" class="pedigree" hidden></div>
+          <!-- the ask is a checkbox: unchecked, the section is one line; checked, it opens the
+               family-member rows and the live pedigree. Closing it drops what was entered, so
+               nothing hidden ends up in the case (2026-09-08) -->
+          <label class="check" data-check="family"><span class="box"></span><span data-i18n="fam.instruction">Add the family members sequenced and analyzed together with the proband (duo, trio, sibship)</span></label>
+          <div id="family-body" hidden>
+            <div id="family-list"></div>
+            <div class="addbtn" id="add-family" data-i18n="lbl.addFamily">＋ Add family member</div>
+          </div>
         </div>
       </section>
 
@@ -19604,10 +19624,10 @@
     en:{
       'crumb.cases':'Cases', 'crumb.new':'Create case', 'app.title':'Create case • Signs inline',
       'app.tag':'Version B · signs inline · browser in modal',
-      'ui.collapse':'－ collapse', 'ui.expand':'＋ expand', 'ui.optSections':'Optional sections',
+      'ui.collapse':'－ collapse', 'ui.expand':'＋ expand',
       'ui.docsToggle':'Field codes',
       'ui.removeSign':'Remove', 'ui.clearSearch':'Clear the search', 'ui.removeRow':'Remove this row',
-      'sec.analysis':'Analysis', 'sec.proband':'Patient (proband)', 'sec.probandPrenatal':'Patient (proband, mother)', 'sec.clinical':'Clinical signs', 'sec.otherClinical':'Other clinical information (optional)', 'sec.family':'Family',
+      'sec.analysis':'Analysis', 'sec.proband':'Patient (proband)', 'sec.probandPrenatal':'Patient (proband, mother)', 'sec.clinical':'Clinical signs', 'sec.otherClinical':'Other clinical information (optional)', 'sec.family':'Family analysis',
       'lbl.analysis':'Analysis', 'lbl.prenatal':'Prenatal case', 'lbl.priority':'Priority',
       'lbl.prenatalInfo':'Additional information',
       'lbl.fetalSex':'Fetal sex', 'fsex.F':'Female', 'fsex.M':'Male', 'fsex.U':'Undetermined',
@@ -19616,7 +19636,7 @@
       'lbl.lmpDate':'Date (LMP)', 'lbl.eddDate':'Date (EDD)',
       'rail.priority':'Priority',
       'lbl.ordering':'Ordering site', 'lbl.physician':'Ordering physician', 'lbl.study':'Research study',
-      'lbl.issuing':'Patient organization', 'lbl.patientId':'Identifier (medical record number, study code, …)', 'lbl.healthNo':'Health number',
+      'lbl.issuing':'Patient organization', 'lbl.patientId':'Identifier (MRN, study code, …)', 'lbl.healthNo':'Health number',
       'lbl.firstName':'First name', 'lbl.lastName':'Last name', 'lbl.sex':'Sex', 'lbl.dob':'Date of birth',
       'lbl.condition':'Primary indication (MONDO)', 'lbl.life':'Life status',
       'lbl.phenotypes':'Phenotypes',
@@ -19629,7 +19649,7 @@
       'btn.hpoTree':'HPO tree', 'tree.title':'Browse the HPO tree',
       'mondo.title':'Browse the MONDO tree', 'mondo.search':'Search an indication (name or MONDO:…)',
       'mondo.note':'The mock lists the catalog’s conditions; the real browser would show the MONDO hierarchy.', 'tree.apply':'Apply',
-      'dlg.negInstruction':'Select any relevant NOT-OBSERVED phenotypes (optional)',
+      'dlg.negInstruction':'NOT-OBSERVED phenotypes (optional)',
       'tree.minChars':'Type at least 3 characters to search the tree.', 'tree.noResults':'No matching term.',
       'tree.selected':'{n} selected', 'tree.tooMany':'Too many matches — refine your search.',
       'dlg.noAnalysis':'Select an analysis first to see suggestions.',
@@ -19641,9 +19661,10 @@
       'sum.observed':'Observed', 'sum.notObserved':'Not observed',
       'lbl.consang':'Consanguinity', 'lbl.ancestry':'Ethnicities', 'lbl.note':'Clinical note',
       'lbl.onset':'Onset', 'lbl.addFamily':'＋ Add family member',
-      'lbl.relation':'Relationship', 'lbl.affected':'Affected status', 'lbl.willSeq':'Will be sequenced',
+      'fam.instruction':'Family members (mother, father, siblings) sequenced',
+      'lbl.relation':'Relationship', 'lbl.relative':'Family member', 'lbl.affected':'Affected status', 'lbl.willSeq':'Will be sequenced',
       'lbl.famHistory':'Family history', 'lbl.famHistoryOn':'Known family history',
-      'lbl.fhSpecify':'Specify', 'lbl.addFamHistory':'＋ Add a relative', 'ph.specify':'Free text',
+      'lbl.fhSpecify':'Specify', 'lbl.addFamHistory':'＋ Add a family member', 'ph.specify':'Free text',
       'ph.select':'Select…', 'ph.analysis':'Select an analysis…', 'ph.idValue':'Identifier value',
       'ph.jhn':'RAMQ (QC) or regional JHN', 'ph.optional':'Optional', 'ph.dob':'YYYY-MM-DD',
       'ph.freetext':'Free text', 'ph.condition':'Search an indication (name or MONDO:…)',
@@ -19651,7 +19672,7 @@
       'lookup.found':'Patient already known here — fields prefilled, check them.',
       'lookup.none':'No patient with this identifier here — new patient.',
       'lookup.needSite':'Pick the patient organization to run the search.',
-      'ph.note':'Diagnostic hypothesis, or any other context relevant to this case…',
+      'ph.note':'Diagnostic hypothesis, paraclinical tests, or any other information relevant to the analysis of the case',
       'sex.M':'Male', 'sex.F':'Female', 'sex.U':'Unknown',
       'life.Alive':'Alive', 'life.Deceased':'Deceased', 'life.Unknown':'Unknown',
       'yn.Yes':'Yes', 'yn.No':'No', 'yn.Unknown':'Unknown',
@@ -19667,7 +19688,7 @@
       'terms.zero':'0 terms', 'terms.one':'{n} term', 'terms.many':'{n} terms',
       'members.zero':'0 members', 'members.one':'{n} member', 'members.many':'{n} members',
       'val.added':'Added',
-      'menu.clear':'↺ Clear selection', 'menu.added':'· added',
+      'menu.clear':'↺ Clear selection', 'menu.added':'· added', 'ui.clearSel':'Clear selection',
       'menu.filter':'Filter by name or code…', 'menu.noResults':'No match',
       'err.required':'This field is required',
       'ped.title':'Pedigree', 'ped.aria':'Family pedigree', 'ped.proband':'Proband',
@@ -19691,10 +19712,10 @@
     fr:{
       'crumb.cases':'Cas', 'crumb.new':'Créer un cas', 'app.title':'Créer un cas • Signes en ligne',
       'app.tag':'Version B · signes en ligne · navigateur en modale',
-      'ui.collapse':'－ réduire', 'ui.expand':'＋ développer', 'ui.optSections':'Sections facultatives',
+      'ui.collapse':'－ réduire', 'ui.expand':'＋ développer',
       'ui.docsToggle':'Codes',
       'ui.removeSign':'Retirer', 'ui.clearSearch':'Effacer la recherche', 'ui.removeRow':'Retirer cette ligne',
-      'sec.analysis':'Analyse', 'sec.proband':'Patient (cas index)', 'sec.probandPrenatal':'Patient (cas index, mère)', 'sec.clinical':'Signes cliniques', 'sec.otherClinical':'Autres informations cliniques (facultatives)', 'sec.family':'Famille',
+      'sec.analysis':'Analyse', 'sec.proband':'Patient (cas index)', 'sec.probandPrenatal':'Patient (cas index, mère)', 'sec.clinical':'Signes cliniques', 'sec.otherClinical':'Autres informations cliniques (facultatives)', 'sec.family':'Analyse familiale',
       'lbl.analysis':'Analyse', 'lbl.prenatal':'Cas prénatal', 'lbl.priority':'Priorité',
       'lbl.prenatalInfo':'Informations supplémentaires',
       'lbl.fetalSex':'Sexe (fœtus)', 'fsex.F':'Féminin', 'fsex.M':'Masculin', 'fsex.U':'Indéterminé',
@@ -19703,7 +19724,7 @@
       'lbl.lmpDate':'Date (DDM)', 'lbl.eddDate':'Date (DPA)',
       'rail.priority':'Priorité',
       'lbl.ordering':'Établissement prescripteur', 'lbl.physician':'Médecin prescripteur', 'lbl.study':'Étude de recherche',
-      'lbl.issuing':'Établissement du patient', 'lbl.patientId':'Identifiant (numéro de dossier médical, code de l’étude, …)', 'lbl.healthNo':'RAMQ',
+      'lbl.issuing':'Établissement du patient', 'lbl.patientId':'Identifiant (MRN, code de l’étude, …)', 'lbl.healthNo':'RAMQ',
       'lbl.firstName':'Prénom', 'lbl.lastName':'Nom', 'lbl.sex':'Sexe', 'lbl.dob':'Date de naissance',
       'lbl.condition':'Indication principale (MONDO)', 'lbl.life':'Statut vital',
       'lbl.phenotypes':'Phénotypes',
@@ -19716,7 +19737,7 @@
       'btn.hpoTree':'Arbre HPO', 'tree.title':'Parcourir l’arbre HPO',
       'mondo.title':'Parcourir l’arbre MONDO', 'mondo.search':'Rechercher une indication (nom ou MONDO:…)',
       'mondo.note':'La maquette liste les conditions du catalogue ; le vrai navigateur montrerait la hiérarchie MONDO.', 'tree.apply':'Appliquer',
-      'dlg.negInstruction':'Sélectionnez des phénotypes NON OBSERVÉS pertinents (facultatif)',
+      'dlg.negInstruction':'Phénotypes NON OBSERVÉS (facultatif)',
       'tree.minChars':'Saisissez au moins 3 caractères pour chercher dans l’arbre.', 'tree.noResults':'Aucun terme correspondant.',
       'tree.selected':'{n} sélectionné(s)', 'tree.tooMany':'Trop de résultats — précisez votre recherche.',
       'dlg.noAnalysis':'Sélectionnez d’abord une analyse pour voir des suggestions.',
@@ -19728,9 +19749,10 @@
       'sum.observed':'Observés', 'sum.notObserved':'Non observés',
       'lbl.consang':'Consanguinité', 'lbl.ancestry':'Ethnicité(s)', 'lbl.note':'Note clinique',
       'lbl.onset':'Âge d’apparition', 'lbl.addFamily':'＋ Ajouter un membre de la famille',
-      'lbl.relation':'Lien de parenté', 'lbl.affected':'Statut', 'lbl.willSeq':'Sera séquencé',
+      'fam.instruction':'Membres de la famille (mère, père, fratrie) séquencés',
+      'lbl.relation':'Lien de parenté', 'lbl.relative':'Membre de la famille', 'lbl.affected':'Statut', 'lbl.willSeq':'Sera séquencé',
       'lbl.famHistory':'Histoire familiale', 'lbl.famHistoryOn':'Antécédents familiaux connus',
-      'lbl.fhSpecify':'Préciser', 'lbl.addFamHistory':'＋ Ajouter un apparenté', 'ph.specify':'Texte libre',
+      'lbl.fhSpecify':'Préciser', 'lbl.addFamHistory':'＋ Ajouter un membre de la famille', 'ph.specify':'Texte libre',
       'ph.select':'Sélectionner…', 'ph.analysis':'Sélectionner une analyse…', 'ph.idValue':'Valeur de l’identifiant',
       'ph.jhn':'RAMQ (QC) ou NAM régional', 'ph.optional':'Facultatif', 'ph.dob':'AAAA-MM-JJ',
       'ph.freetext':'Texte libre', 'ph.condition':'Rechercher une indication (nom ou MONDO:…)',
@@ -19738,7 +19760,7 @@
       'lookup.found':'Patient déjà connu à ce site — champs préremplis, à vérifier.',
       'lookup.none':'Aucun patient avec cet identifiant ici — nouveau patient.',
       'lookup.needSite':'Choisir l’établissement du patient pour lancer la recherche.',
-      'ph.note':'Hypothèse diagnostique ou tout autre contexte pertinent pour ce cas…',
+      'ph.note':'Hypothèse diagnostique, examens para-cliniques ou toute autre information pertinente pour l’analyse du cas',
       'sex.M':'Masculin', 'sex.F':'Féminin', 'sex.U':'Inconnu',
       'life.Alive':'Vivant', 'life.Deceased':'Décédé', 'life.Unknown':'Inconnu',
       'yn.Yes':'Oui', 'yn.No':'Non', 'yn.Unknown':'Inconnu',
@@ -19754,7 +19776,7 @@
       'terms.zero':'0 terme', 'terms.one':'{n} terme', 'terms.many':'{n} termes',
       'members.zero':'0 membre', 'members.one':'{n} membre', 'members.many':'{n} membres',
       'val.added':'Ajouté',
-      'menu.clear':'↺ Effacer la sélection', 'menu.added':'· ajouté',
+      'menu.clear':'↺ Effacer la sélection', 'menu.added':'· ajouté', 'ui.clearSel':'Effacer la sélection',
       'menu.filter':'Filtrer par nom ou code…', 'menu.noResults':'Aucun résultat',
       'err.required':'Ce champ est requis',
       'ped.title':'Pedigree', 'ped.aria':'Pedigree familial', 'ped.proband':'Cas index',
@@ -20002,6 +20024,23 @@
     el.dataset.value = value;
     if(el.tagName === 'INPUT') el.value = optLabel(key, value); else el.textContent = optLabel(key, value);
     el.classList.add('filled');
+    paintSelClear(el);
+  }
+  /* a filled, clearable div-select carries an inline ✕ just left of its ▾ caret. Setting the
+     control's textContent (setSel / applyLang / syncFamilyOrg) wipes it, so it is repainted
+     from each of those spots. Clicking it runs the control's _clearFn (clearSelect by default). */
+  function paintSelClear(el){
+    if(!el || el.tagName === 'INPUT' || !el.classList.contains('clearable')) return;
+    var has = el.querySelector(':scope > .selx');
+    if(el.classList.contains('filled')){
+      if(!has){
+        var x = document.createElement('span');
+        x.className = 'selx'; x.textContent = '✕';
+        x.setAttribute('title', t('ui.clearSel')); x.setAttribute('aria-label', t('ui.clearSel'));
+        x.addEventListener('click', function(e){ e.stopPropagation(); (el._clearFn || function(){ clearSelect(el); })(); });
+        el.appendChild(x);
+      }
+    } else if(has){ has.remove(); }
   }
 
   /* ---------- state ---------- */
@@ -20082,14 +20121,13 @@
   function bindSelect(el){
     var key = el.getAttribute('data-sel');
     if(key === 'ancestry'){ bindMultiSelect(el, key); return; }
-    /* every dropdown can go back to "nothing selected" — required fields and the two that
-       ship with a default (priority, id type) included. Clearing a required one simply
-       un-satisfies the gate, which is exactly what it should show. */
-    function items(){ return withClear(el, menuItems(key)); }
+    /* every dropdown can go back to "nothing selected": a filled one shows an inline ✕ (the
+       in-menu clear row was dropped for it). Clearing a required one un-satisfies the gate. */
+    el.classList.add('clearable');
+    function items(){ return menuItems(key); }
     function fire(){
       var cur = el.classList.contains('filled') ? el.dataset.value : null;
       openMenu(el, items(), cur, function(v){
-        if(v === CLEAR){ clearSelect(el); return; }
         if(key === 'analysis'){ pickAnalysis(v); }
         else if(key === 'ordering'){ setSel(el,'ordering',v); state.orderingSet = true; recompute(); }
         else if(key === 'issuing'){ setSel(el,'issuing',v); state.issuingSet = true; probandOrg = v; syncFamilyOrg(); recompute(); runLookup(); }
@@ -20106,8 +20144,11 @@
     if(!a) return;
     setSel(document.querySelector('[data-sel="analysis"]'), 'analysis', code);
     state.analysisSet = true;
-    /* suggest a primary condition from the analysis — pre-filled but fully editable */
+    /* refresh the primary condition from the newly-picked analysis — pre-filled but fully
+       editable. Always re-derive on a switch: set the analysis's condition, or clear a stale
+       one if this analysis derives none (RAPIDE / GENOR / an HPO-only code). */
     if(a.condition){ suggestCondition(a.condition); }
+    else if(document.querySelector('[data-sel="condition"]').classList.contains('filled')){ clearCondition(); }
     /* inline suggestions follow the newly-picked analysis; if the tree is open, repaint it too */
     renderPheno();
     if(!document.getElementById('hpo-tree-modal').hasAttribute('hidden')) renderTree();
@@ -20379,7 +20420,7 @@
     var ordered = suggestionsFor(analysisCode()).filter(function(id){ return !phHas('observed', id); }).sort(byLabel);
     document.getElementById('sugg-head').hidden = ordered.length === 0;
     if(!ordered.length) return;
-    var LIMIT = 6;      // two columns, three rows
+    var LIMIT = 14;     // two columns, seven rows
     (suggExpanded ? ordered : ordered.slice(0, LIMIT)).forEach(function(id){ cont.appendChild(makePRow(id, 'observed')); });
     if(ordered.length > LIMIT){ more.hidden = false; more.textContent = suggExpanded ? t('dlg.showLess') : t('dlg.showMore', { n:ordered.length-LIMIT }); }
   }
@@ -20501,8 +20542,7 @@
       '<span class="famx" data-i18n-title="ui.removeRow" title="Remove">✕</span>';
     var rel = row.querySelector('[data-fh="relation"]');
     rel.addEventListener('click', function(){
-      openMenu(rel, withClear(rel, menuItems('relation')), rel.classList.contains('filled') ? rel.dataset.value : null, function(v){
-        if(v === CLEAR){ clearCtrl(rel); return; }
+      openMenu(rel, menuItems('relation'), rel.classList.contains('filled') ? rel.dataset.value : null, function(v){
         setSel(rel, 'relation', v);
         /* the same inference as the Family section: an unambiguous relationship gives the sex */
         var sex = { Female:'F', Male:'M' }[REL_SEX[v]];
@@ -20511,7 +20551,7 @@
           Array.prototype.forEach.call(seg.children, function(sp){ sp.classList.toggle('on', sp.dataset.val === sex); });
           seg.classList.remove('flash'); void seg.offsetWidth; seg.classList.add('flash');
         }
-      });
+      }, {search:false});
     });
     row.querySelectorAll('.seg').forEach(function(seg){
       seg.addEventListener('click', function(e){
@@ -20550,6 +20590,18 @@
       var on = box.classList.toggle('on');
       if(on){ body.removeAttribute('hidden'); if(!list.children.length) list.appendChild(fhRow()); }
       else { body.setAttribute('hidden',''); list.innerHTML = ''; }   // nothing hidden submits
+    });
+  })();
+
+  /* the family-analysis section opens on demand; closing it drops the members entered, so
+     nothing hidden ends up in the case (mirrors the not-observed and family-history blocks) */
+  (function(){
+    var box  = document.querySelector('[data-check="family"]');
+    var body = document.getElementById('family-body');
+    box.addEventListener('click', function(){
+      var on = box.classList.toggle('on');
+      if(on){ body.removeAttribute('hidden'); if(!famList.children.length) document.getElementById('add-family').click(); }
+      else { body.setAttribute('hidden',''); famList.innerHTML = ''; sumFamily(); }
     });
   })();
 
@@ -20744,6 +20796,7 @@
   var famList = document.getElementById('family-list');
   var FAM_PRESET = ['Mother', 'Father']; // a new row prefills the first of these not already used
   var FAM_UNIQUE = ['Mother', 'Father']; // singleton relations — excluded once chosen elsewhere
+  var FAM_RELATIONS = ['Mother', 'Father', 'Sister', 'Brother']; // this section is limited to these four
 
   /* relations already chosen by OTHER rows (the current row keeps its own value selectable) */
   function famUsedRelations(exceptRow){
@@ -20757,97 +20810,74 @@
   /* menu items for a row: Mother/Father get disabled once used by another member */
   function famRelationItems(row){
     var used = famUsedRelations(row);
-    return OPTIONS.relation.map(function(r){
+    return FAM_RELATIONS.map(function(r){
       var it = { value:r, label:optLabel('relation', r) };
       if(FAM_UNIQUE.indexOf(r) !== -1 && used.indexOf(r) !== -1) it.disabled = true;
       return it;
     });
   }
   function famApplyRelation(row, v){
-    var rel = row.querySelector('[data-fam="relation"]');
-    setSel(rel, 'relation', v);
-    /* infer sex from relationship (unambiguous ones only) — editable after.
-       family sex control uses short M|F|U codes (data-val), so map the inferred value */
-    var sex = { Female:'F', Male:'M' }[REL_SEX[v]];
-    if(sex){
-      var seg = row.querySelector('[data-fam-seg="sex"]');
-      Array.prototype.forEach.call(seg.children, function(s){ s.classList.toggle('on', s.dataset.val === sex); });
-      seg.classList.remove('flash'); void seg.offsetWidth; seg.classList.add('flash');
-    }
-    renderPedigree();
+    setSel(row.querySelector('[data-fam="relation"]'), 'relation', v);
   }
   document.getElementById('add-family').addEventListener('click', function(){
     var row = document.createElement('div');
     row.className = 'frow';
     row.style.display = 'block';
-    /* A sequenced relative mirrors the proband's fields (patient organization · id, names,
-       DOB, health number); sex already lives on the row above, so it isn't repeated. */
+    /* Each relative is shown as a Patient-style card of identifying fields, minus sex and life
+       status (2026-09-08). Relationship leads; the patient organization defaults to the
+       proband's via syncFamilyOrg. Every field the proband needs to be sequenced, the relative
+       needs too, so they are always shown (no per-row "will be sequenced" toggle any more). */
     row.innerHTML =
-      '<div class="famline">' +
+      '<div class="famhead">' +
+        '<span class="fammember" data-i18n="lbl.relative">Relative</span>' +
+        '<span class="famx" data-i18n-title="ui.removeRow" title="Remove">✕</span>' +
+      '</div>' +
+      /* the family-history line, minus sex: relationship, affected status, free text */
+      '<div class="famtop">' +
         '<div class="f"><label><span data-i18n="lbl.relation">Relationship</span> <span class="req">*</span> <span class="key">(relation_to_proband_code)</span></label>' +
           '<div class="ctrl select" tabindex="0" data-fam="relation" data-i18n-ph="ph.select">Select…</div></div>' +
-        '<div class="f"><label><span data-i18n="lbl.sex">Sex</span> <span class="req">*</span> <span class="key">(sex_code)</span></label>' +
-          '<div class="seg" data-fam-seg="sex"><span data-val="M">M</span><span data-val="F">F</span><span data-val="U">U</span></div></div>' +
         '<div class="f"><label><span data-i18n="lbl.affected">Affected status</span> <span class="req">*</span> <span class="key">(affected_status_code)</span></label>' +
-          '<div class="seg"><span data-val="Affected" data-i18n="aff.Affected">Affected</span><span data-val="NotAffected" data-i18n="aff.NotAffected">Not affected</span><span class="on" data-val="Unknown" data-i18n="aff.Unknown">Unknown</span></div></div>' +
-        '<span class="famx" title="Remove">✕</span>' +
+          '<div class="seg" data-fam-seg="status"><span data-val="Affected" data-i18n="aff.Affected">Affected</span><span data-val="NotAffected" data-i18n="aff.NotAffected">Not affected</span><span class="on" data-val="Unknown" data-i18n="aff.Unknown">Unknown</span></div></div>' +
+        '<div class="f"><label><span data-i18n="lbl.fhSpecify">Specify</span> <span class="key">(note)</span></label>' +
+          '<input class="ctrl" type="text" data-fam="note" data-i18n-ph="ph.specify" placeholder="Free text"></div>' +
       '</div>' +
-      '<div class="famfoot">' +
-        '<label class="check" data-fam-seq><span class="box"></span><span data-i18n="lbl.willSeq">Will be sequenced</span></label>' +
-      '</div>' +
-      '<div class="famseq" hidden>' +
-        '<div class="grid align-end">' +
-          '<div class="f"><label><span data-i18n="lbl.issuing">Patient organization</span> <span class="req">*</span> <span class="key">(patient_organization_code)</span><sup class="fn">8</sup></label>' +
-            '<div class="ctrl select" tabindex="0" data-fam-seq-org data-i18n-ph="ph.select">Select…</div></div>' +
-          '<div class="f"><label><span data-i18n="lbl.patientId">Identifier (medical record number, study code, …)</span> <span class="req">*</span> <span class="key">(submitter_patient_id)</span></label>' +
-            '<input class="ctrl" type="text" data-i18n-ph="ph.idValue" placeholder="Identifier value" data-fam-seq-id></div>' +
-          '<div class="f"><label><span data-i18n="lbl.firstName">First name</span> <span class="key">(first_name)</span></label>' +
-            '<input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional" data-fam-seq-first></div>' +
-          '<div class="f"><label><span data-i18n="lbl.lastName">Last name</span> <span class="key">(last_name)</span></label>' +
-            '<input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional" data-fam-seq-last></div>' +
-          '<div class="f"><label><span data-i18n="lbl.dob">Date of birth</span> <span class="req">*</span> <span class="key">(date_of_birth)</span></label>' +
-            '<input class="ctrl" type="text" data-i18n-ph="ph.dob" placeholder="YYYY-MM-DD" data-fam-seq-dob></div>' +
-          '<div class="f"><label><span data-i18n="lbl.healthNo">Health number</span> <span class="key">(jhn)</span></label>' +
-            '<input class="ctrl" type="text" data-i18n-ph="ph.jhn" placeholder="RAMQ (QC) or regional JHN" data-fam-seq-jhn></div>' +
-        '</div>' +
+      /* below it, the Patient section's identifying fields, minus sex and life status */
+      '<div class="grid align-end famids">' +
+        '<div class="f"><label><span data-i18n="lbl.patientId">Identifier (MRN, study code, …)</span> <span class="req">*</span> <span class="key">(submitter_patient_id)</span></label>' +
+          '<input class="ctrl" type="text" data-i18n-ph="ph.idValue" placeholder="Identifier value" data-fam-seq-id></div>' +
+        '<div class="f"><label><span data-i18n="lbl.issuing">Patient organization</span> <span class="req">*</span> <span class="key">(patient_organization_code)</span><sup class="fn">8</sup></label>' +
+          '<div class="ctrl select" tabindex="0" data-fam-seq-org data-i18n-ph="ph.select">Select…</div></div>' +
+        '<div class="f"><label><span data-i18n="lbl.healthNo">Health number</span> <span class="key">(jhn)</span><sup class="fn">6</sup></label>' +
+          '<input class="ctrl" type="text" data-i18n-ph="ph.jhn" placeholder="RAMQ (QC) or regional JHN" data-fam-seq-jhn></div>' +
+        '<div class="f"><label><span data-i18n="lbl.dob">Date of birth</span> <span class="req">*</span> <span class="key">(date_of_birth)</span></label>' +
+          '<input class="ctrl" type="date" data-i18n-ph="ph.dob" placeholder="YYYY-MM-DD" data-fam-seq-dob></div>' +
+        '<div class="f"><label><span data-i18n="lbl.firstName">First name</span> <span class="key">(first_name)</span></label>' +
+          '<input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional" data-fam-seq-first></div>' +
+        '<div class="f"><label><span data-i18n="lbl.lastName">Last name</span> <span class="key">(last_name)</span></label>' +
+          '<input class="ctrl" type="text" data-i18n-ph="ph.optional" placeholder="Optional" data-fam-seq-last></div>' +
       '</div>';
     var rel = row.querySelector('[data-fam="relation"]');
     rel.addEventListener('click', function(){
-      openMenu(rel, withClear(rel, famRelationItems(row)), rel.classList.contains('filled')?rel.dataset.value:null, function(v){
-        if(v === CLEAR){ clearCtrl(rel); renderPedigree(); return; }
+      openMenu(rel, famRelationItems(row), rel.classList.contains('filled')?rel.dataset.value:null, function(v){
         famApplyRelation(row, v);
-      });
+      }, {search:false});
     });
-    row.querySelectorAll('.famline .seg').forEach(function(seg){
-      seg.addEventListener('click', function(e){
-        var span = e.target.closest('span'); if(!span) return;
-        Array.prototype.forEach.call(seg.children, function(s){ s.classList.remove('on'); });
-        span.classList.add('on');
-        renderPedigree();
-      });
-    });
-    var seq = row.querySelector('[data-fam-seq]');
-    seq.addEventListener('click', function(){
-      var on = seq.classList.toggle('on');
-      var box = row.querySelector('.famseq');
-      if(on){ box.removeAttribute('hidden'); syncFamilyOrg(); }
-      else {
-        box.setAttribute('hidden','');
-        clearFieldError(row.querySelector('[data-fam-seq-id]'));
-        clearFieldError(row.querySelector('[data-fam-seq-org]'));
-        clearFieldError(row.querySelector('[data-fam-seq-dob]'));
-      }
-      renderPedigree();
+    var statusSeg = row.querySelector('[data-fam-seg="status"]');
+    statusSeg.addEventListener('click', function(e){
+      var span = e.target.closest('span'); if(!span) return;
+      Array.prototype.forEach.call(statusSeg.children, function(sp){ sp.classList.remove('on'); });
+      span.classList.add('on');
     });
     /* issuing site defaults to the proband's org (via syncFamilyOrg) but is editable;
        a manual pick sets 'overridden' so it no longer follows the proband */
     var famOrg = row.querySelector('[data-fam-seq-org]');
     famOrg.dataset.ph = t('ph.select');
+    famOrg.classList.add('clearable');
+    /* the inline ✕ clears the row's org and marks it overridden so syncFamilyOrg won't refill it */
+    famOrg._clearFn = function(){ famOrg.dataset.overridden = '1'; clearCtrl(famOrg); clearFieldError(famOrg); };
     famOrg.addEventListener('click', function(){
-      openMenu(famOrg, withClear(famOrg, menuItems('issuing')), famOrg.classList.contains('filled') ? famOrg.dataset.value : null, function(v){
-        /* clearing counts as an override too, otherwise syncFamilyOrg refills it from the proband */
-        famOrg.dataset.overridden = '1';
-        if(v === CLEAR){ clearCtrl(famOrg); return; }
+      openMenu(famOrg, menuItems('issuing'), famOrg.classList.contains('filled') ? famOrg.dataset.value : null, function(v){
+        famOrg.dataset.overridden = '1';   // a manual pick also counts as an override
         setSel(famOrg,'issuing',v); clearFieldError(famOrg);
       });
     });
@@ -20855,7 +20885,7 @@
     row.querySelector('[data-fam-seq-id]').addEventListener('input', function(){ clearFieldError(this); });
     row.querySelector('[data-fam-seq-dob]').addEventListener('input', function(){ clearFieldError(this); });
     row.querySelector('.famx').addEventListener('click', function(){
-      row.remove(); sumFamily(); renderPedigree();
+      row.remove(); sumFamily();
     });
     famList.appendChild(row);
     localize(row);   // translate the new row's labels/placeholders into the current language
@@ -20863,7 +20893,8 @@
     var famUsed = famUsedRelations(row);
     var preset = FAM_PRESET.filter(function(r){ return famUsed.indexOf(r) === -1; })[0];
     if(preset) famApplyRelation(row, preset);
-    sumFamily(); renderPedigree();
+    syncFamilyOrg();   // a relative inherits the proband's patient organization (editable after)
+    sumFamily();
   });
   function sumFamily(){
     var n = famList.children.length, el = document.getElementById('sum-family');
@@ -20877,6 +20908,7 @@
       if(el.dataset.overridden === '1') return;
       if(probandOrg){ el.textContent = probandOrg; el.dataset.value = probandOrg; el.classList.add('filled'); }
       else { el.textContent = el.dataset.ph || t('ph.select'); el.classList.remove('filled'); delete el.dataset.value; }
+      paintSelClear(el);
     });
   }
 
@@ -20886,6 +20918,7 @@
      Half-siblings / "Other" can't be auto-placed, so they're listed, not drawn. */
   function renderPedigree(){
     var host = document.getElementById('pedigree');
+    if(!host) return;   // pedigree removed with the 2026-09-08 family redesign; callers are harmless
     var parents=[], sibs=[], kids=[], other=[];
     famList.querySelectorAll('.frow').forEach(function(row){
       var rel = row.querySelector('[data-fam="relation"]');
@@ -21095,13 +21128,11 @@
       if(chev) chev.textContent = sec.classList.contains('collapsed') ? t('ui.expand') : t('ui.collapse');
     });
   }
-  /* the only conditional requirements today: a family member marked "will be sequenced"
-     needs a real identifier + issuing site. Everything else is the core gate. */
+  /* every relative added to the family analysis is being sequenced, so each needs a real
+     identifier, patient organization and date of birth. Everything else is the core gate. */
   function validateConditionals(){
     var problems = [];
     famList.querySelectorAll('.frow').forEach(function(row){
-      var seq = row.querySelector('[data-fam-seq]');
-      if(!seq || !seq.classList.contains('on')) return;
       var idc = row.querySelector('[data-fam-seq-id]');
       var org = row.querySelector('[data-fam-seq-org]');
       var dob = row.querySelector('[data-fam-seq-dob]');
@@ -21156,6 +21187,7 @@
       var key = el.getAttribute('data-sel');
       if(el.classList.contains('multi')){ renderChips(el, key); return; }
       if(el.classList.contains('filled') && el.dataset.value) el.textContent = optLabel(key, el.dataset.value);
+      paintSelClear(el);
     });
     document.querySelectorAll('[data-fam="relation"]').forEach(function(el){
       if(el.classList.contains('filled') && el.dataset.value) el.textContent = optLabel('relation', el.dataset.value);
