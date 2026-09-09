@@ -346,6 +346,8 @@
   .prow.onsetrow .pname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .prow .box{margin-top:1px}
   .prow .pid{font-size:11px;color:var(--faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;flex:0 0 auto}
+  .prow .ptext{flex:1 1 auto;min-width:0}
+  .prow .ptext .pname{margin-right:6px}   /* gap before the trailing HP id */
   /* the run a search matched */
   .prow .hit{background:#e9edf2;border-radius:3px;padding:0 2px}
   .prow .onset{margin-left:auto;flex:0 0 auto;display:flex;align-items:center;gap:6px}
@@ -616,13 +618,11 @@
 
       <!-- 4. Everything clinical that isn't a phenotype — all optional, hence the title
            (split out of section 3 on 2026-09-08) -->
-      <!-- collapsed by default (2026-09-08): section 4 is entirely optional, so it starts hidden;
-           refreshChevrons() relabels the chevron to "expand" at init from the .collapsed state -->
-      <section class="sec collapsed">
+      <section class="sec">
         <header><span class="n">4</span><h2 data-i18n="sec.otherClinical">Other clinical information (optional)</h2><span class="chev" data-i18n="ui.collapse">－ collapse</span></header>
         <div class="body">
           <div class="grid">
-              <div class="f"><label><span data-i18n="lbl.consang">Consanguinity</span> <span class="key">(obs: consanguinity)</span></label><div class="seg" data-seg="consang"><span data-val="Yes" data-i18n="yn.Yes">Yes</span><span data-val="No" data-i18n="yn.No">No</span><span class="on" data-val="Unknown" data-i18n="yn.Unknown">Unknown</span></div></div>
+              <div class="f"><label><span data-i18n="lbl.consang">Consanguinity</span> <span class="key">(obs: consanguinity)</span></label><div class="seg" data-seg="consang"><span data-val="Yes" data-i18n="yn.Yes">Yes</span><span data-val="No" data-i18n="yn.No">No</span><span data-val="Unknown" data-i18n="yn.Unknown">Unknown</span></div></div>
               <div class="f"><label><span data-i18n="lbl.ancestry">Ethnicities</span> <span class="key">(ethnicity_codes)</span></label><div class="ctrl select" tabindex="0" data-sel="ancestry" data-i18n-ph="ph.select">Select…</div></div>
               <!-- the standardized indication sits directly above the free-text note: one is the
                    coded answer, the other the prose around it (moved here 2026-09-08) -->
@@ -20374,11 +20374,15 @@
     var lab = document.createElement('label'); lab.className = 'check' + (checked ? ' on' : '');
     var box = document.createElement('span'); box.className = 'box'; lab.appendChild(box);
     var shown = termLabel(id);
+    /* name + id share one inline-flowing box so the HP id trails the text (and drops to the
+       second line with it) instead of floating to the right when the label wraps */
+    var txt = document.createElement('span'); txt.className = 'ptext';
     var nm = document.createElement('span'); nm.className = 'pname'; nm.dataset.pheno = id;
     nm.title = shown;                              // the whole term, for the ellipsized ones
-    nm.appendChild(markMatch(shown, q || '')); lab.appendChild(nm);
+    nm.appendChild(markMatch(shown, q || '')); txt.appendChild(nm);
     var ids = document.createElement('span'); ids.className = 'pid';
-    ids.appendChild(markMatch(id, q || '')); lab.appendChild(ids);
+    ids.appendChild(markMatch(id, q || '')); txt.appendChild(ids);
+    lab.appendChild(txt);
     row.appendChild(lab);
     if(!crossDisabled){ lab.addEventListener('click', function(e){
       e.preventDefault();
@@ -21028,7 +21032,7 @@
      no longer inherited from the ordering site. Phenotypes & family are optional. */
   /* Clinical context is split across three rail rows, each on its own line. */
   function syncClinicalRows(){
-    /* consanguinity — always has a value; ink it once it leaves the Unknown default */
+    /* consanguinity — no default now; « — » until a value is picked, inked once it is Yes/No */
     var cons = document.querySelector('[data-seg="consang"] .on');
     var cEl = document.getElementById('sum-consang');
     cEl.textContent = cons ? t('yn.'+cons.dataset.val) : '—';
